@@ -360,7 +360,51 @@ $('#swap-wh').addEventListener('click', () => {
   $('#docH').value = w;
   update();
 });
-$('#units').addEventListener('change', () => {
+const UNIT_PRECISION = { in: 3, mm: 2 };
+const numericInputSelectors = [
+  '#sheetW',
+  '#sheetH',
+  '#docW',
+  '#docH',
+  '#gutH',
+  '#gutV',
+  '#mTop',
+  '#mRight',
+  '#mBottom',
+  '#mLeft',
+  '#npTop',
+  '#npRight',
+  '#npBottom',
+  '#npLeft',
+];
+
+function convertInputs(fromUnits, toUnits) {
+  if (fromUnits === toUnits) return;
+  const factor =
+    fromUnits === 'in' && toUnits === 'mm'
+      ? MM_PER_INCH
+      : fromUnits === 'mm' && toUnits === 'in'
+      ? 1 / MM_PER_INCH
+      : null;
+  if (!factor) return;
+  const precision = UNIT_PRECISION[toUnits] ?? 3;
+  numericInputSelectors.forEach((selector) => {
+    const el = $(selector);
+    if (!el) return;
+    const raw = el.value;
+    if (raw === '' || raw == null) return;
+    const num = Number(raw);
+    if (!Number.isFinite(num)) return;
+    const converted = num * factor;
+    el.value = converted.toFixed(precision);
+  });
+}
+
+let currentUnitsSelection = $('#units').value;
+$('#units').addEventListener('change', (e) => {
+  const nextUnits = e.target.value;
+  convertInputs(currentUnitsSelection, nextUnits);
+  currentUnitsSelection = nextUnits;
   status('Units changed');
   update();
 });
