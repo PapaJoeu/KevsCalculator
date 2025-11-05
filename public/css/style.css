@@ -1,0 +1,328 @@
+/* =============================================
+ * Global Styles & Theme Tokens
+ * ---------------------------------------------
+ * Defines the color system, typography, and
+ * overall layout helpers shared across the UI.
+ * ============================================= */
+:root {
+  --bg: #0f1115;
+  --panel: #171a21;
+  --muted: #8892a6;
+  --text: #e6e9ef;
+  --accent: #5eead4;
+  --danger: #ef4444;
+  --ok: #22c55e;
+  --warn: #f59e0b;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font: 14px/1.45 system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+}
+
+h1,
+h2,
+h3 {
+  margin: 0 0 0.5rem;
+}
+
+h1 {
+  font-size: 1.25rem;
+}
+
+h2 {
+  font-size: 1.05rem;
+  color: #cbd5e1;
+}
+
+h3 {
+  font-size: 0.95rem;
+  color: #cbd5e1;
+}
+
+/* =============================================
+ * Layout Containers
+ * ---------------------------------------------
+ * Grid helpers and panels that shape the main
+ * calculator layout.
+ * ============================================= */
+.wrap {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 16px 18px 24px;
+}
+
+.grid {
+  display: grid;
+  gap: 12px;
+}
+
+.grid.cols-2 {
+  grid-template-columns: 360px 1fr;
+}
+
+.panel {
+  background: var(--panel);
+  border: 1px solid #222632;
+  border-radius: 14px;
+  padding: 14px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.25);
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+
+.row4 {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(120px, 1fr));
+  gap: 6px;
+}
+
+.rowAuto {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 6px;
+}
+
+/* =============================================
+ * Form Elements
+ * ---------------------------------------------
+ * Input, select, and button styling to maintain
+ * consistent controls across all panels.
+ * ============================================= */
+label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  padding: 4px 6px;
+  background: transparent;
+  border: 1px solid #283041;
+  border-radius: 8px;
+}
+
+label span {
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+label input {
+  all: unset;
+  background: #0b0d12;
+  border: 1px solid #1b2030;
+  padding: 6px 8px;
+  border-radius: 8px;
+  width: 100px;
+  color: var(--text);
+  text-align: right;
+}
+
+select {
+  background: #0b0d12;
+  border: 1px solid #1b2030;
+  padding: 6px 8px;
+  border-radius: 8px;
+  color: var(--text);
+  width: 100%;
+}
+
+.k {
+  font-variant-numeric: tabular-nums;
+}
+
+.toolbar {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+  margin: 0.5rem 0 0;
+}
+
+.btn {
+  appearance: none;
+  border: 1px solid #263041;
+  background: #0d1117;
+  color: var(--text);
+  padding: 8px 10px;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.btn:hover {
+  border-color: #334155;
+  background: #101522;
+}
+
+.btn.primary {
+  border-color: #1f8a8a;
+  background: #0e1b1b;
+}
+
+.btn.ghost {
+  background: transparent;
+}
+
+/* =============================================
+ * Tabs & Cards
+ * ---------------------------------------------
+ * Styles for the output area, including tabs,
+ * summary cards, and supporting tables.
+ * ============================================= */
+.tabbar {
+  display: flex;
+  gap: 6px;
+  border-bottom: 1px solid #1f2430;
+  margin: -14px -14px 10px;
+  padding: 0 10px;
+}
+
+.tab {
+  padding: 10px 12px;
+  border-bottom: 2px solid transparent;
+  color: #c0c6d4;
+  cursor: pointer;
+}
+
+.tab.active {
+  color: var(--text);
+  border-color: var(--accent);
+}
+
+.tabpanes > section {
+  display: none;
+}
+
+.tabpanes > section.active {
+  display: block;
+}
+
+.summary {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.card {
+  background: #0e1219;
+  border: 1px solid #1c2230;
+  border-radius: 12px;
+  padding: 12px;
+}
+
+.card .v {
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table th,
+.table td {
+  padding: 8px 10px;
+  border-bottom: 1px dashed #223;
+}
+
+.table th {
+  text-align: left;
+  color: #cbd5e1;
+}
+
+/* =============================================
+ * Preview & Legend
+ * ---------------------------------------------
+ * Visual display for the SVG preview and legend
+ * describing key color codes.
+ * ============================================= */
+.preview {
+  background: #0b0d12;
+  border: 1px solid #1b2030;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 360px;
+}
+
+.legend {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  font-size: 0.9rem;
+  margin-top: 8px;
+  color: #cbd5e1;
+}
+
+.dot {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+  margin-right: 6px;
+}
+
+.dot.grid {
+  background: #26323e;
+}
+
+.dot.doc {
+  background: #64748b;
+}
+
+.dot.cut {
+  background: #22d3ee;
+}
+
+.dot.score {
+  background: #a78bfa;
+}
+
+/* =============================================
+ * Print Styles
+ * ---------------------------------------------
+ * Hide non-print content and relax layout rules
+ * when the document is printed.
+ * ============================================= */
+@media print {
+  body {
+    background: #fff;
+    color: #000;
+  }
+
+  .no-print {
+    display: none !important;
+  }
+
+  .print-only {
+    display: block !important;
+  }
+
+  .panel {
+    border: none;
+    box-shadow: none;
+  }
+
+  .wrap {
+    max-width: none;
+  }
+}
+
+.print-only {
+  display: none;
+}
