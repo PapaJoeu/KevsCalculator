@@ -1,0 +1,10 @@
+# Dependency directories
+node_modules/
+
+# Build outputs
+/dist
+/build
+
+# OS-specific cruft
+.DS_Store
+Thumbs.db
