@@ -132,6 +132,18 @@ h3 {
   box-shadow: 0 4px 24px rgba(0, 0, 0, 0.25);
 }
 
+.output-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.output-preview {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
 .row {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
@@ -264,6 +276,10 @@ select {
   border-bottom: 1px solid #1f2430;
   margin: -14px -14px 10px;
   padding: 0 10px;
+}
+
+.output-tabs {
+  margin: 0 -14px 10px;
 }
 
 .tab {
