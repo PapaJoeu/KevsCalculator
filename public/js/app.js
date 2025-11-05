@@ -103,12 +103,18 @@ function applyCountOverrides(layout, desiredAcross, desiredDown) {
 }
 
 function generateEdgePositions(startOffset, docSpan, gutterSpan, docCount) {
+  if (docCount <= 0) return [];
   const out = [];
   const g = clampToZero(gutterSpan);
+  let lead = startOffset;
+  out.push(lead);
   for (let i = 0; i < docCount; i++) {
-    const lead = startOffset + i * (docSpan + g);
     const trail = lead + docSpan;
-    out.push(lead, trail);
+    out.push(trail);
+    if (i < docCount - 1) {
+      lead = trail + g;
+      if (g > 0) out.push(lead);
+    }
   }
   return out;
 }
@@ -126,6 +132,14 @@ function generateScorePositions(startOffset, docSpan, gutterSpan, docCount, offs
     offs.forEach((o) => out.push(s + docSpan * o));
   }
   return out;
+}
+
+if (typeof console !== "undefined") {
+  const regressionPositions = generateEdgePositions(0, 1, 0, 2);
+  console.assert(
+    regressionPositions.length === 3 && new Set(regressionPositions).size === 3,
+    "Expected unique cut positions for zero gutter layouts."
+  );
 }
 
 const mapPositionsToReadout = (label, positions) =>
