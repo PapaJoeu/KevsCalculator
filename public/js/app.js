@@ -167,7 +167,6 @@ const readIntOptional = (id) => {
   const n = Math.max(1, Math.floor(Number(raw)));
   return Number.isFinite(n) ? n : null;
 };
-const isEmpty = (id) => (($(id).value ?? "").toString().trim() === "");
 const parseOffsets = (s) =>
   (s || "")
     .split(",")
@@ -177,23 +176,38 @@ const parseOffsets = (s) =>
     .filter((n) => Number.isFinite(n));
 const fmtIn = (inches) => `${inches.toFixed(3)} in / ${inchesToMillimeters(inches).toFixed(2)} mm`;
 
+const marginInputSelectors = ["#mTop", "#mRight", "#mBottom", "#mLeft"];
+let autoMarginMode = true;
+
+function setAutoMarginMode(enabled) {
+  autoMarginMode = Boolean(enabled);
+  marginInputSelectors.forEach((selector) => {
+    const el = $(selector);
+    if (!el) return;
+    if (autoMarginMode) {
+      el.dataset.auto = "true";
+    } else {
+      delete el.dataset.auto;
+    }
+  });
+}
+
 function currentInputs() {
   const units = $("#units").value;
   const u = (v) => (units === "mm" ? (Number(v) || 0) / MM_PER_INCH : Number(v) || 0);
-  const autoMargins = isEmpty("#mTop") && isEmpty("#mRight") && isEmpty("#mBottom") && isEmpty("#mLeft");
+  const autoMargins = autoMarginMode;
+  const rawMargins = {
+    top: u(readNumber("#mTop")),
+    right: u(readNumber("#mRight")),
+    bottom: u(readNumber("#mBottom")),
+    left: u(readNumber("#mLeft")),
+  };
   return {
     units,
     sheet: { width: u(readNumber("#sheetW")), height: u(readNumber("#sheetH")) },
     document: { width: u(readNumber("#docW")), height: u(readNumber("#docH")) },
     gutter: { horizontal: u(readNumber("#gutH")), vertical: u(readNumber("#gutV")) },
-    margins: autoMargins
-      ? { top: 0, right: 0, bottom: 0, left: 0 }
-      : {
-          top: u(readNumber("#mTop")),
-          right: u(readNumber("#mRight")),
-          bottom: u(readNumber("#mBottom")),
-          left: u(readNumber("#mLeft")),
-        },
+    margins: autoMargins ? { top: 0, right: 0, bottom: 0, left: 0 } : rawMargins,
     nonPrintable: {
       top: u(readNumber("#npTop")),
       right: u(readNumber("#npRight")),
@@ -238,7 +252,7 @@ function update() {
   let layout = calculateLayout(ctx);
   layout = applyCountOverrides(layout, inp.forceAcross, inp.forceDown);
 
-  // Auto-center margins if blank
+  // Auto-center margins while auto mode is active
   if (inp.autoMargins) {
     const effW = ctx.sheet.effectiveWidth,
       effH = ctx.sheet.effectiveHeight;
@@ -368,15 +382,25 @@ const numericInputSelectors = [
   '#docH',
   '#gutH',
   '#gutV',
-  '#mTop',
-  '#mRight',
-  '#mBottom',
-  '#mLeft',
+  ...marginInputSelectors,
   '#npTop',
   '#npRight',
   '#npBottom',
   '#npLeft',
 ];
+
+marginInputSelectors.forEach((selector) => {
+  const el = $(selector);
+  if (!el) return;
+  ['input', 'change'].forEach((evt) =>
+    el.addEventListener(evt, () => {
+      if (!autoMarginMode) return;
+      setAutoMarginMode(false);
+    })
+  );
+});
+
+setAutoMarginMode(autoMarginMode);
 
 function convertInputs(fromUnits, toUnits) {
   if (fromUnits === toUnits) return;
