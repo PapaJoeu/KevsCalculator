@@ -12,6 +12,7 @@ let panelEl = null;
 let stageEl = null;
 let downloadButton = null;
 let printButton = null;
+let pdfButton = null;
 let layoutDetailsButton = null;
 const summaryEls = {
   sheet: null,
@@ -116,6 +117,9 @@ function updateActionState() {
   if (printButton) {
     printButton.disabled = !hasSvg;
   }
+  if (pdfButton) {
+    pdfButton.disabled = !hasSvg;
+  }
 }
 
 function serializeSvg(svg) {
@@ -182,6 +186,56 @@ function downloadLayoutDetailsSvg() {
   URL.revokeObjectURL(url);
 }
 
+function downloadPdf() {
+  if (!state.layout) return;
+  const width = state.layout.sheet?.rawWidth ?? 0;
+  const height = state.layout.sheet?.rawHeight ?? 0;
+  if (width <= 0 || height <= 0) return;
+
+  const visualizerSvg = createPrintableSvg(state.layout, state.finishing, { visibleLayers: state.layers });
+  const programSequence = state.programSequence ?? calculateProgramSequence(state.layout);
+  const detailsSvg = createLayoutDetailsSvg({
+    layout: state.layout,
+    finishing: state.finishing,
+    context: state.context,
+    programSequence,
+  });
+
+  if (!visualizerSvg || !detailsSvg) return;
+
+  const visualizerMarkup = serializeSvg(visualizerSvg);
+  const detailsMarkup = serializeSvg(detailsSvg);
+
+  const pdfWindow = window.open('', '_blank');
+  if (!pdfWindow) {
+    console.warn('Unable to open PDF export window. Check your popup blocker settings.');
+    return;
+  }
+
+  const styles = `@page { size: ${width}in ${height}in; margin: 0; }
+body { margin: 0; background: #fff; color: #000; }
+.pdf-page { width: ${width}in; height: ${height}in; display: flex; align-items: center; justify-content: center; page-break-after: always; }
+.pdf-page:last-of-type { page-break-after: auto; }
+.pdf-page svg { width: ${width}in; height: ${height}in; }`;
+
+  const html = `<!DOCTYPE html><html><head><title>Layout PDF Export</title><style>${styles}</style></head><body>`
+    + `<div class="pdf-page">${visualizerMarkup}</div>`
+    + `<div class="pdf-page">${detailsMarkup}</div>`
+    + '</body></html>';
+
+  pdfWindow.document.write(html);
+  pdfWindow.document.close();
+
+  setTimeout(() => {
+    try {
+      pdfWindow.focus();
+      pdfWindow.print();
+    } catch (error) {
+      console.warn('Unable to launch PDF print dialog', error);
+    }
+  }, 200);
+}
+
 function openPrintDialog() {
   if (!state.layout) return;
   const svg = createPrintableSvg(state.layout, state.finishing, { visibleLayers: state.layers });
@@ -229,6 +283,9 @@ function bindEvents() {
   if (layoutDetailsButton) {
     layoutDetailsButton.addEventListener('click', downloadLayoutDetailsSvg);
   }
+  if (pdfButton) {
+    pdfButton.addEventListener('click', downloadPdf);
+  }
   if (printButton) {
     printButton.addEventListener('click', openPrintDialog);
   }
@@ -240,6 +297,7 @@ function cacheElements() {
   stageEl = panelEl.querySelector('#printPreviewStage');
   downloadButton = panelEl.querySelector('#printDownloadSvg');
   layoutDetailsButton = panelEl.querySelector('#printDownloadLayoutDetails');
+  pdfButton = panelEl.querySelector('#printDownloadPdf');
   printButton = panelEl.querySelector('#printOpenPrintDialog');
   summaryEls.sheet = panelEl.querySelector('#printSheetSummary');
   summaryEls.document = panelEl.querySelector('#printDocumentSummary');

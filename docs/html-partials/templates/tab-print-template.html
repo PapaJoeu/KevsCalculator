@@ -13,13 +13,13 @@
   <div class="print-tab stack stack--spacious">
     <div class="grid print-layout-grid">
       <section class="data-card stack print-controls-card">
-        <div class="stack stack--snug">
+        <header class="stack stack--snug">
           <h3>Printable Visualizer</h3>
           <p class="text-muted-detail">
-            Generate a 1:1 scale version of the sheet visualizer that you can download as SVG or send directly
-            to a PDF print device. Browser print margins are removed so the output matches the physical sheet size.
+            Export an accurate 1:1 version of the sheet visualizer. Choose the layers you want, download SVGs, or
+            create a combined PDF package to share or archive.
           </p>
-        </div>
+        </header>
 
         <dl class="print-summary-grid">
           <div>
@@ -86,10 +86,24 @@
           </div>
         </fieldset>
 
-        <div class="print-actions">
-          <button type="button" class="action-button" id="printDownloadSvg" disabled>Download SVG</button>
-          <button type="button" class="action-button" id="printDownloadLayoutDetails" disabled>Export Layout Details</button>
-          <button type="button" class="action-button action-button-primary" id="printOpenPrintDialog" disabled>Print to PDF</button>
+        <div class="print-actions stack stack--tight">
+          <div class="print-action-row">
+            <button type="button" class="action-button action-button-primary" id="printDownloadPdf" disabled>
+              Export 2-page PDF
+            </button>
+            <button type="button" class="action-button" id="printOpenPrintDialog" disabled>
+              Open print dialog
+            </button>
+          </div>
+          <div class="print-action-row">
+            <button type="button" class="action-button" id="printDownloadSvg" disabled>Download layout SVG</button>
+            <button type="button" class="action-button" id="printDownloadLayoutDetails" disabled>
+              Download layout details SVG
+            </button>
+          </div>
+          <p class="print-actions-hint text-muted-detail">
+            The PDF includes the visualizer and the detailed program sheet on separate pages sized to the selected sheet.
+          </p>
         </div>
       </section>
 
