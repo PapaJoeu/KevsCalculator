@@ -1015,3 +1015,187 @@ select {
     scroll-behavior: auto !important;
   }
 }
+
+/* =============================================
+ * Print Tab — Actual Size Visualizer
+ * ============================================= */
+.print-layout-grid {
+  gap: 18px;
+}
+
+@media (min-width: 960px) {
+  .print-layout-grid {
+    grid-template-columns: minmax(280px, 340px) minmax(0, 1fr);
+  }
+}
+
+.print-controls-card {
+  gap: 18px;
+}
+
+.print-summary-grid {
+  margin: 0;
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+}
+
+.print-summary-grid dt {
+  margin: 0;
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+.print-summary-grid dd {
+  margin: 2px 0 0;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-primary);
+}
+
+.print-layer-selector {
+  border: 1px solid var(--border-default);
+  border-radius: 10px;
+  padding: 12px;
+  display: grid;
+  gap: 12px;
+}
+
+.print-layer-selector legend {
+  padding: 0 6px;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
+.print-layer-options {
+  display: grid;
+  gap: 8px;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+}
+
+.print-layer-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border: 1px solid var(--border-default);
+  border-radius: 8px;
+  background: var(--surface-overlay);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: border-color 0.2s ease, color 0.2s ease, background-color 0.2s ease;
+}
+
+.print-layer-option:hover {
+  border-color: var(--border-highlight);
+  color: var(--text-primary);
+}
+
+.print-layer-option input[type='checkbox'] {
+  margin: 0;
+  accent-color: var(--accent-primary);
+}
+
+.print-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.print-preview-card {
+  gap: 16px;
+}
+
+.print-preview-stage {
+  position: relative;
+  border: 1px solid var(--border-default);
+  border-radius: 12px;
+  background: var(--surface-overlay);
+  min-height: 280px;
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: auto;
+}
+
+.print-preview-sheet {
+  background: var(--surface-paper);
+  color: var(--text-inverse);
+  box-shadow: 0 0 0 1px var(--border-default), 0 24px 48px -32px var(--shadow-deep);
+  padding: 12px;
+}
+
+.print-preview-empty {
+  max-width: 360px;
+  text-align: center;
+  color: var(--text-secondary);
+  display: grid;
+  gap: 6px;
+}
+
+.print-preview-stage svg {
+  display: block;
+}
+
+.print-preview-stage svg .svg-line {
+  stroke-linecap: round;
+}
+
+.print-preview-stage svg .svg-sheet-outline {
+  fill: none;
+  stroke: #334155;
+  stroke-width: 1.5;
+}
+
+.print-preview-stage svg .svg-nonprintable-region {
+  fill: rgba(249, 115, 22, 0.28);
+  stroke: none;
+}
+
+.print-preview-stage svg .svg-printable-outline {
+  fill: none;
+  stroke: #f97316;
+  stroke-width: 1;
+}
+
+.print-preview-stage svg .svg-layout-area {
+  fill: none;
+  stroke: #38bdf8;
+  stroke-width: 1.5;
+}
+
+.print-preview-stage svg .svg-document-area {
+  fill: rgba(94, 234, 212, 0.18);
+  stroke: #5eead4;
+  stroke-width: 1;
+}
+
+.print-preview-stage svg .svg-cut-line {
+  stroke: #22d3ee;
+  stroke-width: 1;
+}
+
+.print-preview-stage svg .svg-slit-line {
+  stroke: #facc15;
+  stroke-width: 1;
+}
+
+.print-preview-stage svg .svg-score-line {
+  stroke: #a855f7;
+  stroke-width: 1;
+}
+
+.print-preview-stage svg .svg-perforation-line {
+  stroke: #fb7185;
+  stroke-width: 1;
+  stroke-dasharray: 6 4;
+}
+
+.print-preview-stage svg .svg-hole {
+  fill: color-mix(in srgb, var(--measure-hole) 12%, transparent);
+  stroke: var(--measure-hole);
+  stroke-width: 1;
+}

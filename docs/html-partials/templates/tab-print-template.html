@@ -1,31 +1,109 @@
 <!--
   Load timing:
-    - Cloned into #tab-print by docs/js/tabs/registry.hydrateTabPanel('print') following template injection during bootstrap.
+    - Cloned into #tab-print by docs/js/tabs/registry.hydrateTabPanel('print').
   Key selectors:
-    - Summary spans #pSheet, #pDoc, #pCounts, #pGutter, #pMargins within .summary-metrics-grid.
-    - #printTables container marked .print-only-content for duplicating tables ahead of window.print().
+    - #printPreviewStage hosts the generated 1:1 SVG preview.
+    - .print-layer-toggle checkboxes control layer visibility in the export.
+    - #printDownloadSvg and #printOpenPrintDialog trigger export actions.
   JS dependencies:
-    - docs/js/tabs/print.js updates summary spans and manages the printTables lifecycle before invoking browser print flows.
+    - docs/js/tabs/print.js manages rendering and export of the actual-size visualizer.
 -->
 
 <template id="tab-print-template">
-  <div class="grid grid--compact">
-    <div class="data-card">
-      <h3>Summary Snapshot</h3>
-      <p class="text-muted-detail">Review the calculated layout details without opening a print dialog.</p>
-      <div class="summary-metrics-grid">
-        <div>Sheet: <span class="summary-metric-value" id="pSheet">—</span></div>
-        <div>Doc: <span class="summary-metric-value" id="pDoc">—</span></div>
-        <div>Counts: <span class="summary-metric-value" id="pCounts">—</span></div>
-        <div>Gutter: <span class="summary-metric-value" id="pGutter">—</span></div>
-        <div>Margins: <span class="summary-metric-value" id="pMargins">—</span></div>
-      </div>
-    </div>
-    <div class="data-card">
-      <h3>What prints?</h3>
-      <p class="text-muted-detail">Summary cards and finishing tables remain available for browser printing.</p>
-      <p class="text-muted-detail">Use this tab as a quick reference for layout specs shared with production.</p>
+  <div class="print-tab stack stack--spacious">
+    <div class="grid print-layout-grid">
+      <section class="data-card stack print-controls-card">
+        <div class="stack stack--snug">
+          <h3>Printable Visualizer</h3>
+          <p class="text-muted-detail">
+            Generate a 1:1 scale version of the sheet visualizer that you can download as SVG or send directly
+            to a PDF print device. Browser print margins are removed so the output matches the physical sheet size.
+          </p>
+        </div>
+
+        <dl class="print-summary-grid">
+          <div>
+            <dt>Sheet</dt>
+            <dd id="printSheetSummary">—</dd>
+          </div>
+          <div>
+            <dt>Document</dt>
+            <dd id="printDocumentSummary">—</dd>
+          </div>
+          <div>
+            <dt>Counts</dt>
+            <dd id="printCountsSummary">—</dd>
+          </div>
+          <div>
+            <dt>Gutter</dt>
+            <dd id="printGutterSummary">—</dd>
+          </div>
+          <div>
+            <dt>Margins</dt>
+            <dd id="printMarginSummary">—</dd>
+          </div>
+        </dl>
+
+        <fieldset class="print-layer-selector">
+          <legend>Include layers</legend>
+          <div class="print-layer-options">
+            <label class="print-layer-option">
+              <input type="checkbox" class="print-layer-toggle" data-layer="sheet" checked />
+              <span>Sheet outline</span>
+            </label>
+            <label class="print-layer-option">
+              <input type="checkbox" class="print-layer-toggle" data-layer="nonPrintable" checked />
+              <span>Non-printable &amp; printable border</span>
+            </label>
+            <label class="print-layer-option">
+              <input type="checkbox" class="print-layer-toggle" data-layer="layout" checked />
+              <span>Layout area</span>
+            </label>
+            <label class="print-layer-option">
+              <input type="checkbox" class="print-layer-toggle" data-layer="docs" checked />
+              <span>Documents</span>
+            </label>
+            <label class="print-layer-option">
+              <input type="checkbox" class="print-layer-toggle" data-layer="cuts" checked />
+              <span>Cuts</span>
+            </label>
+            <label class="print-layer-option">
+              <input type="checkbox" class="print-layer-toggle" data-layer="slits" checked />
+              <span>Slits</span>
+            </label>
+            <label class="print-layer-option">
+              <input type="checkbox" class="print-layer-toggle" data-layer="scores" checked />
+              <span>Scores</span>
+            </label>
+            <label class="print-layer-option">
+              <input type="checkbox" class="print-layer-toggle" data-layer="perforations" checked />
+              <span>Perforations</span>
+            </label>
+            <label class="print-layer-option">
+              <input type="checkbox" class="print-layer-toggle" data-layer="holes" checked />
+              <span>Holes</span>
+            </label>
+          </div>
+        </fieldset>
+
+        <div class="print-actions">
+          <button type="button" class="action-button" id="printDownloadSvg" disabled>Download SVG</button>
+          <button type="button" class="action-button action-button-primary" id="printOpenPrintDialog" disabled>Print to PDF</button>
+        </div>
+      </section>
+
+      <section class="data-card stack print-preview-card">
+        <div class="print-preview-stage" id="printPreviewStage" aria-live="polite">
+          <div class="print-preview-empty">
+            <p>The printable visualizer is ready once a layout is calculated.</p>
+            <p>Adjust inputs on the other tabs, then return here to export.</p>
+          </div>
+        </div>
+        <p class="text-muted-detail">
+          The preview uses physical measurements (<code>in</code>/<code>mm</code>) so it may be larger than the screen.
+          Use your browser zoom controls to inspect details, but exported files always stay at 100% scale.
+        </p>
+      </section>
     </div>
   </div>
-  <div class="print-only-content" id="printTables"></div>
 </template>

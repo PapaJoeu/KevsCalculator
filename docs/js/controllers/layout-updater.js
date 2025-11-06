@@ -24,8 +24,7 @@ import {
   inchesToMillimeters,
 } from '../utils/units.js';
 import { drawSVG } from '../rendering/svg-preview-renderer.js';
-
-const fmtIn = (inches) => `${inches.toFixed(3)} in / ${inchesToMillimeters(inches).toFixed(2)} mm`;
+import { updatePrintableVisualizer } from '../tabs/print.js';
 
 function updateDocCountField(selector, count) {
   const el = $(selector);
@@ -175,13 +174,7 @@ export function update() {
   fillTable($('#tblProgramSequence tbody'), programSequence, 'program-sequence');
   fillHoleTable($('#tblHoles tbody'), fin.holes ?? []);
 
-  $('#pSheet').textContent = fmtIn(ctx.sheet.rawWidth) + ' × ' + fmtIn(ctx.sheet.rawHeight);
-  $('#pDoc').textContent = fmtIn(ctx.document.width) + ' × ' + fmtIn(ctx.document.height);
-  $('#pCounts').textContent = `${layout.counts.across} × ${layout.counts.down} = ${layout.counts.across * layout.counts.down}`;
-  $('#pGutter').textContent = `${fmtIn(ctx.gutter.horizontal)} (H), ${fmtIn(ctx.gutter.vertical)} (V)`;
-  $('#pMargins').textContent = `T ${fmtIn(ctx.margins.top)}, R ${fmtIn(ctx.margins.right)}, B ${fmtIn(ctx.margins.bottom)}, L ${fmtIn(
-    ctx.margins.left
-  )}`;
+  updatePrintableVisualizer({ layout, finishing: fin, context: ctx });
 
   drawSVG(layout, fin);
   status('Updated');
