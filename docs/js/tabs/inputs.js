@@ -502,16 +502,4 @@ export function enableAutoMarginMode(enabled) {
   setAutoMarginMode(enabled);
 }
 
-export function getCurrentUnitsSelection() {
-  return currentUnitsSelection;
-}
-
-export function setCurrentUnitsSelection(units) {
-  currentUnitsSelection = units;
-}
-
-export function getNumericInputSelectors() {
-  return [...numericInputSelectors];
-}
-
 export default inputsTab;
