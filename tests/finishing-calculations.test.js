@@ -1,0 +1,145 @@
+import { describe, it, expect } from 'vitest';
+import {
+  generateEdgePositions,
+  generateScorePositions,
+  mapPositionsToReadout,
+  calculateFinishing,
+} from '../docs/js/calculations/finishing-calculations.js';
+
+const mm = (inches) => Number((inches * 25.4).toFixed(3));
+
+describe('finishing calculations integration', () => {
+  it('produces mapped cut, slit, score, and perforation readouts for a representative layout', () => {
+    const layout = {
+      layoutArea: { originX: 0.25, originY: 0.5 },
+      counts: { across: 3, down: 2 },
+      document: { width: 3.5, height: 2 },
+      gutter: { horizontal: 0.125, vertical: 0.25 },
+    };
+
+    const options = {
+      scoreHorizontal: [0.25, 0.75],
+      scoreVertical: [0.5],
+      perforationHorizontal: [0.5],
+      perforationVertical: [0.25, 0.75],
+    };
+
+    const result = calculateFinishing(layout, options);
+
+    const expectedCuts = [0.5, 2.5, 2.75, 4.75];
+    const expectedSlits = [0.25, 3.75, 3.875, 7.375, 7.5, 11];
+    const expectedHorizontalScores = [1, 2, 3.25, 4.25];
+    const expectedVerticalScores = [2, 5.625, 9.25];
+    const expectedHorizontalPerfs = [1.5, 3.75];
+    const expectedVerticalPerfs = [1.125, 2.875, 4.75, 6.5, 8.375, 10.125];
+
+    expect(result.cuts).toEqual(
+      expectedCuts.map((value, index) => ({
+        label: `Cut ${index + 1}`,
+        inches: Number(value.toFixed(3)),
+        millimeters: mm(value),
+      }))
+    );
+
+    expect(result.slits).toEqual(
+      expectedSlits.map((value, index) => ({
+        label: `Slit ${index + 1}`,
+        inches: Number(value.toFixed(3)),
+        millimeters: mm(value),
+      }))
+    );
+
+    expect(result.scores.horizontal).toEqual(
+      expectedHorizontalScores.map((value, index) => ({
+        label: `Score ${index + 1}`,
+        inches: Number(value.toFixed(3)),
+        millimeters: mm(value),
+      }))
+    );
+
+    expect(result.scores.vertical).toEqual(
+      expectedVerticalScores.map((value, index) => ({
+        label: `Score ${index + 1}`,
+        inches: Number(value.toFixed(3)),
+        millimeters: mm(value),
+      }))
+    );
+
+    expect(result.perforations.horizontal).toEqual(
+      expectedHorizontalPerfs.map((value, index) => ({
+        label: `Perforation ${index + 1}`,
+        inches: Number(value.toFixed(3)),
+        millimeters: mm(value),
+      }))
+    );
+
+    expect(result.perforations.vertical).toEqual(
+      expectedVerticalPerfs.map((value, index) => ({
+        label: `Perforation ${index + 1}`,
+        inches: Number(value.toFixed(3)),
+        millimeters: mm(value),
+      }))
+    );
+
+    const readouts = [
+      ...result.cuts,
+      ...result.slits,
+      ...result.scores.horizontal,
+      ...result.scores.vertical,
+      ...result.perforations.horizontal,
+      ...result.perforations.vertical,
+    ];
+
+    readouts.forEach(({ inches, millimeters }) => {
+      expect(millimeters).toBeCloseTo(mm(inches), 3);
+    });
+  });
+});
+
+describe('finishing calculation helpers edge cases', () => {
+  it('returns empty arrays for zero documents', () => {
+    expect(generateEdgePositions(0, 2, 0.5, 0)).toEqual([]);
+    expect(generateScorePositions(0, 2, 0.5, 0, [0.5])).toEqual([]);
+
+    const layout = {
+      layoutArea: { originX: 0, originY: 0 },
+      counts: { across: 0, down: 0 },
+      document: { width: 3, height: 2 },
+      gutter: { horizontal: 0, vertical: 0 },
+    };
+
+    const result = calculateFinishing(layout, {
+      scoreHorizontal: [0.5],
+      scoreVertical: [0.5],
+    });
+
+    expect(result.cuts).toEqual([]);
+    expect(result.slits).toEqual([]);
+    expect(result.scores.horizontal).toEqual([]);
+    expect(result.scores.vertical).toEqual([]);
+    expect(result.perforations.horizontal).toEqual([]);
+    expect(result.perforations.vertical).toEqual([]);
+  });
+
+  it('sanitizes offsets and handles zero gutters without duplicate cuts', () => {
+    const sanitized = generateScorePositions(1, 2, 0.5, 2, [
+      -1,
+      0,
+      0.2,
+      '0.8',
+      'invalid',
+      1.2,
+      null,
+    ]);
+
+    expect(sanitized).toEqual([1, 1, 1.4, 2.6, 3, 1, 3.5, 3.5, 3.9, 5.1, 5.5, 3.5]);
+
+    const zeroGutterEdges = generateEdgePositions(0, 1, 0, 2);
+    expect(new Set(zeroGutterEdges).size).toBe(zeroGutterEdges.length);
+
+    const readout = mapPositionsToReadout('Cut', zeroGutterEdges);
+    readout.forEach(({ inches, millimeters }) => {
+      expect(millimeters).toBeCloseTo(mm(inches), 3);
+    });
+  });
+});
