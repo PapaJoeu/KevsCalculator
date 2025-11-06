@@ -1,7 +1,13 @@
 import { sheetPresets, documentPresets, gutterPresets } from '../data/input-presets.js';
 import { DEFAULT_INPUTS } from '../config/defaults.js';
 import { $ } from '../utils/dom.js';
-import { MM_PER_INCH, convertForUnits, describePresetValue } from '../utils/units.js';
+import {
+  MM_PER_INCH,
+  convertForUnits,
+  describePresetValue,
+  formatUnitsValue,
+  getUnitsPrecision,
+} from '../utils/units.js';
 import { hydrateTabPanel } from './registry.js';
 
 const TAB_KEY = 'inputs';
@@ -21,7 +27,6 @@ const numericInputSelectors = [
 ];
 
 const UNIT_TO_SYSTEM = { in: 'imperial', mm: 'metric' };
-const UNIT_PRECISION = { in: 3, mm: 2 };
 const presetSelectionMemory = {
   sheet: { imperial: '', metric: '' },
   document: { imperial: '', metric: '' },
@@ -168,14 +173,6 @@ function showFreedomAlert() {
     });
 }
 
-const trimTrailingZeros = (str) => {
-  if (!str.includes('.')) return str;
-  const stripped = str.replace(/(\.\d*?[1-9])0+$/, '$1').replace(/\.0+$/, '');
-  return stripped === '' ? '0' : stripped;
-};
-
-const formatUnitValue = (value, precision) => trimTrailingZeros(Number(value || 0).toFixed(precision));
-
 function setAutoMarginMode(enabled) {
   autoMarginMode = Boolean(enabled);
   marginInputSelectors.forEach((selector) => {
@@ -295,7 +292,7 @@ function applyNumericInputAttributes(el, units) {
     }
     const numeric = Number(baseValue);
     if (!Number.isFinite(numeric)) return;
-    el.setAttribute(attr, formatUnitValue(numeric * MM_PER_INCH, 4));
+    el.setAttribute(attr, formatUnitsValue(numeric * MM_PER_INCH, 'mm', 4));
   });
 }
 
@@ -309,7 +306,7 @@ function applyNumericInputUnits(units) {
 
 function convertInputs(fromUnits, toUnits) {
   if (!toUnits) return;
-  const precision = UNIT_PRECISION[toUnits] ?? 3;
+  const precision = getUnitsPrecision(toUnits);
   if (fromUnits !== toUnits) {
     const factor =
       fromUnits === 'in' && toUnits === 'mm'
@@ -326,7 +323,7 @@ function convertInputs(fromUnits, toUnits) {
         const num = Number(raw);
         if (!Number.isFinite(num)) return;
         const converted = num * factor;
-        el.value = formatUnitValue(converted, precision);
+        el.value = formatUnitsValue(converted, toUnits, precision);
       });
     }
   }
@@ -350,7 +347,7 @@ function handleUnitCelebration(units) {
 
 function applyDefaultInputs() {
   const { units, sheet, document, gutter, nonPrintable } = DEFAULT_INPUTS;
-  const precision = UNIT_PRECISION[units] ?? 3;
+  const precision = getUnitsPrecision(units);
   const setValue = (selector, value) => {
     const el = $(selector);
     if (!el) return;
@@ -358,7 +355,7 @@ function applyDefaultInputs() {
       el.value = '';
       return;
     }
-    el.value = formatUnitValue(value, precision);
+    el.value = formatUnitsValue(value, units, precision);
   };
 
   $('#units').value = units;

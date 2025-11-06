@@ -15,8 +15,8 @@ import {
   clampToZero,
   toNumber,
   inchesToMillimeters,
+  formatInchesForUnits,
   formatMeasurement,
-  formatMeasurementValue,
 } from './utils/units.js';
 import {
   $,
@@ -322,11 +322,11 @@ function update() {
     });
     layout = calculateLayout(ctx);
     layout = applyCountOverrides(layout, inp.forceAcross, inp.forceDown);
-    const f = (inches) => formatMeasurementValue(inches, inp.units, 3);
-    $("#mTop").value = f(topMargin);
-    $("#mRight").value = f(rightMargin);
-    $("#mBottom").value = f(bottomMargin);
-    $("#mLeft").value = f(leftMargin);
+    const formatMargin = (inches) => formatInchesForUnits(inches, inp.units);
+    $("#mTop").value = formatMargin(topMargin);
+    $("#mRight").value = formatMargin(rightMargin);
+    $("#mBottom").value = formatMargin(bottomMargin);
+    $("#mLeft").value = formatMargin(leftMargin);
   }
 
   resetMeasurementRegistry();
