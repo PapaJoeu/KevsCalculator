@@ -38,6 +38,9 @@ const EAGLE_IMAGE_SRC = 'media/eagle.svg';
 const EAGLE_AUDIO_SRC = 'media/eagle.wav';
 const EAGLE_CLASS = 'freedom-eagle';
 const ALERT_CLASS = 'freedom-alert';
+const CELEBRATION_STYLESHEET_URL = './css/celebration.css';
+const CELEBRATION_STYLESHEET_ATTR = 'data-optional-celebration';
+let celebrationStylesheetPromise = null;
 let eagleElement = null;
 let eagleAudio = null;
 let alertElement = null;
@@ -45,6 +48,54 @@ let alertDismissTimeout = null;
 
 const getStatus = () => storedContext.status ?? (() => {});
 const getUpdate = () => storedContext.update ?? (() => {});
+
+function ensureCelebrationStyles() {
+  if (typeof document === 'undefined') return Promise.resolve();
+
+  const existing = document.querySelector(`link[${CELEBRATION_STYLESHEET_ATTR}]`);
+  if (existing && existing.sheet) {
+    return Promise.resolve(existing);
+  }
+
+  if (celebrationStylesheetPromise) {
+    return celebrationStylesheetPromise;
+  }
+
+  celebrationStylesheetPromise = new Promise((resolve, reject) => {
+    const link = existing || document.createElement('link');
+
+    function handleLoad() {
+      link.removeEventListener('load', handleLoad);
+      link.removeEventListener('error', handleError);
+      resolve(link);
+    }
+
+    function handleError(event) {
+      link.removeEventListener('load', handleLoad);
+      link.removeEventListener('error', handleError);
+      celebrationStylesheetPromise = null;
+      reject(event);
+    }
+
+    if (!existing) {
+      link.rel = 'stylesheet';
+      link.href = CELEBRATION_STYLESHEET_URL;
+      link.setAttribute(CELEBRATION_STYLESHEET_ATTR, 'true');
+      document.head.appendChild(link);
+    } else if (existing.sheet) {
+      resolve(existing);
+      return;
+    }
+
+    link.addEventListener('load', handleLoad, { once: true });
+    link.addEventListener('error', handleError, { once: true });
+  }).catch((error) => {
+    console.warn('Failed to load celebration styles:', error);
+    throw error;
+  });
+
+  return celebrationStylesheetPromise;
+}
 
 function destroyEagle() {
   if (eagleElement) {
@@ -73,14 +124,20 @@ function triggerFreedomEagle() {
     playPromise.catch(() => {});
   }
 
-  const img = document.createElement('img');
-  img.src = EAGLE_IMAGE_SRC;
-  img.alt = '';
-  img.setAttribute('aria-hidden', 'true');
-  img.className = EAGLE_CLASS;
-  img.addEventListener('animationend', destroyEagle, { once: true });
-  document.body.appendChild(img);
-  eagleElement = img;
+  ensureCelebrationStyles()
+    .then(() => {
+      const img = document.createElement('img');
+      img.src = EAGLE_IMAGE_SRC;
+      img.alt = '';
+      img.setAttribute('aria-hidden', 'true');
+      img.className = EAGLE_CLASS;
+      img.addEventListener('animationend', destroyEagle, { once: true });
+      document.body.appendChild(img);
+      eagleElement = img;
+    })
+    .catch(() => {
+      // If the stylesheet fails to load, we silently skip the visual celebration.
+    });
 }
 
 function dismissAlert() {
@@ -97,12 +154,18 @@ function dismissAlert() {
 function showFreedomAlert() {
   dismissAlert();
   destroyEagle();
-  const alert = document.createElement('div');
-  alert.className = ALERT_CLASS;
-  alert.textContent = 'FREEDOM MODE OFF';
-  document.body.appendChild(alert);
-  alertElement = alert;
-  alertDismissTimeout = setTimeout(dismissAlert, 3500);
+  ensureCelebrationStyles()
+    .then(() => {
+      const alert = document.createElement('div');
+      alert.className = ALERT_CLASS;
+      alert.textContent = 'FREEDOM MODE OFF';
+      document.body.appendChild(alert);
+      alertElement = alert;
+      alertDismissTimeout = setTimeout(dismissAlert, 3500);
+    })
+    .catch(() => {
+      // No alert if the stylesheet cannot be loaded.
+    });
 }
 
 const trimTrailingZeros = (str) => {
