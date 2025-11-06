@@ -37,14 +37,22 @@ function createCalculationContext({ sheet, document, gutter, margins = {}, nonPr
     gv = toNumber(gutter?.vertical);
   const effW = clampToZero(sw - np.left - np.right);
   const effH = clampToZero(sh - np.top - np.bottom);
-  const layW = clampToZero(effW - m.left - m.right);
-  const layH = clampToZero(effH - m.top - m.bottom);
+
+  // Margins are interpreted from the sheet edge.  Clamp the layout so that it
+  // never crosses into the non-printable band while honoring the requested
+  // inset when it is farther from the edge than the non-printable allowance.
+  const originX = Math.max(m.left, np.left);
+  const originY = Math.max(m.top, np.top);
+  const extentX = sw - Math.max(m.right, np.right);
+  const extentY = sh - Math.max(m.bottom, np.bottom);
+  const layW = clampToZero(extentX - originX);
+  const layH = clampToZero(extentY - originY);
   return {
     sheet: { rawWidth: sw, rawHeight: sh, nonPrintable: np, effectiveWidth: effW, effectiveHeight: effH },
     document: { width: dw, height: dh },
     gutter: { horizontal: gh, vertical: gv },
     margins: m,
-    layoutArea: { width: layW, height: layH, originX: np.left + m.left, originY: np.top + m.top },
+    layoutArea: { width: layW, height: layH, originX, originY },
   };
 }
 
@@ -67,6 +75,16 @@ function calculateLayout(ctx) {
   const maxDown = calculateDocumentCount(layoutArea.height, document.height, gutter.vertical);
   const h = calculateAxisUsage(layoutArea.width, document.width, gutter.horizontal, maxAcross);
   const v = calculateAxisUsage(layoutArea.height, document.height, gutter.vertical, maxDown);
+  // Report realized margins from the actual sheet edge instead of the
+  // user-requested values so that any clamping against the non-printable
+  // perimeter is visible in the summary.
+  const realizedLeft = clampToZero(layoutArea.originX);
+  const realizedTop = clampToZero(layoutArea.originY);
+  const docRightEdge = layoutArea.originX + h.usedSpan;
+  const docBottomEdge = layoutArea.originY + v.usedSpan;
+  const realizedRight = clampToZero(sheet.rawWidth - docRightEdge);
+  const realizedBottom = clampToZero(sheet.rawHeight - docBottomEdge);
+
   return {
     sheet,
     margins,
@@ -76,10 +94,10 @@ function calculateLayout(ctx) {
     counts: { across: maxAcross, down: maxDown },
     usage: { horizontal: h, vertical: v },
     realizedMargins: {
-      left: margins.left,
-      top: margins.top,
-      right: margins.right + h.trailingMargin,
-      bottom: margins.bottom + v.trailingMargin,
+      left: realizedLeft,
+      top: realizedTop,
+      right: realizedRight,
+      bottom: realizedBottom,
     },
   };
 }
@@ -89,15 +107,24 @@ function applyCountOverrides(layout, desiredAcross, desiredDown) {
   const down = Math.min(layout.counts.down, desiredDown ?? layout.counts.down);
   const h = calculateAxisUsage(layout.layoutArea.width, layout.document.width, layout.gutter.horizontal, across);
   const v = calculateAxisUsage(layout.layoutArea.height, layout.document.height, layout.gutter.vertical, down);
+  // Recompute realized margins after enforcing explicit row/column counts so
+  // the summary reflects the final document footprint against the sheet edge.
+  const realizedLeft = clampToZero(layout.layoutArea.originX);
+  const realizedTop = clampToZero(layout.layoutArea.originY);
+  const docRightEdge = layout.layoutArea.originX + h.usedSpan;
+  const docBottomEdge = layout.layoutArea.originY + v.usedSpan;
+  const realizedRight = clampToZero(layout.sheet.rawWidth - docRightEdge);
+  const realizedBottom = clampToZero(layout.sheet.rawHeight - docBottomEdge);
+
   return {
     ...layout,
     counts: { across, down },
     usage: { horizontal: h, vertical: v },
     realizedMargins: {
-      left: layout.margins.left,
-      top: layout.margins.top,
-      right: layout.margins.right + h.trailingMargin,
-      bottom: layout.margins.bottom + v.trailingMargin,
+      left: realizedLeft,
+      top: realizedTop,
+      right: realizedRight,
+      bottom: realizedBottom,
     },
   };
 }
@@ -386,22 +413,26 @@ function update() {
       effH = ctx.sheet.effectiveHeight;
     const usedW = layout.usage.horizontal.usedSpan,
       usedH = layout.usage.vertical.usedSpan;
-    const leftRight = clampToZero((effW - usedW) / 2),
-      topBottom = clampToZero((effH - usedH) / 2);
+    const printableLeftoverX = clampToZero((effW - usedW) / 2);
+    const printableLeftoverY = clampToZero((effH - usedH) / 2);
+    const leftMargin = ctx.sheet.nonPrintable.left + printableLeftoverX;
+    const rightMargin = ctx.sheet.nonPrintable.right + printableLeftoverX;
+    const topMargin = ctx.sheet.nonPrintable.top + printableLeftoverY;
+    const bottomMargin = ctx.sheet.nonPrintable.bottom + printableLeftoverY;
     ctx = createCalculationContext({
       sheet: { width: ctx.sheet.rawWidth, height: ctx.sheet.rawHeight },
       document: ctx.document,
       gutter: ctx.gutter,
-      margins: { top: topBottom, right: leftRight, bottom: topBottom, left: leftRight },
+      margins: { top: topMargin, right: rightMargin, bottom: bottomMargin, left: leftMargin },
       nonPrintable: ctx.sheet.nonPrintable,
     });
     layout = calculateLayout(ctx);
     layout = applyCountOverrides(layout, inp.forceAcross, inp.forceDown);
     const f = (inches) => (inp.units === "mm" ? (inches * MM_PER_INCH).toFixed(3) : inches.toFixed(3));
-    $("#mTop").value = f(topBottom);
-    $("#mRight").value = f(leftRight);
-    $("#mBottom").value = f(topBottom);
-    $("#mLeft").value = f(leftRight);
+    $("#mTop").value = f(topMargin);
+    $("#mRight").value = f(rightMargin);
+    $("#mBottom").value = f(bottomMargin);
+    $("#mLeft").value = f(leftMargin);
   }
 
   currentMeasurementIds = new Set();
