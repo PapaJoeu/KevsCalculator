@@ -170,6 +170,29 @@ function calculateFinishing(layout, scoreOptions = {}) {
 // ------------------------------------------------------------
 const $ = (s) => document.querySelector(s);
 const $$ = (s) => Array.from(document.querySelectorAll(s));
+
+const layerVisibility = {
+  layout: true,
+  docs: true,
+  cuts: true,
+  scores: true,
+};
+
+function applyLayerVisibility() {
+  const svg = $("#svg");
+  if (!svg) return;
+  Object.entries(layerVisibility).forEach(([layer, visible]) => {
+    svg.querySelectorAll(`[data-layer="${layer}"]`).forEach((el) => {
+      el.style.display = visible ? "" : "none";
+    });
+  });
+}
+
+function setLayerVisibility(layer, visible) {
+  if (!(layer in layerVisibility)) return;
+  layerVisibility[layer] = Boolean(visible);
+  applyLayerVisibility();
+}
 const readNumber = (id) => {
   const v = $(id).value;
   const n = Number(v);
@@ -347,18 +370,24 @@ function drawSVG(layout, fin) {
     s = Math.min(sx, sy);
   const offX = pad + ((W - 2 * pad - layout.sheet.rawWidth * s) / 2);
   const offY = pad + ((H - 2 * pad - layout.sheet.rawHeight * s) / 2);
-  const R = (x, y, w, h, cls, stroke = "#26323e") => {
+  const applyLayerAttributes = (el, layer) => {
+    if (!layer) return;
+    el.dataset.layer = layer;
+    el.setAttribute("class", `layer layer-${layer}`);
+  };
+  const R = (x, y, w, h, { stroke = "#26323e", fill = "none", layer } = {}) => {
     const r = document.createElementNS("http://www.w3.org/2000/svg", "rect");
     r.setAttribute("x", offX + x * s);
     r.setAttribute("y", offY + y * s);
     r.setAttribute("width", Math.max(0.5, w * s));
     r.setAttribute("height", Math.max(0.5, h * s));
-    r.setAttribute("fill", cls === "docs" ? "#64748b33" : "none");
+    r.setAttribute("fill", fill);
     r.setAttribute("stroke", stroke);
     r.setAttribute("rx", 6);
+    applyLayerAttributes(r, layer);
     svg.appendChild(r);
   };
-  const L = (x1, y1, x2, y2, stroke, width = 1.5) => {
+  const L = (x1, y1, x2, y2, { stroke = "#22d3ee", width = 1.5, layer } = {}) => {
     const l = document.createElementNS("http://www.w3.org/2000/svg", "line");
     l.setAttribute("x1", offX + x1 * s);
     l.setAttribute("y1", offY + y1 * s);
@@ -366,23 +395,56 @@ function drawSVG(layout, fin) {
     l.setAttribute("y2", offY + y2 * s);
     l.setAttribute("stroke", stroke);
     l.setAttribute("stroke-width", width);
+    applyLayerAttributes(l, layer);
     svg.appendChild(l);
   };
-  R(0, 0, layout.sheet.rawWidth, layout.sheet.rawHeight, "sheet", "#334155");
-  R(layout.layoutArea.originX, layout.layoutArea.originY, layout.layoutArea.width, layout.layoutArea.height, "layout", "#26323e");
+  R(0, 0, layout.sheet.rawWidth, layout.sheet.rawHeight, { stroke: "#334155", layer: "layout" });
+  R(layout.layoutArea.originX, layout.layoutArea.originY, layout.layoutArea.width, layout.layoutArea.height, {
+    stroke: "#26323e",
+    layer: "layout",
+  });
   const across = layout.counts.across,
     down = layout.counts.down;
   for (let y = 0; y < down; y++) {
     for (let x = 0; x < across; x++) {
       const dx = layout.layoutArea.originX + x * (layout.document.width + layout.gutter.horizontal);
       const dy = layout.layoutArea.originY + y * (layout.document.height + layout.gutter.vertical);
-      R(dx, dy, layout.document.width, layout.document.height, "docs", "#475569");
+      R(dx, dy, layout.document.width, layout.document.height, {
+        stroke: "#475569",
+        fill: "#64748b33",
+        layer: "docs",
+      });
     }
   }
-  fin.cuts.forEach((c) => L(layout.layoutArea.originX, c.inches, layout.layoutArea.originX + layout.layoutArea.width, c.inches, "#22d3ee", 1));
-  fin.slits.forEach((s) => L(s.inches, layout.layoutArea.originY, s.inches, layout.layoutArea.originY + layout.layoutArea.height, "#22d3ee", 1));
-  fin.scores.horizontal.forEach((sc) => L(layout.layoutArea.originX, sc.inches, layout.layoutArea.originX + layout.layoutArea.width, sc.inches, "#a78bfa", 1));
-  fin.scores.vertical.forEach((sc) => L(sc.inches, layout.layoutArea.originY, sc.inches, layout.layoutArea.originY + layout.layoutArea.height, "#a78bfa", 1));
+  fin.cuts.forEach((c) =>
+    L(layout.layoutArea.originX, c.inches, layout.layoutArea.originX + layout.layoutArea.width, c.inches, {
+      stroke: "#22d3ee",
+      width: 1,
+      layer: "cuts",
+    })
+  );
+  fin.slits.forEach((s) =>
+    L(s.inches, layout.layoutArea.originY, s.inches, layout.layoutArea.originY + layout.layoutArea.height, {
+      stroke: "#22d3ee",
+      width: 1,
+      layer: "cuts",
+    })
+  );
+  fin.scores.horizontal.forEach((sc) =>
+    L(layout.layoutArea.originX, sc.inches, layout.layoutArea.originX + layout.layoutArea.width, sc.inches, {
+      stroke: "#a78bfa",
+      width: 1,
+      layer: "scores",
+    })
+  );
+  fin.scores.vertical.forEach((sc) =>
+    L(sc.inches, layout.layoutArea.originY, sc.inches, layout.layoutArea.originY + layout.layoutArea.height, {
+      stroke: "#a78bfa",
+      width: 1,
+      layer: "scores",
+    })
+  );
+  applyLayerVisibility();
 }
 
 // ------------------------------------------------------------
@@ -397,6 +459,17 @@ $$('.tab').forEach((t) =>
     document.querySelector(`#tab-${target}`).classList.add('active');
   })
 );
+
+$$('.layer-toggle').forEach((input) => {
+  const layer = input.dataset.layer;
+  if (!layer) return;
+  const initial = layerVisibility[layer] ?? true;
+  input.checked = initial;
+  setLayerVisibility(layer, initial);
+  input.addEventListener('change', (e) => {
+    setLayerVisibility(layer, e.target.checked);
+  });
+});
 
 $('#sheet-1218').addEventListener('click', () => setSheetPreset(12, 18));
 $('#sheet-1319').addEventListener('click', () => setSheetPreset(13, 19));
