@@ -10,7 +10,7 @@
  *   3. No further wiring is needed—bootstrap collects the placeholder names and
  *      loadFragments() injects the markup before app.js initializes.
  */
-const fragmentUrl = (name) => new URL(`../partials/fragments/${name}.html`, import.meta.url);
+const fragmentUrl = (name) => new URL(`../../partials/fragments/${name}.html`, import.meta.url);
 
 async function fetchFragmentMarkup(name) {
   const response = await fetch(fragmentUrl(name));
