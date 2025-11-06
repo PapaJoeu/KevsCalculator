@@ -65,6 +65,18 @@
   --shadow-deep: color-mix(in srgb, var(--text-inverse) 25%, transparent);
   --surface-paper: #fff;
 
+  /* Layout spacing tokens */
+  --stack-gap-default: 12px;
+  --stack-gap-tight: 8px;
+  --stack-gap-snug: 6px;
+  --stack-gap-comfortable: 16px;
+  --stack-gap-spacious: 18px;
+  --grid-gap-default: 12px;
+  --grid-gap-tight: 8px;
+  --grid-gap-snug: 6px;
+  --grid-gap-comfortable: 16px;
+  --grid-gap-spacious: 18px;
+
   /* Legacy aliases */
   --bg: var(--surface-bg);
   --panel: var(--surface-panel);
@@ -118,23 +130,77 @@ h3 {
  * Grid helpers and panels that shape the main
  * calculator layout.
  * ============================================= */
+/* Flex column utility shared by stacked layouts throughout the UI. */
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--stack-gap, var(--stack-gap-default));
+}
+
+/* Gap modifiers tune spacing without redefining structural rules. */
+.stack--compact {
+  --stack-gap: var(--stack-gap-tight);
+}
+
+.stack--snug {
+  --stack-gap: var(--stack-gap-snug);
+}
+
+.stack--roomy {
+  --stack-gap: var(--stack-gap-comfortable);
+}
+
+.stack--spacious {
+  --stack-gap: var(--stack-gap-spacious);
+}
+
+/* Grid utility shared by content groupings that rely on CSS grid layouts. */
+.grid {
+  display: grid;
+  gap: var(--grid-gap, var(--grid-gap-default));
+}
+
+.grid--compact {
+  --grid-gap: var(--grid-gap-tight);
+}
+
+.grid--snug {
+  --grid-gap: var(--grid-gap-snug);
+}
+
+.grid--roomy {
+  --grid-gap: var(--grid-gap-comfortable);
+}
+
+.grid--spacious {
+  --grid-gap: var(--grid-gap-spacious);
+}
+
+.grid--auto-fit {
+  grid-template-columns: repeat(auto-fit, minmax(var(--grid-min, 240px), 1fr));
+}
+
+.grid--auto-fill {
+  grid-template-columns: repeat(auto-fill, minmax(var(--grid-min, 150px), 1fr));
+}
+
+.grid--columns-2 {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
 /* This class wraps the entire calculator experience, establishing the page centering and stacking rhythm. */
 .layout-app-shell {
   max-width: 1280px;
   margin: 0 auto;
   padding: 16px 18px 24px;
   min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  gap: 18px;
+  --stack-gap: var(--stack-gap-spacious);
 }
 
 /* This class formats the top header section that introduces the calculator. */
 .layout-app-header {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
   padding: 4px 6px 0;
+  --stack-gap: 4px;
 }
 
 /* This descendant rule limits header body copy width for readability. */
@@ -143,26 +209,9 @@ h3 {
   max-width: 640px;
 }
 
-/* This utility class creates grid layouts for cards and content groupings. */
-.layout-grid-group {
-  display: grid;
-  gap: 12px;
-}
-
-/* This utility class stacks children vertically with customizable spacing. */
-.layout-stack {
-  display: flex;
-  flex-direction: column;
-  gap: var(--stack-gap, 12px);
-}
-
-/* This modifier tightens spacing for compact stack layouts. */
-.layout-stack-compact {
-  --stack-gap: 8px;
-}
-
 /* This rule removes extra spacing when toolbars render inside stacked cards. */
-.layout-stack .control-toolbar, .layout-stack .visualizer-visibility-toggles {
+.stack .control-toolbar,
+.stack .visualizer-visibility-toggles {
   margin: 0;
 }
 
@@ -170,9 +219,7 @@ h3 {
 .input-scroll-container {
   flex: 1;
   min-height: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
+  --stack-gap: 16px;
   overflow-y: auto;
   padding-right: 6px;
 }
@@ -209,16 +256,12 @@ h3 {
 
 /* This class structures the visualizer section that houses the preview canvas and legend. */
 .sheet-preview-visualizer {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
+  --stack-gap: 12px;
 }
 
 /* This class governs the tabbed analysis section that follows the preview. */
 .output-details-section {
-  display: flex;
-  flex-direction: column;
-  gap: 0;
+  --stack-gap: 0;
 }
 
 /* =============================================
@@ -305,9 +348,7 @@ h3 {
 
 /* This container groups the input cards and supporting descriptions. */
 .input-layout-panel {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
+  --stack-gap: 16px;
 }
 
 /* This header styling keeps intro copy aligned with the pane layout. */
@@ -318,37 +359,30 @@ h3 {
 
 /* This grid arranges configuration cards responsively based on available width. */
 .input-card-grid {
-  display: grid;
-  gap: 12px;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  --grid-min: 240px;
 }
 
 /* This container stacks the preview canvas, its controls, and legend. */
 .sheet-preview-container {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+  --stack-gap: 8px;
 }
 
 /* This grid arranges input fields into flexible, multi-column rows. */
 .input-field-row {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-  gap: 8px;
+  --grid-min: 120px;
+  --grid-gap: var(--grid-gap-tight);
 }
 
 /* This variation supports four-up field clusters with narrower minimum widths. */
 .input-field-row-quad {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
-  gap: 8px;
+  --grid-min: 100px;
+  --grid-gap: var(--grid-gap-tight);
 }
 
 /* This helper distributes form controls evenly based on available width. */
 .input-field-row-auto {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-  gap: 6px;
+  --grid-gap: var(--grid-gap-snug);
+  --grid-min: 150px;
 }
 
 @media (max-width: 900px) {
