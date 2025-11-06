@@ -181,62 +181,80 @@
           </section>
 
           <section id="tab-scores">
-            <div class="scores-pane stack">
-              <div class="card stack score-card">
-                <div class="score-card-header">
-                  <div class="score-card-title">
-                    <h3>Score Planning</h3>
-                    <p class="muted">Offsets are normalized to each document. Choose a preset for common folds or switch to custom entry to fine-tune the layout.</p>
+            <div class="scores-pane">
+              <div class="score-layout">
+                <div class="score-column">
+                  <div class="card stack score-card-intro">
+                    <div class="score-card-title">
+                      <h3>Score Planning</h3>
+                      <p class="muted">Scores are normalized to each document. Use a preset for common folds or switch to custom entry to fine-tune the layout.</p>
+                    </div>
                   </div>
-                  <div class="score-presets no-print" role="group" aria-label="Score presets">
-                    <button class="btn" id="scorePresetBifold" type="button">Bifold</button>
-                    <button class="btn" id="scorePresetTrifold" type="button">Trifold</button>
-                    <button class="btn" id="scorePresetCustom" type="button">Custom</button>
-                  </div>
-                </div>
-                <div class="score-inputs">
-                  <div class="score-field stack-sm">
-                    <label class="score-label" for="scoresV" title="CSV, 0–1 (e.g., 0.5 or 0.33,0.66)">
-                      <span>Vertical offsets</span>
-                      <input id="scoresV" type="text" value="" placeholder="e.g., 0.5" />
-                    </label>
-                    <p class="muted score-hint">Positions lines that run top-to-bottom across the sheet. Values are relative to the document width.</p>
-                  </div>
-                  <div class="score-field stack-sm">
-                    <div class="score-field-controls">
-                      <label class="score-label" for="scoresH" title="CSV, 0–1">
-                        <span>Horizontal offsets</span>
-                        <input id="scoresH" type="text" value="" placeholder="e.g., 0.5" />
+                  <div class="card stack score-card score-card-vertical">
+                    <div class="score-card-header">
+                      <div class="score-card-title">
+                        <h3>Vertical Scores</h3>
+                        <p class="muted">Set positions for lines that run top-to-bottom across the sheet relative to the document width.</p>
+                      </div>
+                      <div class="score-presets no-print" role="group" aria-label="Vertical score presets">
+                        <button class="btn" id="scorePresetBifold" type="button">Bifold</button>
+                        <button class="btn" id="scorePresetTrifold" type="button">Trifold</button>
+                        <button class="btn" id="scorePresetCustom" type="button">Custom</button>
+                      </div>
+                    </div>
+                    <div class="score-field stack-sm">
+                      <label class="score-label" for="scoresV" title="CSV, 0–1 (e.g., 0.5 or 0.33,0.66)">
+                        <span>Vertical scores</span>
+                        <input id="scoresV" type="text" value="" placeholder="e.g., 0.5" />
                       </label>
-                      <div class="score-presets score-presets-inline no-print" role="group" aria-label="Horizontal score presets">
+                      <p class="muted score-hint">Values are relative to the document width.</p>
+                    </div>
+                  </div>
+                  <div class="card stack score-card score-card-horizontal">
+                    <div class="score-card-header">
+                      <div class="score-card-title">
+                        <h3>Horizontal Scores</h3>
+                        <p class="muted">Set positions for lines that run left-to-right across the sheet relative to the document height.</p>
+                      </div>
+                      <div class="score-presets no-print" role="group" aria-label="Horizontal score presets">
                         <button class="btn" id="scorePresetHBifold" type="button">Bifold</button>
                         <button class="btn" id="scorePresetHTrifold" type="button">Trifold</button>
                         <button class="btn" id="scorePresetHCustom" type="button">Custom</button>
                       </div>
                     </div>
-                    <p class="muted score-hint">Positions lines that run left-to-right across the sheet. Values are relative to the document height.</p>
+                    <div class="score-field stack-sm">
+                      <label class="score-label" for="scoresH" title="CSV, 0–1">
+                        <span>Horizontal scores</span>
+                        <input id="scoresH" type="text" value="" placeholder="e.g., 0.5" />
+                      </label>
+                      <p class="muted score-hint">Values are relative to the document height.</p>
+                    </div>
+                  </div>
+                  <div class="card score-actions-card">
+                    <div class="score-actions toolbar no-print">
+                      <button class="btn" id="swapScoreOffsets" type="button">Swap vertical ↔ horizontal scores</button>
+                      <button class="btn primary" id="applyScores" type="button">Apply Scores</button>
+                      <span class="muted">Leave fields blank to omit scores.</span>
+                    </div>
                   </div>
                 </div>
-                <div class="score-actions toolbar no-print">
-                  <button class="btn" id="swapScoreOffsets" type="button">Swap vertical ↔ horizontal offsets</button>
-                  <button class="btn primary" id="applyScores" type="button">Apply Scores</button>
-                  <span class="muted">Leave fields blank to omit scores.</span>
-                </div>
-              </div>
-              <div class="grid score-table-grid">
-                <div class="card stack score-table-card">
-                  <div>
-                    <h3>Scores (Y)</h3>
-                    <p class="muted">Horizontal runs positioned along the sheet height.</p>
+                <div class="score-column score-results">
+                  <div class="score-results-grid">
+                    <div class="card stack score-table-card">
+                      <div>
+                        <h3>Scores (Y)</h3>
+                        <p class="muted">Horizontal runs positioned along the sheet height.</p>
+                      </div>
+                      <table class="table" id="tblScoresH"><thead><tr><th>Label</th><th>in</th><th>mm</th><th>Display as perforation</th></tr></thead><tbody></tbody></table>
+                    </div>
+                    <div class="card stack score-table-card">
+                      <div>
+                        <h3>Scores (X)</h3>
+                        <p class="muted">Vertical runs positioned along the sheet width.</p>
+                      </div>
+                      <table class="table" id="tblScoresV"><thead><tr><th>Label</th><th>in</th><th>mm</th><th>Display as perforation</th></tr></thead><tbody></tbody></table>
+                    </div>
                   </div>
-                  <table class="table" id="tblScoresH"><thead><tr><th>Label</th><th>in</th><th>mm</th><th>Display as perforation</th></tr></thead><tbody></tbody></table>
-                </div>
-                <div class="card stack score-table-card">
-                  <div>
-                    <h3>Scores (X)</h3>
-                    <p class="muted">Vertical runs positioned along the sheet width.</p>
-                  </div>
-                  <table class="table" id="tblScoresV"><thead><tr><th>Label</th><th>in</th><th>mm</th><th>Display as perforation</th></tr></thead><tbody></tbody></table>
                 </div>
               </div>
             </div>
