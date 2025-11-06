@@ -16,6 +16,24 @@
 
       <section class="panel preview-panel">
         <div class="output-preview">
+          <div class="toolbar preview-toolbar no-print">
+            <label>
+              <input class="layer-toggle" type="checkbox" data-layer="layout" checked />
+              <span>Layout Area</span>
+            </label>
+            <label>
+              <input class="layer-toggle" type="checkbox" data-layer="docs" checked />
+              <span>Documents</span>
+            </label>
+            <label>
+              <input class="layer-toggle" type="checkbox" data-layer="cuts" checked />
+              <span>Cuts / Slits</span>
+            </label>
+            <label>
+              <input class="layer-toggle" type="checkbox" data-layer="scores" checked />
+              <span>Scores</span>
+            </label>
+          </div>
           <div class="preview"><svg id="svg" width="960" height="600" viewBox="0 0 960 600" aria-label="sheet preview"></svg></div>
           <div class="legend no-print">
             <span><i class="dot grid"></i>Layout Area</span>

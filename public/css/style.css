@@ -271,6 +271,40 @@ select {
   margin: 0 0 6px;
 }
 
+.preview-toolbar {
+  justify-content: flex-start;
+  padding: 8px 10px;
+  background: #11141b;
+  border: 1px solid #1f2430;
+  border-radius: 10px;
+  margin: 0;
+}
+
+.preview-toolbar label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border-radius: 8px;
+  border: 1px solid #1f2430;
+  background: #0d1117;
+  color: var(--text);
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.preview-toolbar label:hover {
+  border-color: #334155;
+  background: #131926;
+}
+
+.preview-toolbar input[type="checkbox"] {
+  margin: 0;
+  width: 16px;
+  height: 16px;
+  accent-color: var(--accent);
+}
+
 .btn {
   appearance: none;
   border: 1px solid #263041;
