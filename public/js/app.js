@@ -1,3 +1,5 @@
+import { sheetPresets, documentPresets, gutterPresets } from './input-presets.js';
+
 // ============================================================
 // Print Layout Calculator — Application Script
 // ------------------------------------------------------------
@@ -388,6 +390,68 @@ const formatValueForUnits = (value, units) => {
   return Number(value.toFixed(4)).toString();
 };
 
+const UNIT_TO_SYSTEM = { in: "imperial", mm: "metric" };
+const presetSelectionMemory = {
+  sheet: { imperial: "", metric: "" },
+  document: { imperial: "", metric: "" },
+  gutter: { imperial: "", metric: "" },
+};
+
+const filterPresetsBySystem = (presets, system) => {
+  return presets.filter((preset) => {
+    if (!Array.isArray(preset.systems) || preset.systems.length === 0) return true;
+    return preset.systems.includes(system);
+  });
+};
+
+function populatePresetSelect(selectEl, presets, system, memoryKey) {
+  if (!selectEl) return;
+  const placeholder =
+    selectEl.dataset.placeholder ||
+    selectEl.querySelector('option[value=""]')?.textContent ||
+    "Choose a preset…";
+  const filtered = filterPresetsBySystem(presets, system);
+  selectEl.innerHTML = "";
+  const placeholderOption = document.createElement("option");
+  placeholderOption.value = "";
+  placeholderOption.textContent = placeholder;
+  selectEl.appendChild(placeholderOption);
+  filtered.forEach((preset) => {
+    const option = document.createElement("option");
+    option.value = preset.id;
+    option.textContent = preset.label;
+    option.dataset.width = preset.width;
+    option.dataset.height = preset.height;
+    selectEl.appendChild(option);
+  });
+  selectEl.dataset.placeholder = placeholder;
+  const memory = presetSelectionMemory[memoryKey] || {};
+  const storedValue = memory[system];
+  if (storedValue && filtered.some((preset) => preset.id === storedValue)) {
+    selectEl.value = storedValue;
+  } else {
+    selectEl.value = "";
+  }
+}
+
+function handlePresetSelect(selectEl, memoryKey, applyPreset) {
+  if (!selectEl) return;
+  selectEl.addEventListener("change", (event) => {
+    const option = event.target.selectedOptions?.[0];
+    const units = $("#units").value;
+    const system = UNIT_TO_SYSTEM[units] || "imperial";
+    const memory = presetSelectionMemory[memoryKey];
+    if (memory) {
+      memory[system] = event.target.value || "";
+    }
+    if (!option || !option.value) return;
+    const width = Number(option.dataset.width);
+    const height = Number(option.dataset.height);
+    if (!Number.isFinite(width) || !Number.isFinite(height)) return;
+    applyPreset(width, height);
+  });
+}
+
 function setSheetPreset(w, h) {
   const units = $("#units").value;
   const width = convertForUnits(w, units);
@@ -691,16 +755,23 @@ $$('.layer-toggle').forEach((input) => {
   });
 });
 
-$('#sheet-1218').addEventListener('click', () => setSheetPreset(12, 18));
-$('#sheet-1319').addEventListener('click', () => setSheetPreset(13, 19));
-$('#doc-35x2').addEventListener('click', () => setDocumentPreset(3.5, 2));
-$('#doc-8511').addEventListener('click', () => setDocumentPreset(8.5, 11));
-$('#doc-55x85').addEventListener('click', () => setDocumentPreset(5.5, 8.5));
-$('#doc-35x4').addEventListener('click', () => setDocumentPreset(3.5, 4));
-$('#gut-none').addEventListener('click', () => setGutterPreset(0, 0));
-$('#gut-eighth').addEventListener('click', () => setGutterPreset(0.125, 0.125));
-$('#gut-3125x67').addEventListener('click', () => setGutterPreset(0.3125, 0.67));
-$('#gut-1inch').addEventListener('click', () => setGutterPreset(1, 1));
+const sheetPresetSelect = $('#sheetPresetSelect');
+const documentPresetSelect = $('#documentPresetSelect');
+const gutterPresetSelect = $('#gutterPresetSelect');
+
+const getSystemForUnits = (units) => UNIT_TO_SYSTEM[units] || 'imperial';
+
+const refreshPresetDropdowns = (system) => {
+  populatePresetSelect(sheetPresetSelect, sheetPresets, system, 'sheet');
+  populatePresetSelect(documentPresetSelect, documentPresets, system, 'document');
+  populatePresetSelect(gutterPresetSelect, gutterPresets, system, 'gutter');
+};
+
+handlePresetSelect(sheetPresetSelect, 'sheet', setSheetPreset);
+handlePresetSelect(documentPresetSelect, 'document', setDocumentPreset);
+handlePresetSelect(gutterPresetSelect, 'gutter', setGutterPreset);
+
+refreshPresetDropdowns(getSystemForUnits($('#units').value));
 
 $$('[data-layout-preset]').forEach((btn) => {
   const key = btn.dataset.layoutPreset;
@@ -1112,6 +1183,7 @@ $('#units').addEventListener('change', (e) => {
   const nextUnits = e.target.value;
   convertInputs(currentUnitsSelection, nextUnits);
   currentUnitsSelection = nextUnits;
+  refreshPresetDropdowns(getSystemForUnits(nextUnits));
   status('Units changed');
   update();
 });
