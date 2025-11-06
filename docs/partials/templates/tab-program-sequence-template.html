@@ -1,0 +1,21 @@
+<!--
+  Load timing:
+    - Hydrated into #tab-program-sequence by the tab registry when the Program
+      Sequence tab is registered or activated.
+  Key selectors:
+    - #tblProgramSequence tbody receives measurement rows via fillTable.
+  JS dependencies:
+    - docs/js/app.js supplies the data table rows through calculateProgramSequence.
+-->
+
+<template id="tab-program-sequence-template">
+  <div class="data-card">
+    <h3>Program Sequence</h3>
+    <table class="data-table" id="tblProgramSequence">
+      <thead>
+        <tr><th>Step</th><th>in</th><th>mm</th></tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+</template>

@@ -4,6 +4,7 @@ import { initializeTabRegistry, registerTab } from './tabs/registry.js';
 import inputsTab, { isAutoMarginModeEnabled, enableAutoMarginMode } from './tabs/inputs.js';
 import summaryTab from './tabs/summary.js';
 import finishingTab from './tabs/finishing.js';
+import programSequenceTab from './tabs/program-sequence.js';
 import scoresTab from './tabs/scores.js';
 import perforationsTab from './tabs/perforations.js';
 import warningsTab from './tabs/warnings.js';
@@ -29,6 +30,7 @@ import {
   setMeasurementHover,
   toggleMeasurementSelection,
 } from './utils/dom.js';
+import { calculateProgramSequence } from './utils/program-sequence.js';
 
 // ============================================================
 // Kevin’s Bitchin’ Print Calculator — Application Script
@@ -332,6 +334,7 @@ function update() {
     perforationHorizontal: inp.perfH,
     perforationVertical: inp.perfV,
   });
+  const programSequence = calculateProgramSequence(layout);
 
   // Summary
   $("#vAcross").textContent = layout.counts.across;
@@ -349,6 +352,7 @@ function update() {
   fillTable($("#tblScoresV tbody"), fin.scores.vertical, 'score-vertical');
   fillTable($("#tblPerforationsH tbody"), fin.perforations.horizontal, 'perforation-horizontal');
   fillTable($("#tblPerforationsV tbody"), fin.perforations.vertical, 'perforation-vertical');
+  fillTable($("#tblProgramSequence tbody"), programSequence, 'program-sequence');
 
   $("#pSheet").textContent = fmtIn(ctx.sheet.rawWidth) + " × " + fmtIn(ctx.sheet.rawHeight);
   $("#pDoc").textContent = fmtIn(ctx.document.width) + " × " + fmtIn(ctx.document.height);
@@ -571,6 +575,7 @@ const tabRegistrations = [
   { module: inputsTab, context: { update, status } },
   { module: summaryTab, context: {} },
   { module: finishingTab, context: {} },
+  { module: programSequenceTab, context: {} },
   { module: scoresTab, context: { update, status } },
   { module: perforationsTab, context: { update, status } },
   { module: warningsTab, context: {} },
