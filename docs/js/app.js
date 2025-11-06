@@ -1,4 +1,5 @@
 import { DEFAULT_INPUTS } from './config/defaults.js';
+import { layoutPresets } from './data/layout-presets.js';
 import { initializeTabRegistry, registerTab } from './tabs/registry.js';
 import inputsTab, { isAutoMarginModeEnabled, enableAutoMarginMode } from './tabs/inputs.js';
 import summaryTab from './tabs/summary.js';
@@ -582,6 +583,7 @@ const tabRegistrations = [
       enableAutoMarginMode,
       scoresApi: scoresTab.api,
       perforationsApi: perforationsTab.api,
+      layoutPresets,
     },
   },
 ];
