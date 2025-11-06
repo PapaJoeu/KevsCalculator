@@ -1,5 +1,7 @@
 import { hydrateTabPanel } from './registry.js';
 import { createPrintableSvg } from '../rendering/svg-print-renderer.js';
+import { createLayoutDetailsSvg } from '../rendering/svg-layout-details-renderer.js';
+import { calculateProgramSequence } from '../utils/program-sequence.js';
 import { inchesToMillimeters } from '../utils/units.js';
 
 const TAB_KEY = 'print';
@@ -10,6 +12,7 @@ let panelEl = null;
 let stageEl = null;
 let downloadButton = null;
 let printButton = null;
+let layoutDetailsButton = null;
 const summaryEls = {
   sheet: null,
   document: null,
@@ -23,6 +26,7 @@ const state = {
   layout: null,
   finishing: null,
   context: null,
+  programSequence: null,
 };
 
 const fmtInches = (inches) => `${inches.toFixed(3)} in / ${inchesToMillimeters(inches).toFixed(2)} mm`;
@@ -106,6 +110,9 @@ function updateActionState() {
   if (downloadButton) {
     downloadButton.disabled = !hasSvg;
   }
+  if (layoutDetailsButton) {
+    layoutDetailsButton.disabled = !hasSvg;
+  }
   if (printButton) {
     printButton.disabled = !hasSvg;
   }
@@ -139,6 +146,36 @@ function downloadSvg() {
   const link = document.createElement('a');
   link.href = url;
   link.download = `${nameParts.join('-') || 'layout'}.svg`;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+}
+
+function downloadLayoutDetailsSvg() {
+  if (!state.layout) return;
+  const programSequence = state.programSequence ?? calculateProgramSequence(state.layout);
+  const svg = createLayoutDetailsSvg({
+    layout: state.layout,
+    finishing: state.finishing,
+    context: state.context,
+    programSequence,
+  });
+  if (!svg) return;
+  const markup = serializeSvg(svg);
+  const width = state.layout.sheet?.rawWidth ?? 0;
+  const height = state.layout.sheet?.rawHeight ?? 0;
+  const nameParts = [
+    'layout-details',
+    sanitizeFilename(width.toFixed(3)),
+    sanitizeFilename(height.toFixed(3)),
+  ].filter(Boolean);
+  const xml = `<?xml version="1.0" encoding="UTF-8"?>\n${markup}`;
+  const blob = new Blob([xml], { type: 'image/svg+xml' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = `${nameParts.join('-') || 'layout-details'}.svg`;
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
@@ -189,6 +226,9 @@ function bindEvents() {
   if (downloadButton) {
     downloadButton.addEventListener('click', downloadSvg);
   }
+  if (layoutDetailsButton) {
+    layoutDetailsButton.addEventListener('click', downloadLayoutDetailsSvg);
+  }
   if (printButton) {
     printButton.addEventListener('click', openPrintDialog);
   }
@@ -199,6 +239,7 @@ function cacheElements() {
   if (!panelEl) return;
   stageEl = panelEl.querySelector('#printPreviewStage');
   downloadButton = panelEl.querySelector('#printDownloadSvg');
+  layoutDetailsButton = panelEl.querySelector('#printDownloadLayoutDetails');
   printButton = panelEl.querySelector('#printOpenPrintDialog');
   summaryEls.sheet = panelEl.querySelector('#printSheetSummary');
   summaryEls.document = panelEl.querySelector('#printDocumentSummary');
@@ -218,10 +259,11 @@ function init() {
   initialized = true;
 }
 
-export function updatePrintableVisualizer({ layout, finishing, context }) {
+export function updatePrintableVisualizer({ layout, finishing, context, programSequence }) {
   state.layout = layout ?? null;
   state.finishing = finishing ?? null;
   state.context = context ?? null;
+  state.programSequence = programSequence ?? null;
   if (!initialized) {
     ensurePanel();
     cacheElements();

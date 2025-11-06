@@ -174,7 +174,7 @@ export function update() {
   fillTable($('#tblProgramSequence tbody'), programSequence, 'program-sequence');
   fillHoleTable($('#tblHoles tbody'), fin.holes ?? []);
 
-  updatePrintableVisualizer({ layout, finishing: fin, context: ctx });
+  updatePrintableVisualizer({ layout, finishing: fin, context: ctx, programSequence });
 
   drawSVG(layout, fin);
   status('Updated');
