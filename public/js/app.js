@@ -176,18 +176,48 @@ const mapPositionsToReadout = (label, positions) =>
     millimeters: inchesToMillimeters(p),
   }));
 
-function calculateFinishing(layout, scoreOptions = {}) {
+function calculateFinishing(layout, options = {}) {
   const { layoutArea, counts, document, gutter } = layout;
   const hEdges = generateEdgePositions(layoutArea.originY, document.height, gutter.vertical, counts.down);
   const vEdges = generateEdgePositions(layoutArea.originX, document.width, gutter.horizontal, counts.across);
-  const hScores = generateScorePositions(layoutArea.originY, document.height, gutter.vertical, counts.down, scoreOptions.horizontalOffsets);
-  const vScores = generateScorePositions(layoutArea.originX, document.width, gutter.horizontal, counts.across, scoreOptions.verticalOffsets);
+  const hScores = generateScorePositions(
+    layoutArea.originY,
+    document.height,
+    gutter.vertical,
+    counts.down,
+    options.scoreHorizontal
+  );
+  const vScores = generateScorePositions(
+    layoutArea.originX,
+    document.width,
+    gutter.horizontal,
+    counts.across,
+    options.scoreVertical
+  );
+  const hPerforations = generateScorePositions(
+    layoutArea.originY,
+    document.height,
+    gutter.vertical,
+    counts.down,
+    options.perforationHorizontal
+  );
+  const vPerforations = generateScorePositions(
+    layoutArea.originX,
+    document.width,
+    gutter.horizontal,
+    counts.across,
+    options.perforationVertical
+  );
   return {
     cuts: mapPositionsToReadout("Cut", hEdges),
     slits: mapPositionsToReadout("Slit", vEdges),
     scores: {
       horizontal: mapPositionsToReadout("Score", hScores),
       vertical: mapPositionsToReadout("Score", vScores),
+    },
+    perforations: {
+      horizontal: mapPositionsToReadout("Perforation", hPerforations),
+      vertical: mapPositionsToReadout("Perforation", vPerforations),
     },
   };
 }
@@ -206,9 +236,7 @@ const layerVisibility = {
 };
 
 const selectedMeasurements = new Set();
-const perforationMeasurements = new Set();
 let currentMeasurementIds = new Set();
-let pendingPerforationPreset = null;
 
 const createMeasurementId = (type, index) => `${type}-${index}`;
 
@@ -266,16 +294,6 @@ function restoreMeasurementSelections() {
     setMeasurementSelectionClass(id, true);
   });
   stale.forEach((id) => selectedMeasurements.delete(id));
-}
-
-function restorePerforationStates() {
-  const stale = [];
-  perforationMeasurements.forEach((id) => {
-    if (!currentMeasurementIds.has(id)) {
-      stale.push(id);
-    }
-  });
-  stale.forEach((id) => perforationMeasurements.delete(id));
 }
 
 function applyLayerVisibility() {
@@ -353,6 +371,8 @@ function currentInputs() {
     },
     scoreV: parseOffsets($("#scoresV")?.value || ""),
     scoreH: parseOffsets($("#scoresH")?.value || ""),
+    perfV: parseOffsets($("#perfV")?.value || ""),
+    perfH: parseOffsets($("#perfH")?.value || ""),
     forceAcross: readIntOptional("#forceAcross"),
     forceDown: readIntOptional("#forceDown"),
     autoMargins,
@@ -399,40 +419,8 @@ function status(txt) {
   $("#status").textContent = txt;
 }
 
-function applyPendingPerforations(layout, inp) {
-  if (!pendingPerforationPreset) return;
-  const approxEqual = (a, b) => Math.abs(Number(a) - Number(b)) < 1e-4;
-  const normalizeOffsets = (list) =>
-    Array.isArray(list) ? list.map(Number).filter((n) => Number.isFinite(n)) : [];
-  const presetHorizontal = normalizeOffsets(pendingPerforationPreset.horizontal);
-  const presetVertical = normalizeOffsets(pendingPerforationPreset.vertical);
-  perforationMeasurements.clear();
-  const applyForAxis = (type, presetOffsets, inputOffsets, docCount) => {
-    if (!presetOffsets.length || !Array.isArray(inputOffsets) || !inputOffsets.length || docCount <= 0) return;
-    const indexes = [];
-    inputOffsets.forEach((value, index) => {
-      if (presetOffsets.some((target) => approxEqual(target, value))) {
-        indexes.push(index);
-      }
-    });
-    if (!indexes.length) return;
-    indexes.forEach((offsetIndex) => {
-      for (let doc = 0; doc < docCount; doc++) {
-        const measurementIndex = doc * inputOffsets.length + offsetIndex;
-        perforationMeasurements.add(createMeasurementId(type, measurementIndex));
-      }
-    });
-  };
-  applyForAxis('score-horizontal', presetHorizontal, inp.scoreH, layout.counts.down);
-  applyForAxis('score-vertical', presetVertical, inp.scoreV, layout.counts.across);
-  pendingPerforationPreset = null;
-}
-
-const isScoreMeasurementType = (type) => type === 'score-horizontal' || type === 'score-vertical';
-
 function fillTable(tbody, rows, type = 'measure') {
   if (!tbody) return;
-  const isScoreTable = isScoreMeasurementType(type);
   tbody.innerHTML = rows
     .map((r, index) => {
       const id = createMeasurementId(type, index);
@@ -442,12 +430,6 @@ function fillTable(tbody, rows, type = 'measure') {
         `<td class="k">${r.inches.toFixed(3)}</td>`,
         `<td class="k">${r.millimeters.toFixed(2)}</td>`,
       ];
-      if (isScoreTable) {
-        const checked = perforationMeasurements.has(id) ? "checked" : "";
-        cells.push(
-          `<td class="perforation-cell"><input type="checkbox" class="perforation-toggle" data-perforation-toggle="true" data-measure-id="${id}" ${checked} aria-label="Display ${r.label} as perforation"></td>`
-        );
-      }
       return `<tr class="measurement-row" data-measure-id="${id}" data-measure-type="${type}" data-measure-index="${index}">${cells.join("")}</tr>`;
     })
     .join("");
@@ -455,28 +437,6 @@ function fillTable(tbody, rows, type = 'measure') {
     attachMeasurementRowInteractions(row);
     if (selectedMeasurements.has(row.dataset.measureId)) {
       row.classList.add('is-selected');
-    }
-    if (isScoreTable) {
-      const toggle = row.querySelector('input[data-perforation-toggle]');
-      if (toggle) {
-        toggle.addEventListener('click', (evt) => evt.stopPropagation());
-        toggle.addEventListener('keydown', (evt) => {
-          if (evt.key === ' ' || evt.key === 'Enter') {
-            evt.stopPropagation();
-          }
-        });
-        toggle.addEventListener('change', (evt) => {
-          evt.stopPropagation();
-          const id = row.dataset.measureId;
-          if (!id) return;
-          if (toggle.checked) {
-            perforationMeasurements.add(id);
-          } else {
-            perforationMeasurements.delete(id);
-          }
-          update();
-        });
-      }
     }
   });
 }
@@ -518,9 +478,13 @@ function update() {
     $("#mLeft").value = f(leftMargin);
   }
 
-  applyPendingPerforations(layout, inp);
   currentMeasurementIds = new Set();
-  const fin = calculateFinishing(layout, { horizontalOffsets: inp.scoreH, verticalOffsets: inp.scoreV });
+  const fin = calculateFinishing(layout, {
+    scoreHorizontal: inp.scoreH,
+    scoreVertical: inp.scoreV,
+    perforationHorizontal: inp.perfH,
+    perforationVertical: inp.perfV,
+  });
 
   // Summary
   $("#vAcross").textContent = layout.counts.across;
@@ -536,6 +500,8 @@ function update() {
   fillTable($("#tblSlits tbody"), fin.slits, 'slit');
   fillTable($("#tblScoresH tbody"), fin.scores.horizontal, 'score-horizontal');
   fillTable($("#tblScoresV tbody"), fin.scores.vertical, 'score-vertical');
+  fillTable($("#tblPerforationsH tbody"), fin.perforations.horizontal, 'perforation-horizontal');
+  fillTable($("#tblPerforationsV tbody"), fin.perforations.vertical, 'perforation-vertical');
 
   $("#pSheet").textContent = fmtIn(ctx.sheet.rawWidth) + " × " + fmtIn(ctx.sheet.rawHeight);
   $("#pDoc").textContent = fmtIn(ctx.document.width) + " × " + fmtIn(ctx.document.height);
@@ -652,7 +618,6 @@ function drawSVG(layout, fin) {
       layer: "scores",
       measureId,
       measureType: 'score-horizontal',
-      perforated: perforationMeasurements.has(measureId),
     });
   });
   fin.scores.vertical.forEach((sc, index) => {
@@ -663,12 +628,32 @@ function drawSVG(layout, fin) {
       layer: "scores",
       measureId,
       measureType: 'score-vertical',
-      perforated: perforationMeasurements.has(measureId),
+    });
+  });
+  fin.perforations.horizontal.forEach((pf, index) => {
+    const measureId = createMeasurementId('perforation-horizontal', index);
+    L(layout.layoutArea.originX, pf.inches, layout.layoutArea.originX + layout.layoutArea.width, pf.inches, {
+      stroke: "#f97316",
+      width: 1,
+      layer: "scores",
+      measureId,
+      measureType: 'perforation-horizontal',
+      perforated: true,
+    });
+  });
+  fin.perforations.vertical.forEach((pf, index) => {
+    const measureId = createMeasurementId('perforation-vertical', index);
+    L(pf.inches, layout.layoutArea.originY, pf.inches, layout.layoutArea.originY + layout.layoutArea.height, {
+      stroke: "#f97316",
+      width: 1,
+      layer: "scores",
+      measureId,
+      measureType: 'perforation-vertical',
+      perforated: true,
     });
   });
   applyLayerVisibility();
   restoreMeasurementSelections();
-  restorePerforationStates();
 }
 
 // ------------------------------------------------------------
@@ -740,7 +725,24 @@ const SCORE_PRESETS = {
   trifold: [1 / 3, 2 / 3],
 };
 
-const formatScoreOffset = (value) => {
+const verticalPerforationPresetButtons = {
+  bifold: $('#perfPresetVBifold'),
+  trifold: $('#perfPresetVTrifold'),
+  custom: $('#perfPresetVCustom'),
+};
+const horizontalPerforationPresetButtons = {
+  bifold: $('#perfPresetHBifold'),
+  trifold: $('#perfPresetHTrifold'),
+  custom: $('#perfPresetHCustom'),
+};
+const verticalPerforationInput = $('#perfV');
+const horizontalPerforationInput = $('#perfH');
+const PERFORATION_PRESETS = {
+  bifold: [0.5],
+  trifold: [1 / 3, 2 / 3],
+};
+
+const formatOffsetValue = (value) => {
   const fixed = Number(value || 0).toFixed(4);
   const trimmed = fixed.replace(/0+$/, '').replace(/\.$/, '');
   return trimmed === '' ? '0' : trimmed;
@@ -752,7 +754,7 @@ function setVerticalScoreOffsets(offsets = []) {
     verticalScoreInput.value = '';
     return;
   }
-  verticalScoreInput.value = offsets.map(formatScoreOffset).join(', ');
+  verticalScoreInput.value = offsets.map(formatOffsetValue).join(', ');
 }
 
 function lockVerticalScoreInput(lock, presetKey) {
@@ -774,7 +776,7 @@ function setHorizontalScoreOffsets(offsets = []) {
     horizontalScoreInput.value = '';
     return;
   }
-  horizontalScoreInput.value = offsets.map(formatScoreOffset).join(', ');
+  horizontalScoreInput.value = offsets.map(formatOffsetValue).join(', ');
 }
 
 function lockHorizontalScoreInput(lock, presetKey) {
@@ -799,8 +801,56 @@ function setScorePresetState(buttons, activeKey) {
   });
 }
 
+function setVerticalPerforationOffsets(offsets = []) {
+  if (!verticalPerforationInput) return;
+  if (!Array.isArray(offsets) || offsets.length === 0) {
+    verticalPerforationInput.value = '';
+    return;
+  }
+  verticalPerforationInput.value = offsets.map(formatOffsetValue).join(', ');
+}
+
+function lockVerticalPerforationInput(lock, presetKey) {
+  if (!verticalPerforationInput) return;
+  if (lock) {
+    verticalPerforationInput.setAttribute('readonly', 'true');
+    verticalPerforationInput.classList.add('is-locked');
+    if (presetKey) verticalPerforationInput.dataset.preset = presetKey;
+  } else {
+    verticalPerforationInput.removeAttribute('readonly');
+    verticalPerforationInput.classList.remove('is-locked');
+    delete verticalPerforationInput.dataset.preset;
+  }
+}
+
+function setHorizontalPerforationOffsets(offsets = []) {
+  if (!horizontalPerforationInput) return;
+  if (!Array.isArray(offsets) || offsets.length === 0) {
+    horizontalPerforationInput.value = '';
+    return;
+  }
+  horizontalPerforationInput.value = offsets.map(formatOffsetValue).join(', ');
+}
+
+function lockHorizontalPerforationInput(lock, presetKey) {
+  if (!horizontalPerforationInput) return;
+  if (lock) {
+    horizontalPerforationInput.setAttribute('readonly', 'true');
+    horizontalPerforationInput.classList.add('is-locked');
+    if (presetKey) horizontalPerforationInput.dataset.preset = presetKey;
+  } else {
+    horizontalPerforationInput.removeAttribute('readonly');
+    horizontalPerforationInput.classList.remove('is-locked');
+    delete horizontalPerforationInput.dataset.preset;
+  }
+}
+
 const setVerticalPresetState = (key) => setScorePresetState(verticalScorePresetButtons, key);
 const setHorizontalPresetState = (key) => setScorePresetState(horizontalScorePresetButtons, key);
+const setVerticalPerforationPresetState = (key) =>
+  setScorePresetState(verticalPerforationPresetButtons, key);
+const setHorizontalPerforationPresetState = (key) =>
+  setScorePresetState(horizontalPerforationPresetButtons, key);
 
 function applyLayoutPreset(presetKey) {
   const presets = window.LAYOUT_PRESETS || {};
@@ -841,11 +891,12 @@ function applyLayoutPreset(presetKey) {
   setHorizontalPresetState('custom');
   setVerticalScoreOffsets(preset.scores?.vertical ?? []);
   setHorizontalScoreOffsets(preset.scores?.horizontal ?? []);
-
-  pendingPerforationPreset = {
-    horizontal: Array.isArray(preset.perforations?.horizontal) ? [...preset.perforations.horizontal] : [],
-    vertical: Array.isArray(preset.perforations?.vertical) ? [...preset.perforations.vertical] : [],
-  };
+  lockVerticalPerforationInput(false);
+  lockHorizontalPerforationInput(false);
+  setVerticalPerforationPresetState('custom');
+  setHorizontalPerforationPresetState('custom');
+  setVerticalPerforationOffsets(preset.perforations?.vertical ?? []);
+  setHorizontalPerforationOffsets(preset.perforations?.horizontal ?? []);
 
   update();
   status(`${preset.label} preset applied`);
@@ -925,6 +976,72 @@ horizontalScorePresetButtons.custom?.addEventListener('click', () => {
   status('Horizontal custom score entry enabled');
 });
 
+verticalPerforationPresetButtons.bifold?.addEventListener('click', () => {
+  setVerticalPerforationOffsets(PERFORATION_PRESETS.bifold);
+  lockVerticalPerforationInput(true, 'bifold');
+  setVerticalPerforationPresetState('bifold');
+  update();
+  status('Vertical bifold perforation preset applied');
+});
+
+verticalPerforationPresetButtons.trifold?.addEventListener('click', () => {
+  setVerticalPerforationOffsets(PERFORATION_PRESETS.trifold);
+  lockVerticalPerforationInput(true, 'trifold');
+  setVerticalPerforationPresetState('trifold');
+  update();
+  status('Vertical trifold perforation preset applied');
+});
+
+verticalPerforationPresetButtons.custom?.addEventListener('click', () => {
+  lockVerticalPerforationInput(false);
+  setVerticalPerforationPresetState('custom');
+  verticalPerforationInput?.focus();
+  update();
+  status('Vertical custom perforation entry enabled');
+});
+
+if (verticalPerforationInput) {
+  ['input', 'change'].forEach((evt) =>
+    verticalPerforationInput.addEventListener(evt, () => {
+      if (verticalPerforationInput.readOnly) return;
+      setVerticalPerforationPresetState('custom');
+    })
+  );
+}
+
+horizontalPerforationPresetButtons.bifold?.addEventListener('click', () => {
+  setHorizontalPerforationOffsets(PERFORATION_PRESETS.bifold);
+  lockHorizontalPerforationInput(true, 'bifold');
+  setHorizontalPerforationPresetState('bifold');
+  update();
+  status('Horizontal bifold perforation preset applied');
+});
+
+horizontalPerforationPresetButtons.trifold?.addEventListener('click', () => {
+  setHorizontalPerforationOffsets(PERFORATION_PRESETS.trifold);
+  lockHorizontalPerforationInput(true, 'trifold');
+  setHorizontalPerforationPresetState('trifold');
+  update();
+  status('Horizontal trifold perforation preset applied');
+});
+
+horizontalPerforationPresetButtons.custom?.addEventListener('click', () => {
+  lockHorizontalPerforationInput(false);
+  setHorizontalPerforationPresetState('custom');
+  horizontalPerforationInput?.focus();
+  update();
+  status('Horizontal custom perforation entry enabled');
+});
+
+if (horizontalPerforationInput) {
+  ['input', 'change'].forEach((evt) =>
+    horizontalPerforationInput.addEventListener(evt, () => {
+      if (horizontalPerforationInput.readOnly) return;
+      setHorizontalPerforationPresetState('custom');
+    })
+  );
+}
+
 $('#swapScoreOffsets')?.addEventListener('click', swapScoreOffsets);
 
 if (horizontalScoreInput) {
@@ -938,6 +1055,8 @@ if (horizontalScoreInput) {
 
 setVerticalPresetState('custom');
 setHorizontalPresetState('custom');
+setVerticalPerforationPresetState('custom');
+setHorizontalPerforationPresetState('custom');
 const UNIT_PRECISION = { in: 3, mm: 2 };
 const numericInputSelectors = [
   '#sheetW',
@@ -1000,6 +1119,7 @@ $('#calcBtn').addEventListener('click', update);
 $('#resetBtn').addEventListener('click', () => location.reload());
 
 $('#applyScores').addEventListener('click', update);
+$('#applyPerforations').addEventListener('click', update);
 
 document.addEventListener('keydown', (e) => {
   if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') update();

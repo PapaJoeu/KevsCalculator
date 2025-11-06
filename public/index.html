@@ -50,6 +50,7 @@
           <div class="tab" data-tab="summary">Summary</div>
           <div class="tab" data-tab="finishing">Cuts / Slits</div>
           <div class="tab" data-tab="scores">Scores</div>
+          <div class="tab" data-tab="perforations">Perforations</div>
           <div class="tab" data-tab="warnings">Warnings</div>
           <div class="tab" data-tab="print">Print</div>
         </nav>
@@ -311,14 +312,93 @@
                         <h3>Scores (Y)</h3>
                         <p class="muted">Horizontal runs positioned along the sheet height.</p>
                       </div>
-                      <table class="table" id="tblScoresH"><thead><tr><th>Label</th><th>in</th><th>mm</th><th>Display as perforation</th></tr></thead><tbody></tbody></table>
+                      <table class="table" id="tblScoresH"><thead><tr><th>Label</th><th>in</th><th>mm</th></tr></thead><tbody></tbody></table>
                     </div>
                     <div class="card stack score-table-card">
                       <div>
                         <h3>Scores (X)</h3>
                         <p class="muted">Vertical runs positioned along the sheet width.</p>
                       </div>
-                      <table class="table" id="tblScoresV"><thead><tr><th>Label</th><th>in</th><th>mm</th><th>Display as perforation</th></tr></thead><tbody></tbody></table>
+                      <table class="table" id="tblScoresV"><thead><tr><th>Label</th><th>in</th><th>mm</th></tr></thead><tbody></tbody></table>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section id="tab-perforations">
+            <div class="scores-pane">
+              <div class="score-layout">
+                <div class="score-column">
+                  <div class="card stack score-card-intro">
+                    <div class="score-card-title">
+                      <h3>Perforation Planning</h3>
+                      <p class="muted">Configure tear-off runs relative to each document before applying them to the layout.</p>
+                    </div>
+                  </div>
+                  <div class="card stack score-card score-card-vertical">
+                    <div class="score-card-header">
+                      <div class="score-card-title">
+                        <h3>Vertical Perforations</h3>
+                        <p class="muted">Lines running top-to-bottom relative to the document width.</p>
+                      </div>
+                      <div class="score-presets no-print" role="group" aria-label="Vertical perforation presets">
+                        <button class="btn" id="perfPresetVBifold" type="button">Bifold</button>
+                        <button class="btn" id="perfPresetVTrifold" type="button">Trifold</button>
+                        <button class="btn" id="perfPresetVCustom" type="button">Custom</button>
+                      </div>
+                    </div>
+                    <div class="score-field stack-sm">
+                      <label class="score-label" for="perfV" title="CSV, 0–1 (e.g., 0.5 or 0.33,0.66)">
+                        <span>Vertical perforations</span>
+                        <input id="perfV" type="text" value="" placeholder="e.g., 0.5" />
+                      </label>
+                      <p class="muted score-hint">Values are relative to the document width.</p>
+                    </div>
+                  </div>
+                  <div class="card stack score-card score-card-horizontal">
+                    <div class="score-card-header">
+                      <div class="score-card-title">
+                        <h3>Horizontal Perforations</h3>
+                        <p class="muted">Lines running left-to-right relative to the document height.</p>
+                      </div>
+                      <div class="score-presets no-print" role="group" aria-label="Horizontal perforation presets">
+                        <button class="btn" id="perfPresetHBifold" type="button">Bifold</button>
+                        <button class="btn" id="perfPresetHTrifold" type="button">Trifold</button>
+                        <button class="btn" id="perfPresetHCustom" type="button">Custom</button>
+                      </div>
+                    </div>
+                    <div class="score-field stack-sm">
+                      <label class="score-label" for="perfH" title="CSV, 0–1">
+                        <span>Horizontal perforations</span>
+                        <input id="perfH" type="text" value="" placeholder="e.g., 0.5" />
+                      </label>
+                      <p class="muted score-hint">Values are relative to the document height.</p>
+                    </div>
+                  </div>
+                  <div class="card score-actions-card">
+                    <div class="score-actions toolbar no-print">
+                      <button class="btn primary" id="applyPerforations" type="button">Apply Perforations</button>
+                      <span class="muted">Leave fields blank to omit perforations.</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="score-column score-results">
+                  <div class="score-results-grid">
+                    <div class="card stack score-table-card">
+                      <div>
+                        <h3>Perforations (Y)</h3>
+                        <p class="muted">Horizontal perforation runs positioned along the sheet height.</p>
+                      </div>
+                      <table class="table" id="tblPerforationsH"><thead><tr><th>Label</th><th>in</th><th>mm</th></tr></thead><tbody></tbody></table>
+                    </div>
+                    <div class="card stack score-table-card">
+                      <div>
+                        <h3>Perforations (X)</h3>
+                        <p class="muted">Vertical perforation runs positioned along the sheet width.</p>
+                      </div>
+                      <table class="table" id="tblPerforationsV"><thead><tr><th>Label</th><th>in</th><th>mm</th></tr></thead><tbody></tbody></table>
                     </div>
                   </div>
                 </div>
