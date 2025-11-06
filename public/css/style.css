@@ -57,7 +57,8 @@ h3 {
  * Grid helpers and panels that shape the main
  * calculator layout.
  * ============================================= */
-.wrap {
+/* This class wraps the entire calculator experience, establishing the page centering and stacking rhythm. */
+.layout-app-shell {
   max-width: 1280px;
   margin: 0 auto;
   padding: 16px 18px 24px;
@@ -67,38 +68,45 @@ h3 {
   gap: 18px;
 }
 
-.app-header {
+/* This class formats the top header section that introduces the calculator. */
+.layout-app-header {
   display: flex;
   flex-direction: column;
   gap: 4px;
   padding: 4px 6px 0;
 }
 
-.app-header p {
+/* This descendant rule limits header body copy width for readability. */
+.layout-app-header p {
   margin: 0;
   max-width: 640px;
 }
 
-.grid {
+/* This utility class creates grid layouts for cards and content groupings. */
+.layout-grid-group {
   display: grid;
   gap: 12px;
 }
 
-.stack {
+/* This utility class stacks children vertically with customizable spacing. */
+.layout-stack {
   display: flex;
   flex-direction: column;
   gap: var(--stack-gap, 12px);
 }
 
-.stack-sm {
+/* This modifier tightens spacing for compact stack layouts. */
+.layout-stack-compact {
   --stack-gap: 8px;
 }
 
-.stack .toolbar {
+/* This rule removes extra spacing when toolbars render inside stacked cards. */
+.layout-stack .control-toolbar, .layout-stack .visualizer-visibility-toggles {
   margin: 0;
 }
 
-.inputs-scroll {
+/* This container enables scrolling for the primary input controls while keeping layout flexible. */
+.input-scroll-container {
   flex: 1;
   min-height: 0;
   display: flex;
@@ -108,7 +116,8 @@ h3 {
   padding-right: 6px;
 }
 
-.inputs-toolbar {
+/* This toolbar anchors the unit selector at the top of the scrollable input area. */
+.input-unit-controls {
   position: sticky;
   top: 0;
   padding: 6px 0 10px;
@@ -118,7 +127,8 @@ h3 {
   margin: 0;
 }
 
-.inputs-toolbar::after {
+/* This pseudo-element draws a separator line beneath the sticky unit selector. */
+.input-unit-controls::after {
   content: "";
   position: absolute;
   inset: auto 0 0;
@@ -127,7 +137,8 @@ h3 {
   opacity: 0.6;
 }
 
-.panel {
+/* This class standardizes the chrome around the primary content groupings. */
+.content-section {
   background: var(--panel);
   border: 1px solid #222632;
   border-radius: 14px;
@@ -135,82 +146,107 @@ h3 {
   box-shadow: 0 4px 24px rgba(0, 0, 0, 0.25);
 }
 
-.preview-panel {
+/* This class structures the visualizer section that houses the preview canvas and legend. */
+.sheet-preview-visualizer {
   display: flex;
   flex-direction: column;
   gap: 12px;
 }
 
-.tab-panel {
+/* This class governs the tabbed analysis section that follows the preview. */
+.output-details-section {
   display: flex;
   flex-direction: column;
   gap: 0;
 }
 
-.tab-panel .tabpanes {
+/* This rule ensures tab content stretches to fill available height for scrollable panes. */
+.output-details-section .output-tabpanel-collection {
   flex: 1;
   min-height: 0;
 }
 
-.layout-pane {
+/* This container groups the input cards and supporting descriptions. */
+.input-layout-panel {
   display: flex;
   flex-direction: column;
   gap: 16px;
 }
 
-.layout-header p {
+/* This header styling keeps intro copy aligned with the pane layout. */
+.input-panel-header p {
   margin: 0;
   font-size: 0.95rem;
 }
 
-.layout-grid {
+/* This grid arranges configuration cards responsively based on available width. */
+.input-card-grid {
   display: grid;
   gap: 12px;
   grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
 }
 
-.output-preview {
+/* This container stacks the preview canvas, its controls, and legend. */
+.sheet-preview-container {
   display: flex;
   flex-direction: column;
   gap: 8px;
 }
 
-.row {
+/* This grid arranges input fields into flexible, multi-column rows. */
+.input-field-row {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
   gap: 8px;
 }
 
-.row4 {
+/* This variation supports four-up field clusters with narrower minimum widths. */
+.input-field-row-quad {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
   gap: 8px;
 }
 
+/* This helper distributes form controls evenly based on available width. */
+.input-field-row-auto {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 6px;
+}
+
 @media (max-width: 900px) {
-  .inputs-scroll {
+  /* This adjustment relaxes scrolling on smaller screens for the input pane. */
+  .input-scroll-container {
     overflow: visible;
     padding-right: 0;
   }
 
-  .inputs-toolbar {
+  /* This removes the sticky behavior on narrow devices where it might obscure inputs. */
+  .input-unit-controls {
     position: static;
     box-shadow: none;
   }
 
-  .inputs-toolbar::after {
+  /* The separator is hidden when sticky behavior is removed. */
+  .input-unit-controls::after {
     display: none;
   }
 }
 
-.muted {
+/* =============================================
+ * Typography Helpers
+ * ---------------------------------------------
+ * Text utility classes for muted and numeric
+ * treatments shared across the UI.
+ * ============================================= */
+/* This utility softens copy for supporting descriptions and helper text. */
+.text-muted-detail {
   color: var(--muted);
 }
 
-.rowAuto {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-  gap: 6px;
+/* This utility aligns inline values to a fixed numeric width for quick comparisons. */
+.text-metric-readout {
+  font-variant-numeric: tabular-nums;
 }
 
 /* =============================================
@@ -255,11 +291,8 @@ select {
   width: 100%;
 }
 
-.k {
-  font-variant-numeric: tabular-nums;
-}
-
-.toolbar {
+/* This base class standardizes horizontal control group layouts across the app. */
+.control-toolbar {
   display: flex;
   gap: 8px;
   align-items: center;
@@ -267,20 +300,48 @@ select {
   margin: 0.5rem 0 0;
 }
 
-.card > .toolbar {
+/* This rule removes extra spacing when toolbars appear directly inside cards. */
+.data-card > .control-toolbar {
   margin: 0 0 6px;
 }
 
-.preview-toolbar {
+/* This toolbar pins preset dropdowns within card headers for quick access. */
+.preset-selector-toolbar {
+  justify-content: flex-start;
+}
+
+/* This toolbar coordinates the primary action buttons for the input controls. */
+.input-action-toolbar {
+  justify-content: space-between;
+  gap: 12px;
+}
+
+/* =============================================
+ * Preview Controls
+ * ---------------------------------------------
+ * Specific tooling for toggling layer visibility
+ * and presenting the preview canvas.
+ * ============================================= */
+/* This toolbar hosts the layer visibility checkboxes directly above the preview. */
+.visualizer-visibility-toggles {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+  margin: 0;
+}
+
+/* This modifier styles the preview toggle controls with a darker backdrop and padding. */
+.layer-visibility-toolbar {
   justify-content: flex-start;
   padding: 8px 10px;
   background: #11141b;
   border: 1px solid #1f2430;
   border-radius: 10px;
-  margin: 0;
 }
 
-.preview-toolbar label {
+/* These labels format each individual layer toggle option. */
+.layer-visibility-toolbar label {
   display: inline-flex;
   align-items: center;
   gap: 6px;
@@ -293,19 +354,28 @@ select {
   font-size: 0.9rem;
 }
 
-.preview-toolbar label:hover {
+/* Hover states highlight the label border to reinforce interactivity. */
+.layer-visibility-toolbar label:hover {
   border-color: #334155;
   background: #131926;
 }
 
-.preview-toolbar input[type="checkbox"] {
+/* Checkbox styling aligns with the neon accent of the preview. */
+.layer-visibility-toolbar input[type="checkbox"] {
   margin: 0;
   width: 16px;
   height: 16px;
   accent-color: var(--accent);
 }
 
-.btn {
+/* =============================================
+ * Buttons
+ * ---------------------------------------------
+ * Shared button styling for actions and toolbar
+ * affordances throughout the UI.
+ * ============================================= */
+/* This base button class unifies shape, padding, and neutral chroma across actions. */
+.action-button {
   appearance: none;
   border: 1px solid #263041;
   background: #0d1117;
@@ -315,21 +385,25 @@ select {
   cursor: pointer;
 }
 
-.btn:hover {
+/* Hover states slightly brighten the border for feedback. */
+.action-button:hover {
   border-color: #334155;
   background: #101522;
 }
 
-.btn.primary {
+/* This modifier emphasizes primary actions with teal accents. */
+.action-button-primary {
   border-color: #1f8a8a;
   background: #0e1b1b;
 }
 
-.btn.ghost {
+/* This variant keeps the button transparent for subtle inline actions. */
+.action-button-ghost {
   background: transparent;
 }
 
-.btn.is-active {
+/* This state class highlights the active button in toggle groups. */
+.action-button.is-active {
   border-color: var(--accent);
   background: #112024;
   color: var(--accent);
@@ -341,7 +415,8 @@ select {
  * Styles for the output area, including tabs,
  * summary cards, and supporting tables.
  * ============================================= */
-.tabbar {
+/* This navigation bar anchors the tab triggers above the output content. */
+.output-tab-navigation-bar {
   display: flex;
   gap: 6px;
   border-bottom: 1px solid #1f2430;
@@ -349,59 +424,69 @@ select {
   padding: 0 10px;
 }
 
-.output-tabs {
+/* This class constrains the navigation to the card's horizontal padding. */
+.output-tab-navigation {
   margin: 0 -14px 10px;
 }
 
-.tab {
+/* Each trigger functions as a pseudo-tab button for switching panes. */
+.output-tab-trigger {
   padding: 10px 12px;
   border-bottom: 2px solid transparent;
   color: #c0c6d4;
   cursor: pointer;
 }
 
-.tab.active {
+/* Active tabs pick up the accent color to indicate selection. */
+.output-tab-trigger.is-active {
   color: var(--text);
   border-color: var(--accent);
 }
 
-.scores-pane {
+/* This container stacks score planning panels and supplemental results. */
+.finishing-score-pane {
   display: flex;
   flex-direction: column;
   gap: 18px;
 }
 
-.score-layout {
+/* This layout splits inputs and results into columns for large screens. */
+.finishing-score-layout {
   display: grid;
   gap: 18px;
   grid-template-columns: minmax(0, 420px) minmax(0, 1fr);
   align-items: start;
 }
 
-.score-column {
+/* Each column stacks cards in the scoring and perforation tabs. */
+.finishing-score-column {
   display: flex;
   flex-direction: column;
   gap: 18px;
 }
 
-.score-card-intro {
+/* This card introduces the scoring/perforation section with contextual copy. */
+.finishing-score-card-intro {
   --stack-gap: 8px;
 }
 
-.score-results {
+/* This modifier adds breathing room between result cards. */
+.finishing-score-results {
   gap: 16px;
 }
 
-.score-card {
+/* This base card adds vertical rhythm for score configuration forms. */
+.finishing-score-card {
   --stack-gap: 16px;
 }
 
-.score-card-vertical .score-card-title p,
-.score-card-horizontal .score-card-title p {
+/* Horizontal score cards allow wider headlines to wrap cleanly. */
+.finishing-score-card-horizontal .finishing-score-card-title p, .finishing-score-card-vertical .finishing-score-card-title p {
   max-width: none;
 }
 
-.score-card-header {
+/* This header aligns titles and preset buttons for score cards. */
+.finishing-score-card-header {
   display: flex;
   flex-wrap: wrap;
   align-items: flex-start;
@@ -411,47 +496,55 @@ select {
   border-bottom: 1px solid #1f2430;
 }
 
-.score-card-title p {
+/* This container limits explanatory copy to a comfortable width. */
+.finishing-score-card-title p {
   margin: 0;
   max-width: 460px;
 }
 
-.score-presets {
+/* This group arranges preset buttons adjacent to score headings. */
+.finishing-score-preset-group {
   display: flex;
   flex-wrap: wrap;
   justify-content: flex-end;
   gap: 8px;
 }
 
-.score-presets .btn {
+/* Preset buttons maintain a minimum width to keep labels legible. */
+.finishing-score-preset-group .action-button {
   min-width: 90px;
   text-align: center;
 }
 
-.score-field {
+/* This container stacks score input labels and helper copy. */
+.finishing-score-field {
   display: flex;
   flex-direction: column;
   gap: 6px;
 }
 
-.score-field label {
+/* Score labels switch to a column layout for multi-line instructions. */
+.finishing-score-field label {
   flex-direction: column;
   align-items: stretch;
   justify-content: flex-start;
   gap: 8px;
 }
 
-.score-field label span {
+/* Score labels inherit a smaller caption style for descriptors. */
+.finishing-score-field label span {
   font-size: 0.85rem;
   color: #cbd5e1;
 }
 
-.score-field label input {
+/* Inputs span the full width when editing score values. */
+.finishing-score-field label input {
   width: 100%;
   text-align: left;
 }
 
-.score-field label input.is-locked {
+/* Locked score inputs adopt a disabled palette to indicate read-only state. */
+.finishing-score-field label input.is-locked {
   background: #111821;
   border-color: #253043;
   color: #cbd5e1;
@@ -459,161 +552,177 @@ select {
   opacity: 0.85;
 }
 
-.score-hint {
+/* Helper text reinforces how values are interpreted. */
+.finishing-score-hint {
   margin: 0;
   font-size: 0.85rem;
 }
 
-.score-actions {
-  margin: 0;
+/* Action toolbars for score/perforation tabs span available width for buttons and copy. */
+.finishing-action-toolbar {
   justify-content: space-between;
 }
 
-.score-actions-card {
+/* This card removes default padding so the toolbar can hug the edges. */
+.finishing-action-card {
   padding: 0;
 }
 
-.score-actions-card .score-actions {
+/* Padding is reintroduced within the toolbar for comfortable spacing. */
+.finishing-action-card .finishing-action-toolbar {
   padding: 12px;
 }
 
-.score-actions .muted {
+/* Inline helper text inside action toolbars uses the muted tone. */
+.finishing-action-toolbar .text-muted-detail {
   font-size: 0.85rem;
 }
 
-.score-table-card {
+/* Result cards tighten spacing for summary tables and descriptions. */
+.finishing-score-table-card {
   --stack-gap: 12px;
 }
 
-.score-table-card p {
+/* Copy inside result cards uses a smaller type scale. */
+.finishing-score-table-card p {
   margin: 0;
   font-size: 0.85rem;
 }
 
-.score-results-grid {
+/* Result grids arrange tables responsively based on available width. */
+.finishing-score-results-grid {
   display: grid;
   gap: 16px;
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
 }
 
 @media (max-width: 960px) {
-  .score-layout {
+  /* Score layouts collapse to a single column on mid-sized screens. */
+  .finishing-score-layout {
     grid-template-columns: 1fr;
   }
 }
 
 @media (max-width: 680px) {
-  .score-card-header {
+  /* Score headers stack elements vertically on narrow devices. */
+  .finishing-score-card-header {
     flex-direction: column;
     align-items: stretch;
   }
 
-  .score-presets {
+  /* Preset buttons left-align when stacked vertically. */
+  .finishing-score-preset-group {
     justify-content: flex-start;
   }
 }
 
-.tabpanes > section {
+/* This wrapper hides inactive tab panels until selected. */
+.output-tabpanel-collection > section {
   display: none;
 }
 
-.tabpanes > section.active {
+/* Active tab panels are revealed when their tab is selected. */
+.output-tabpanel-collection > section.is-active {
   display: block;
 }
 
-.summary {
+/* This grid displays key metrics in three columns. */
+.summary-metrics-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 10px;
 }
 
-.card {
+/* Cards provide a consistent surface for presenting grouped content. */
+.data-card {
   background: #0e1219;
   border: 1px solid #1c2230;
   border-radius: 12px;
   padding: 12px;
 }
 
-.card .v {
+/* Summary values use a bold tabular treatment for quick scanning. */
+.data-card .summary-metric-value {
   font-variant-numeric: tabular-nums;
   font-weight: 600;
 }
 
-.table {
+/* Data tables share a consistent column spacing and divider treatment. */
+.data-table {
   width: 100%;
   border-collapse: collapse;
 }
 
-.table th,
-.table td {
+/* Table cell padding creates airy spacing for tabular data. */
+.data-table th, .data-table td {
   padding: 8px 10px;
   border-bottom: 1px dashed #223;
 }
 
-.table th {
+/* Table headers use a brighter tone to stand out from data rows. */
+.data-table th {
   text-align: left;
   color: #cbd5e1;
 }
 
+/* Interactive measurement rows change background on hover/selection to mirror preview cues. */
 .measurement-row {
   cursor: pointer;
   transition: background 0.18s ease, color 0.18s ease;
 }
 
+/* Focus outlines assist keyboard navigation within the tables. */
 .measurement-row:focus {
   outline: 1px solid var(--accent);
   outline-offset: -2px;
 }
 
-.measurement-row.is-hovered,
-.measurement-row.is-selected {
+/* Hover and selected states brighten the text color for readability. */
+.measurement-row.is-hovered, .measurement-row.is-selected {
   color: #e2e8f0;
 }
 
-.measurement-row[data-measure-type="cut"].is-hovered,
-.measurement-row[data-measure-type="slit"].is-hovered {
+/* Cut and slit rows adopt aqua tones to match the preview overlay. */
+.measurement-row[data-measure-type="cut"].is-hovered, .measurement-row[data-measure-type="slit"].is-hovered {
   background: rgba(34, 211, 238, 0.12);
 }
 
-.measurement-row[data-measure-type="cut"].is-selected,
-.measurement-row[data-measure-type="slit"].is-selected {
+/* Selected cut and slit rows deepen the aqua fill. */
+.measurement-row[data-measure-type="cut"].is-selected, .measurement-row[data-measure-type="slit"].is-selected {
   background: rgba(34, 211, 238, 0.22);
 }
 
-.measurement-row[data-measure-type="score-horizontal"].is-hovered,
-.measurement-row[data-measure-type="score-vertical"].is-hovered {
+/* Hover states for score rows use lavender to mirror their overlay color. */
+.measurement-row[data-measure-type="score-horizontal"].is-hovered, .measurement-row[data-measure-type="score-vertical"].is-hovered {
   background: rgba(167, 139, 250, 0.12);
 }
 
-.measurement-row[data-measure-type="score-horizontal"].is-selected,
-.measurement-row[data-measure-type="score-vertical"].is-selected {
+/* Selected score rows intensify the lavender shading. */
+.measurement-row[data-measure-type="score-horizontal"].is-selected, .measurement-row[data-measure-type="score-vertical"].is-selected {
   background: rgba(167, 139, 250, 0.22);
 }
 
+/* Preview measurement lines transition smoothly when interacted with from the tables. */
 .measurement-line {
   pointer-events: auto;
   transition: stroke 0.2s ease, stroke-width 0.2s ease, opacity 0.2s ease;
   opacity: 0.9;
 }
 
-.measurement-line.is-hovered,
-.measurement-line.is-selected {
+/* Hovered and selected lines thicken to confirm linkage with the table rows. */
+.measurement-line.is-hovered, .measurement-line.is-selected {
   stroke-width: 3;
   opacity: 1;
 }
 
-.measurement-line[data-measure-type="cut"].is-hovered,
-.measurement-line[data-measure-type="cut"].is-selected,
-.measurement-line[data-measure-type="slit"].is-hovered,
-.measurement-line[data-measure-type="slit"].is-selected {
+/* Cut and slit lines glow aqua when highlighted. */
+.measurement-line[data-measure-type="cut"].is-hovered, .measurement-line[data-measure-type="cut"].is-selected, .measurement-line[data-measure-type="slit"].is-hovered, .measurement-line[data-measure-type="slit"].is-selected {
   stroke: #67e8f9;
   filter: drop-shadow(0 0 4px rgba(103, 232, 249, 0.6));
 }
 
-.measurement-line[data-measure-type="score-horizontal"].is-hovered,
-.measurement-line[data-measure-type="score-horizontal"].is-selected,
-.measurement-line[data-measure-type="score-vertical"].is-hovered,
-.measurement-line[data-measure-type="score-vertical"].is-selected {
+/* Score lines glow lavender to mirror the measurement legend. */
+.measurement-line[data-measure-type="score-horizontal"].is-hovered, .measurement-line[data-measure-type="score-horizontal"].is-selected, .measurement-line[data-measure-type="score-vertical"].is-hovered, .measurement-line[data-measure-type="score-vertical"].is-selected {
   stroke: #c4b5fd;
   filter: drop-shadow(0 0 4px rgba(196, 181, 253, 0.6));
 }
@@ -624,7 +733,8 @@ select {
  * Visual display for the SVG preview and legend
  * describing key color codes.
  * ============================================= */
-.preview {
+/* This stage centers the SVG preview and provides a dark surround. */
+.sheet-preview-stage {
   background: #0b0d12;
   border: 1px solid #1b2030;
   border-radius: 12px;
@@ -634,7 +744,8 @@ select {
   min-height: 360px;
 }
 
-.legend {
+/* This legend lists the preview layer colors and their meanings. */
+.sheet-preview-legend {
   display: flex;
   gap: 10px;
   flex-wrap: wrap;
@@ -643,7 +754,8 @@ select {
   color: #cbd5e1;
 }
 
-.dot {
+/* Each swatch displays the color associated with a preview layer. */
+.legend-color-swatch {
   display: inline-block;
   width: 12px;
   height: 12px;
@@ -651,19 +763,23 @@ select {
   margin-right: 6px;
 }
 
-.dot.grid {
+/* Swatch color for the layout grid boundary. */
+.legend-swatch-layout-area {
   background: #26323e;
 }
 
-.dot.doc {
+/* Swatch color for document outlines. */
+.legend-swatch-documents {
   background: #64748b;
 }
 
-.dot.cut {
+/* Swatch color for cut and slit indications. */
+.legend-swatch-cuts {
   background: #22d3ee;
 }
 
-.dot.score {
+/* Swatch color for score overlays. */
+.legend-swatch-scores {
   background: #a78bfa;
 }
 
@@ -679,24 +795,29 @@ select {
     color: #000;
   }
 
-  .no-print {
+  /* Elements with this class disappear from printed output. */
+  .print-hidden {
     display: none !important;
   }
 
-  .print-only {
+  /* Elements with this class are forced visible only during print. */
+  .print-only-content {
     display: block !important;
   }
 
-  .panel {
+  /* Panels shed their borders when printed for a cleaner page. */
+  .content-section {
     border: none;
     box-shadow: none;
   }
 
-  .wrap {
+  /* The page width restriction is lifted to use the full sheet. */
+  .layout-app-shell {
     max-width: none;
   }
 }
 
-.print-only {
+/* Print-only containers remain hidden during on-screen use. */
+.print-only-content {
   display: none;
 }

@@ -8,64 +8,64 @@
     <link rel="stylesheet" href="./css/style.css" />
   </head>
   <body>
-    <div class="wrap">
-      <header class="app-header">
+    <div class="layout-app-shell">
+      <header class="layout-app-header">
         <h1>Print Layout Calculator</h1>
-        <p class="muted">Plan your sheet, finishing, and print-ready outputs from a single workspace.</p>
+        <p class="text-muted-detail">Plan your sheet, finishing, and print-ready outputs from a single workspace.</p>
       </header>
 
-      <section class="panel preview-panel">
-        <div class="output-preview">
-          <div class="toolbar preview-toolbar no-print">
+      <section class="content-section sheet-preview-visualizer">
+        <div class="sheet-preview-container">
+          <div class="visualizer-visibility-toggles layer-visibility-toolbar print-hidden">
             <label>
-              <input class="layer-toggle" type="checkbox" data-layer="layout" checked />
+              <input class="layer-visibility-toggle-input" type="checkbox" data-layer="layout" checked />
               <span>Layout Area</span>
             </label>
             <label>
-              <input class="layer-toggle" type="checkbox" data-layer="docs" checked />
+              <input class="layer-visibility-toggle-input" type="checkbox" data-layer="docs" checked />
               <span>Documents</span>
             </label>
             <label>
-              <input class="layer-toggle" type="checkbox" data-layer="cuts" checked />
+              <input class="layer-visibility-toggle-input" type="checkbox" data-layer="cuts" checked />
               <span>Cuts / Slits</span>
             </label>
             <label>
-              <input class="layer-toggle" type="checkbox" data-layer="scores" checked />
+              <input class="layer-visibility-toggle-input" type="checkbox" data-layer="scores" checked />
               <span>Scores</span>
             </label>
           </div>
-          <div class="preview"><svg id="svg" width="960" height="600" viewBox="0 0 960 600" aria-label="sheet preview"></svg></div>
-          <div class="legend no-print">
-            <span><i class="dot grid"></i>Layout Area</span>
-            <span><i class="dot doc"></i>Documents</span>
-            <span><i class="dot cut"></i>Cut/Slit Lines</span>
-            <span><i class="dot score"></i>Scores</span>
+          <div class="sheet-preview-stage"><svg id="svg" width="960" height="600" viewBox="0 0 960 600" aria-label="sheet preview"></svg></div>
+          <div class="sheet-preview-legend print-hidden">
+            <span><i class="legend-color-swatch legend-swatch-layout-area"></i>Layout Area</span>
+            <span><i class="legend-color-swatch legend-swatch-documents"></i>Documents</span>
+            <span><i class="legend-color-swatch legend-swatch-cuts"></i>Cut/Slit Lines</span>
+            <span><i class="legend-color-swatch legend-swatch-scores"></i>Scores</span>
           </div>
         </div>
       </section>
 
-      <main class="panel tab-panel">
-        <nav class="tabbar no-print output-tabs">
-          <div class="tab active" data-tab="inputs">Inputs</div>
-          <div class="tab" data-tab="summary">Summary</div>
-          <div class="tab" data-tab="finishing">Cuts / Slits</div>
-          <div class="tab" data-tab="scores">Scores</div>
-          <div class="tab" data-tab="perforations">Perforations</div>
-          <div class="tab" data-tab="warnings">Warnings</div>
-          <div class="tab" data-tab="print">Print</div>
-          <div class="tab" data-tab="presets">Presets</div>
+      <main class="content-section output-details-section">
+        <nav class="output-tab-navigation-bar output-tab-navigation print-hidden">
+          <div class="output-tab-trigger is-active" data-tab="inputs">Inputs</div>
+          <div class="output-tab-trigger" data-tab="summary">Summary</div>
+          <div class="output-tab-trigger" data-tab="finishing">Cuts / Slits</div>
+          <div class="output-tab-trigger" data-tab="scores">Scores</div>
+          <div class="output-tab-trigger" data-tab="perforations">Perforations</div>
+          <div class="output-tab-trigger" data-tab="warnings">Warnings</div>
+          <div class="output-tab-trigger" data-tab="print">Print</div>
+          <div class="output-tab-trigger" data-tab="presets">Presets</div>
         </nav>
 
-        <div class="tabpanes">
-          <section id="tab-inputs" class="active">
-            <div class="layout-pane">
-              <div class="layout-header">
+        <div class="output-tabpanel-collection">
+          <section id="tab-inputs" class="is-active">
+            <div class="input-layout-panel">
+              <div class="input-panel-header">
                 <h2>Input Controls</h2>
-                <p class="muted">Define the sheet, document, and safety settings to drive the preview.</p>
+                <p class="text-muted-detail">Define the sheet, document, and safety settings to drive the preview.</p>
               </div>
 
-              <div class="inputs-scroll">
-                <div class="toolbar no-print inputs-toolbar">
+              <div class="input-scroll-container">
+                <div class="control-toolbar input-unit-controls print-hidden">
                   <span>Units:</span>
                   <select id="units">
                     <option value="in">inches</option>
@@ -73,66 +73,66 @@
                   </select>
                 </div>
 
-                <div class="layout-grid">
-                  <div class="card">
+                <div class="input-card-grid">
+                  <div class="data-card">
                     <h2>Sheet</h2>
-                    <div class="toolbar no-print">
+                    <div class="control-toolbar preset-selector-toolbar print-hidden">
                       <label>
-                        <span class="muted">Preset</span>
-                        <select id="sheetPresetSelect" class="preset-select">
+                        <span class="text-muted-detail">Preset</span>
+                        <select id="sheetPresetSelect" class="preset-selector-control">
                           <option value="">Choose a sheet preset…</option>
                         </select>
                       </label>
                     </div>
-                    <div class="row">
+                    <div class="input-field-row">
                       <label><span>Width</span><input id="sheetW" type="number" step="0.25" data-inch-step="0.25" value="12"></label>
                       <label><span>Height</span><input id="sheetH" type="number" step="0.25" data-inch-step="0.25" value="18"></label>
                     </div>
                   </div>
 
-                  <div class="card">
+                  <div class="data-card">
                     <h2>Document</h2>
-                    <div class="toolbar no-print">
+                    <div class="control-toolbar preset-selector-toolbar print-hidden">
                       <label>
-                        <span class="muted">Preset</span>
-                        <select id="documentPresetSelect" class="preset-select">
+                        <span class="text-muted-detail">Preset</span>
+                        <select id="documentPresetSelect" class="preset-selector-control">
                           <option value="">Choose a document preset…</option>
                         </select>
                       </label>
                     </div>
-                    <div class="row">
+                    <div class="input-field-row">
                       <label><span>Width</span><input id="docW" type="number" step="0.125" data-inch-step="0.125" value="3.5"></label>
                       <label><span>Height</span><input id="docH" type="number" step="0.125" data-inch-step="0.125" value="2"></label>
                     </div>
                   </div>
 
-                  <div class="card">
+                  <div class="data-card">
                     <h2>Gutter</h2>
-                    <div class="toolbar no-print">
+                    <div class="control-toolbar preset-selector-toolbar print-hidden">
                       <label>
-                        <span class="muted">Preset</span>
-                        <select id="gutterPresetSelect" class="preset-select">
+                        <span class="text-muted-detail">Preset</span>
+                        <select id="gutterPresetSelect" class="preset-selector-control">
                           <option value="">Choose a gutter preset…</option>
                         </select>
                       </label>
                     </div>
-                    <div class="row">
+                    <div class="input-field-row">
                       <label><span>Horizontal</span><input id="gutH" type="number" step="0.0625" data-inch-step="0.0625" value="0.125"></label>
                       <label><span>Vertical</span><input id="gutV" type="number" step="0.0625" data-inch-step="0.0625" value="0.125"></label>
                     </div>
                   </div>
 
-                  <div class="card">
+                  <div class="data-card">
                     <h2>Docs (limit)</h2>
-                    <div class="row">
+                    <div class="input-field-row">
                       <label title="Leave blank for auto max"><span>Across</span><input id="forceAcross" type="number" step="1" min="1" data-inch-step="1" data-inch-min="1" placeholder="auto"></label>
                       <label title="Leave blank for auto max"><span>Down</span><input id="forceDown" type="number" step="1" min="1" data-inch-step="1" data-inch-min="1" placeholder="auto"></label>
                     </div>
                   </div>
 
-                  <div class="card">
+                  <div class="data-card">
                     <h2>Margins (inside printable)</h2>
-                    <div class="row4">
+                    <div class="input-field-row-quad">
                       <label><span>Top</span><input id="mTop" type="number" step="0.125" data-inch-step="0.125" value="" placeholder="auto"></label>
                       <label><span>Right</span><input id="mRight" type="number" step="0.125" data-inch-step="0.125" value="" placeholder="auto"></label>
                       <label><span>Bottom</span><input id="mBottom" type="number" step="0.125" data-inch-step="0.125" value="" placeholder="auto"></label>
@@ -140,9 +140,9 @@
                     </div>
                   </div>
 
-                  <div class="card">
+                  <div class="data-card">
                     <h2>Non‑Printable Area</h2>
-                    <div class="row4">
+                    <div class="input-field-row-quad">
                       <label><span>Top</span><input id="npTop" type="number" step="0.625" data-inch-step="0.625" value="0.0625"></label>
                       <label><span>Right</span><input id="npRight" type="number" step="0.625" data-inch-step="0.625" value="0.0625"></label>
                       <label><span>Bottom</span><input id="npBottom" type="number" step="0.625" data-inch-step="0.625" value="0.0625"></label>
@@ -151,184 +151,184 @@
                   </div>
                 </div>
 
-                <div class="toolbar no-print inputs-actions">
-                  <button class="btn primary" id="calcBtn">Update Preview</button>
-                  <button class="btn" id="resetBtn">Reset</button>
-                  <span class="k" id="status"></span>
+                <div class="control-toolbar input-action-toolbar print-hidden">
+                  <button class="action-button action-button-primary" id="calcBtn">Update Preview</button>
+                  <button class="action-button" id="resetBtn">Reset</button>
+                  <span class="text-metric-readout" id="status"></span>
                 </div>
               </div>
             </div>
           </section>
 
           <section id="tab-presets">
-            <div class="presets-pane">
-              <div class="card stack preset-intro">
+            <div class="layout-preset-pane">
+              <div class="data-card layout-stack layout-preset-introduction">
                 <h2>Preset Layouts</h2>
-                <p class="muted">
+                <p class="text-muted-detail">
                   Jump-start common production setups with one click. Each preset configures sheet, document, gutters, safety
                   areas, and finishing marks to match the listed specification.
                 </p>
               </div>
-              <div class="preset-grid grid">
-                <div class="card stack preset-card">
-                  <div class="preset-card-header">
+              <div class="layout-preset-grid layout-grid-group">
+                <div class="data-card layout-stack layout-preset-card">
+                  <div class="layout-preset-card-header">
                     <h3>Folded Business Card</h3>
-                    <p class="muted">12×18 sheet, 3.5×5 document, ⅛″ gutters, non-printable margin 1⁄16″.</p>
+                    <p class="text-muted-detail">12×18 sheet, 3.5×5 document, ⅛″ gutters, non-printable margin 1⁄16″.</p>
                   </div>
                   <ul>
                     <li>Auto margins enabled</li>
                     <li>Horizontal bifold score at 0.5</li>
                   </ul>
-                  <button class="btn primary" data-layout-preset="folded-business-card">Apply preset</button>
+                  <button class="action-button action-button-primary" data-layout-preset="folded-business-card">Apply preset</button>
                 </div>
-                <div class="card stack preset-card">
-                  <div class="preset-card-header">
+                <div class="data-card layout-stack layout-preset-card">
+                  <div class="layout-preset-card-header">
                     <h3>Tri-fold Brochure</h3>
-                    <p class="muted">12×18 sheet, 11×8.5 document, 0.25″ gutters, 0.125″ non-printable area.</p>
+                    <p class="text-muted-detail">12×18 sheet, 11×8.5 document, 0.25″ gutters, 0.125″ non-printable area.</p>
                   </div>
                   <ul>
                     <li>Vertical scores at ⅓ and ⅔</li>
                   </ul>
-                  <button class="btn primary" data-layout-preset="trifold-brochure">Apply preset</button>
+                  <button class="action-button action-button-primary" data-layout-preset="trifold-brochure">Apply preset</button>
                 </div>
-                <div class="card stack preset-card">
-                  <div class="preset-card-header">
+                <div class="data-card layout-stack layout-preset-card">
+                  <div class="layout-preset-card-header">
                     <h3>Postcard Gang Run</h3>
-                    <p class="muted">13×19 sheet, 4×6 document, ⅛″ gutters, 0.1″ non-printable area.</p>
+                    <p class="text-muted-detail">13×19 sheet, 4×6 document, ⅛″ gutters, 0.1″ non-printable area.</p>
                   </div>
                   <ul>
                     <li>No scores or perforations</li>
                   </ul>
-                  <button class="btn primary" data-layout-preset="postcard-gang-run">Apply preset</button>
+                  <button class="action-button action-button-primary" data-layout-preset="postcard-gang-run">Apply preset</button>
                 </div>
-                <div class="card stack preset-card">
-                  <div class="preset-card-header">
+                <div class="data-card layout-stack layout-preset-card">
+                  <div class="layout-preset-card-header">
                     <h3>Event Tickets</h3>
-                    <p class="muted">12×18 sheet, 2×5.5 document, 0.125″ H / 0.25″ V gutters, 1⁄16″ non-printable.</p>
+                    <p class="text-muted-detail">12×18 sheet, 2×5.5 document, 0.125″ H / 0.25″ V gutters, 1⁄16″ non-printable.</p>
                   </div>
                   <ul>
                     <li>Vertical perforation at 0.5</li>
                   </ul>
-                  <button class="btn primary" data-layout-preset="event-tickets">Apply preset</button>
+                  <button class="action-button action-button-primary" data-layout-preset="event-tickets">Apply preset</button>
                 </div>
-                <div class="card stack preset-card">
-                  <div class="preset-card-header">
+                <div class="data-card layout-stack layout-preset-card">
+                  <div class="layout-preset-card-header">
                     <h3>Table Tents</h3>
-                    <p class="muted">13×19 sheet, 5×7 document, 0.25″ gutters, 0.125″ non-printable area.</p>
+                    <p class="text-muted-detail">13×19 sheet, 5×7 document, 0.25″ gutters, 0.125″ non-printable area.</p>
                   </div>
                   <ul>
                     <li>Horizontal scores at 0.33 and 0.66</li>
                   </ul>
-                  <button class="btn primary" data-layout-preset="table-tents">Apply preset</button>
+                  <button class="action-button action-button-primary" data-layout-preset="table-tents">Apply preset</button>
                 </div>
               </div>
             </div>
           </section>
 
           <section id="tab-summary">
-            <div class="summary">
-              <div class="card"><h3>Counts</h3>
-                <div>Across: <span class="v" id="vAcross">—</span></div>
-                <div>Down: <span class="v" id="vDown">—</span></div>
-                <div>Total: <span class="v" id="vTotal">—</span></div>
+            <div class="summary-metrics-grid">
+              <div class="data-card"><h3>Counts</h3>
+                <div>Across: <span class="summary-metric-value" id="vAcross">—</span></div>
+                <div>Down: <span class="summary-metric-value" id="vDown">—</span></div>
+                <div>Total: <span class="summary-metric-value" id="vTotal">—</span></div>
               </div>
-              <div class="card"><h3>Layout Area</h3>
-                <div>W × H: <span class="v" id="vLayout">—</span></div>
-                <div>Origin: <span class="v" id="vOrigin">—</span></div>
-                <div>Realized Margins: <span class="v" id="vRealMargins">—</span></div>
+              <div class="data-card"><h3>Layout Area</h3>
+                <div>W × H: <span class="summary-metric-value" id="vLayout">—</span></div>
+                <div>Origin: <span class="summary-metric-value" id="vOrigin">—</span></div>
+                <div>Realized Margins: <span class="summary-metric-value" id="vRealMargins">—</span></div>
               </div>
-              <div class="card"><h3>Utilization</h3>
-                <div>Used W/H: <span class="v" id="vUsed">—</span></div>
-                <div>Trailing W/H: <span class="v" id="vTrail">—</span></div>
+              <div class="data-card"><h3>Utilization</h3>
+                <div>Used W/H: <span class="summary-metric-value" id="vUsed">—</span></div>
+                <div>Trailing W/H: <span class="summary-metric-value" id="vTrail">—</span></div>
               </div>
             </div>
           </section>
 
           <section id="tab-finishing">
-            <h3 style="margin-bottom:6px">Cut & Slit Systems</h3>
-            <div class="grid" style="grid-template-columns:1fr 1fr">
-              <div class="card"><h3>Cuts (Y edges)</h3>
-                <table class="table" id="tblCuts"><thead><tr><th>Label</th><th>in</th><th>mm</th></tr></thead><tbody></tbody></table>
+            <h3 style="margin-bottom:6px">Cut &amp; Slit Systems</h3>
+            <div class="layout-grid-group" style="grid-template-columns:1fr 1fr">
+              <div class="data-card"><h3>Cuts (Y edges)</h3>
+                <table class="data-table" id="tblCuts"><thead><tr><th>Label</th><th>in</th><th>mm</th></tr></thead><tbody></tbody></table>
               </div>
-              <div class="card"><h3>Slits (X edges)</h3>
-                <table class="table" id="tblSlits"><thead><tr><th>Label</th><th>in</th><th>mm</th></tr></thead><tbody></tbody></table>
+              <div class="data-card"><h3>Slits (X edges)</h3>
+                <table class="data-table" id="tblSlits"><thead><tr><th>Label</th><th>in</th><th>mm</th></tr></thead><tbody></tbody></table>
               </div>
             </div>
           </section>
 
           <section id="tab-scores">
-            <div class="scores-pane">
-              <div class="score-layout">
-                <div class="score-column">
-                  <div class="card stack score-card-intro">
-                    <div class="score-card-title">
+            <div class="finishing-score-pane">
+              <div class="finishing-score-layout">
+                <div class="finishing-score-column">
+                  <div class="data-card layout-stack finishing-score-card-intro">
+                    <div class="finishing-score-card-title">
                       <h3>Score Planning</h3>
-                      <p class="muted">Scores are normalized to each document. Use a preset for common folds or switch to custom entry to fine-tune the layout.</p>
+                      <p class="text-muted-detail">Scores are normalized to each document. Use a preset for common folds or switch to custom entry to fine-tune the layout.</p>
                     </div>
                   </div>
-                  <div class="card stack score-card score-card-vertical">
-                    <div class="score-card-header">
-                      <div class="score-card-title">
+                  <div class="data-card layout-stack finishing-score-card finishing-score-card-vertical">
+                    <div class="finishing-score-card-header">
+                      <div class="finishing-score-card-title">
                         <h3>Vertical Scores</h3>
-                        <p class="muted">Set positions for lines that run top-to-bottom across the sheet relative to the document width.</p>
+                        <p class="text-muted-detail">Set positions for lines that run top-to-bottom across the sheet relative to the document width.</p>
                       </div>
-                      <div class="score-presets no-print" role="group" aria-label="Vertical score presets">
-                        <button class="btn" id="scorePresetBifold" type="button">Bifold</button>
-                        <button class="btn" id="scorePresetTrifold" type="button">Trifold</button>
-                        <button class="btn" id="scorePresetCustom" type="button">Custom</button>
+                      <div class="finishing-score-preset-group print-hidden" role="group" aria-label="Vertical score presets">
+                        <button class="action-button" id="scorePresetBifold" type="button">Bifold</button>
+                        <button class="action-button" id="scorePresetTrifold" type="button">Trifold</button>
+                        <button class="action-button" id="scorePresetCustom" type="button">Custom</button>
                       </div>
                     </div>
-                    <div class="score-field stack-sm">
-                      <label class="score-label" for="scoresV" title="CSV, 0–1 (e.g., 0.5 or 0.33,0.66)">
+                    <div class="finishing-score-field layout-stack-compact">
+                      <label class="finishing-score-label" for="scoresV" title="CSV, 0–1 (e.g., 0.5 or 0.33,0.66)">
                         <span>Vertical scores</span>
                         <input id="scoresV" type="text" value="" placeholder="e.g., 0.5" />
                       </label>
-                      <p class="muted score-hint">Values are relative to the document width.</p>
+                      <p class="text-muted-detail finishing-score-hint">Values are relative to the document width.</p>
                     </div>
                   </div>
-                  <div class="card stack score-card score-card-horizontal">
-                    <div class="score-card-header">
-                      <div class="score-card-title">
+                  <div class="data-card layout-stack finishing-score-card finishing-score-card-horizontal">
+                    <div class="finishing-score-card-header">
+                      <div class="finishing-score-card-title">
                         <h3>Horizontal Scores</h3>
-                        <p class="muted">Set positions for lines that run left-to-right across the sheet relative to the document height.</p>
+                        <p class="text-muted-detail">Set positions for lines that run left-to-right across the sheet relative to the document height.</p>
                       </div>
-                      <div class="score-presets no-print" role="group" aria-label="Horizontal score presets">
-                        <button class="btn" id="scorePresetHBifold" type="button">Bifold</button>
-                        <button class="btn" id="scorePresetHTrifold" type="button">Trifold</button>
-                        <button class="btn" id="scorePresetHCustom" type="button">Custom</button>
+                      <div class="finishing-score-preset-group print-hidden" role="group" aria-label="Horizontal score presets">
+                        <button class="action-button" id="scorePresetHBifold" type="button">Bifold</button>
+                        <button class="action-button" id="scorePresetHTrifold" type="button">Trifold</button>
+                        <button class="action-button" id="scorePresetHCustom" type="button">Custom</button>
                       </div>
                     </div>
-                    <div class="score-field stack-sm">
-                      <label class="score-label" for="scoresH" title="CSV, 0–1">
+                    <div class="finishing-score-field layout-stack-compact">
+                      <label class="finishing-score-label" for="scoresH" title="CSV, 0–1">
                         <span>Horizontal scores</span>
                         <input id="scoresH" type="text" value="" placeholder="e.g., 0.5" />
                       </label>
-                      <p class="muted score-hint">Values are relative to the document height.</p>
+                      <p class="text-muted-detail finishing-score-hint">Values are relative to the document height.</p>
                     </div>
                   </div>
-                  <div class="card score-actions-card">
-                    <div class="score-actions toolbar no-print">
-                      <button class="btn" id="swapScoreOffsets" type="button">Swap vertical ↔ horizontal scores</button>
-                      <button class="btn primary" id="applyScores" type="button">Apply Scores</button>
-                      <span class="muted">Leave fields blank to omit scores.</span>
+                  <div class="data-card finishing-action-card">
+                    <div class="control-toolbar finishing-action-toolbar print-hidden">
+                      <button class="action-button" id="swapScoreOffsets" type="button">Swap vertical ↔ horizontal scores</button>
+                      <button class="action-button action-button-primary" id="applyScores" type="button">Apply Scores</button>
+                      <span class="text-muted-detail">Leave fields blank to omit scores.</span>
                     </div>
                   </div>
                 </div>
-                <div class="score-column score-results">
-                  <div class="score-results-grid">
-                    <div class="card stack score-table-card">
+                <div class="finishing-score-column finishing-score-results">
+                  <div class="finishing-score-results-grid">
+                    <div class="data-card layout-stack finishing-score-table-card">
                       <div>
                         <h3>Scores (Y)</h3>
-                        <p class="muted">Horizontal runs positioned along the sheet height.</p>
+                        <p class="text-muted-detail">Horizontal runs positioned along the sheet height.</p>
                       </div>
-                      <table class="table" id="tblScoresH"><thead><tr><th>Label</th><th>in</th><th>mm</th></tr></thead><tbody></tbody></table>
+                      <table class="data-table" id="tblScoresH"><thead><tr><th>Label</th><th>in</th><th>mm</th></tr></thead><tbody></tbody></table>
                     </div>
-                    <div class="card stack score-table-card">
+                    <div class="data-card layout-stack finishing-score-table-card">
                       <div>
                         <h3>Scores (X)</h3>
-                        <p class="muted">Vertical runs positioned along the sheet width.</p>
+                        <p class="text-muted-detail">Vertical runs positioned along the sheet width.</p>
                       </div>
-                      <table class="table" id="tblScoresV"><thead><tr><th>Label</th><th>in</th><th>mm</th></tr></thead><tbody></tbody></table>
+                      <table class="data-table" id="tblScoresV"><thead><tr><th>Label</th><th>in</th><th>mm</th></tr></thead><tbody></tbody></table>
                     </div>
                   </div>
                 </div>
@@ -337,77 +337,77 @@
           </section>
 
           <section id="tab-perforations">
-            <div class="scores-pane">
-              <div class="score-layout">
-                <div class="score-column">
-                  <div class="card stack score-card-intro">
-                    <div class="score-card-title">
+            <div class="finishing-score-pane">
+              <div class="finishing-score-layout">
+                <div class="finishing-score-column">
+                  <div class="data-card layout-stack finishing-score-card-intro">
+                    <div class="finishing-score-card-title">
                       <h3>Perforation Planning</h3>
-                      <p class="muted">Configure tear-off runs relative to each document before applying them to the layout.</p>
+                      <p class="text-muted-detail">Configure tear-off runs relative to each document before applying them to the layout.</p>
                     </div>
                   </div>
-                  <div class="card stack score-card score-card-vertical">
-                    <div class="score-card-header">
-                      <div class="score-card-title">
+                  <div class="data-card layout-stack finishing-score-card finishing-score-card-vertical">
+                    <div class="finishing-score-card-header">
+                      <div class="finishing-score-card-title">
                         <h3>Vertical Perforations</h3>
-                        <p class="muted">Lines running top-to-bottom relative to the document width.</p>
+                        <p class="text-muted-detail">Lines running top-to-bottom relative to the document width.</p>
                       </div>
-                      <div class="score-presets no-print" role="group" aria-label="Vertical perforation presets">
-                        <button class="btn" id="perfPresetVBifold" type="button">Bifold</button>
-                        <button class="btn" id="perfPresetVTrifold" type="button">Trifold</button>
-                        <button class="btn" id="perfPresetVCustom" type="button">Custom</button>
+                      <div class="finishing-score-preset-group print-hidden" role="group" aria-label="Vertical perforation presets">
+                        <button class="action-button" id="perfPresetVBifold" type="button">Bifold</button>
+                        <button class="action-button" id="perfPresetVTrifold" type="button">Trifold</button>
+                        <button class="action-button" id="perfPresetVCustom" type="button">Custom</button>
                       </div>
                     </div>
-                    <div class="score-field stack-sm">
-                      <label class="score-label" for="perfV" title="CSV, 0–1 (e.g., 0.5 or 0.33,0.66)">
+                    <div class="finishing-score-field layout-stack-compact">
+                      <label class="finishing-score-label" for="perfV" title="CSV, 0–1 (e.g., 0.5 or 0.33,0.66)">
                         <span>Vertical perforations</span>
                         <input id="perfV" type="text" value="" placeholder="e.g., 0.5" />
                       </label>
-                      <p class="muted score-hint">Values are relative to the document width.</p>
+                      <p class="text-muted-detail finishing-score-hint">Values are relative to the document width.</p>
                     </div>
                   </div>
-                  <div class="card stack score-card score-card-horizontal">
-                    <div class="score-card-header">
-                      <div class="score-card-title">
+                  <div class="data-card layout-stack finishing-score-card finishing-score-card-horizontal">
+                    <div class="finishing-score-card-header">
+                      <div class="finishing-score-card-title">
                         <h3>Horizontal Perforations</h3>
-                        <p class="muted">Lines running left-to-right relative to the document height.</p>
+                        <p class="text-muted-detail">Lines running left-to-right relative to the document height.</p>
                       </div>
-                      <div class="score-presets no-print" role="group" aria-label="Horizontal perforation presets">
-                        <button class="btn" id="perfPresetHBifold" type="button">Bifold</button>
-                        <button class="btn" id="perfPresetHTrifold" type="button">Trifold</button>
-                        <button class="btn" id="perfPresetHCustom" type="button">Custom</button>
+                      <div class="finishing-score-preset-group print-hidden" role="group" aria-label="Horizontal perforation presets">
+                        <button class="action-button" id="perfPresetHBifold" type="button">Bifold</button>
+                        <button class="action-button" id="perfPresetHTrifold" type="button">Trifold</button>
+                        <button class="action-button" id="perfPresetHCustom" type="button">Custom</button>
                       </div>
                     </div>
-                    <div class="score-field stack-sm">
-                      <label class="score-label" for="perfH" title="CSV, 0–1">
+                    <div class="finishing-score-field layout-stack-compact">
+                      <label class="finishing-score-label" for="perfH" title="CSV, 0–1">
                         <span>Horizontal perforations</span>
                         <input id="perfH" type="text" value="" placeholder="e.g., 0.5" />
                       </label>
-                      <p class="muted score-hint">Values are relative to the document height.</p>
+                      <p class="text-muted-detail finishing-score-hint">Values are relative to the document height.</p>
                     </div>
                   </div>
-                  <div class="card score-actions-card">
-                    <div class="score-actions toolbar no-print">
-                      <button class="btn primary" id="applyPerforations" type="button">Apply Perforations</button>
-                      <span class="muted">Leave fields blank to omit perforations.</span>
+                  <div class="data-card finishing-action-card">
+                    <div class="control-toolbar finishing-action-toolbar print-hidden">
+                      <button class="action-button action-button-primary" id="applyPerforations" type="button">Apply Perforations</button>
+                      <span class="text-muted-detail">Leave fields blank to omit perforations.</span>
                     </div>
                   </div>
                 </div>
-                <div class="score-column score-results">
-                  <div class="score-results-grid">
-                    <div class="card stack score-table-card">
+                <div class="finishing-score-column finishing-score-results">
+                  <div class="finishing-score-results-grid">
+                    <div class="data-card layout-stack finishing-score-table-card">
                       <div>
                         <h3>Perforations (Y)</h3>
-                        <p class="muted">Horizontal perforation runs positioned along the sheet height.</p>
+                        <p class="text-muted-detail">Horizontal perforation runs positioned along the sheet height.</p>
                       </div>
-                      <table class="table" id="tblPerforationsH"><thead><tr><th>Label</th><th>in</th><th>mm</th></tr></thead><tbody></tbody></table>
+                      <table class="data-table" id="tblPerforationsH"><thead><tr><th>Label</th><th>in</th><th>mm</th></tr></thead><tbody></tbody></table>
                     </div>
-                    <div class="card stack score-table-card">
+                    <div class="data-card layout-stack finishing-score-table-card">
                       <div>
                         <h3>Perforations (X)</h3>
-                        <p class="muted">Vertical perforation runs positioned along the sheet width.</p>
+                        <p class="text-muted-detail">Vertical perforation runs positioned along the sheet width.</p>
                       </div>
-                      <table class="table" id="tblPerforationsV"><thead><tr><th>Label</th><th>in</th><th>mm</th></tr></thead><tbody></tbody></table>
+                      <table class="data-table" id="tblPerforationsV"><thead><tr><th>Label</th><th>in</th><th>mm</th></tr></thead><tbody></tbody></table>
                     </div>
                   </div>
                 </div>
@@ -416,34 +416,34 @@
           </section>
 
           <section id="tab-warnings">
-            <div class="card stack">
+            <div class="data-card layout-stack">
               <h2>Warnings</h2>
-              <p class="muted">Production notes and layout warnings will appear here in a future update.</p>
-              <p class="muted">For now, use this space to track manual adjustments or finishing considerations that fall outside the
+              <p class="text-muted-detail">Production notes and layout warnings will appear here in a future update.</p>
+              <p class="text-muted-detail">For now, use this space to track manual adjustments or finishing considerations that fall outside the
                 presets.</p>
             </div>
           </section>
 
           <section id="tab-print">
-            <div class="row">
-              <div class="card">
+            <div class="layout-grid-group">
+              <div class="data-card">
                 <h3>Summary Snapshot</h3>
-                <p class="muted">Review the calculated layout details without opening a print dialog.</p>
-                <div class="summary">
-                  <div>Sheet: <span class="v" id="pSheet">—</span></div>
-                  <div>Doc: <span class="v" id="pDoc">—</span></div>
-                  <div>Counts: <span class="v" id="pCounts">—</span></div>
-                  <div>Gutter: <span class="v" id="pGutter">—</span></div>
-                  <div>Margins: <span class="v" id="pMargins">—</span></div>
+                <p class="text-muted-detail">Review the calculated layout details without opening a print dialog.</p>
+                <div class="summary-metrics-grid">
+                  <div>Sheet: <span class="summary-metric-value" id="pSheet">—</span></div>
+                  <div>Doc: <span class="summary-metric-value" id="pDoc">—</span></div>
+                  <div>Counts: <span class="summary-metric-value" id="pCounts">—</span></div>
+                  <div>Gutter: <span class="summary-metric-value" id="pGutter">—</span></div>
+                  <div>Margins: <span class="summary-metric-value" id="pMargins">—</span></div>
                 </div>
               </div>
-              <div class="card">
+              <div class="data-card">
                 <h3>What prints?</h3>
-                <p class="muted">Summary cards and finishing tables remain available for browser printing.</p>
-                <p class="muted">Use this tab as a quick reference for layout specs shared with production.</p>
+                <p class="text-muted-detail">Summary cards and finishing tables remain available for browser printing.</p>
+                <p class="text-muted-detail">Use this tab as a quick reference for layout specs shared with production.</p>
               </div>
             </div>
-            <div class="print-only" id="printTables"></div>
+            <div class="print-only-content" id="printTables"></div>
           </section>
         </div>
       </main>
