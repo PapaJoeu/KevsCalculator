@@ -1,4 +1,4 @@
-const fragmentUrl = (name) => new URL(`../partials/fragments/${name}.html`, import.meta.url);
+const fragmentUrl = (name) => new URL(`../../partials/fragments/${name}.html`, import.meta.url);
 
 async function fetchFragmentMarkup(name) {
   const response = await fetch(fragmentUrl(name));
