@@ -1,19 +1,15 @@
 <!--
-  Tab template: Scores (docs/js/tabs/scores.js)
-  Purpose: Enables configuration of vertical and horizontal scoring operations and previews calculated results.
-  JS entry points:
-    • Preset buttons (#scorePresetBifold, #scorePresetTrifold, #scorePresetCustom, #scorePresetHBifold, #scorePresetHTrifold, #scorePresetHCustom) used to seed score inputs.
-    • Text fields #scoresV and #scoresH accept CSV offsets and are read by scoresTab.
-    • Tables #tblScoresH and #tblScoresV receive computed measurement rows.
-    • Action buttons #swapScoreOffsets and #applyScores trigger handlers in scores.js.
-  Dynamic elements:
-    • Preset button groups toggle active states based on current mode.
-    • Score input fields are updated when presets apply or when offset swapping occurs.
-    • Result tables are regenerated after score calculations.
-  Hydration notes:
-    • Hydrated when the scores module registers so tables/buttons exist for event wiring.
-    • Layout classes coordinate with CSS for two-column layout and must stay intact.
+  Load timing:
+    - Cloned into #tab-scores through docs/js/tabs/registry.hydrateTabPanel('scores') after bootstrap loads templates.
+  Key selectors:
+    - Preset buttons (#scorePresetBifold, #scorePresetTrifold, #scorePresetCustom, #scorePresetHBifold, #scorePresetHTrifold, #scorePresetHCustom).
+    - Offset inputs #scoresV and #scoresH plus result tables #tblScoresH and #tblScoresV.
+    - Action buttons #swapScoreOffsets and #applyScores inside .finishing-score-toolbar areas.
+  JS dependencies:
+    - docs/js/tabs/scores.js wires preset toggles, input listeners, swap/apply handlers, and fills measurement tables.
+    - docs/js/utils/dom.js utilities assist with table population and measurement hover/selection behavior.
 -->
+
 <template id="tab-scores-template">
   <div class="finishing-score-pane">
     <div class="finishing-score-layout">

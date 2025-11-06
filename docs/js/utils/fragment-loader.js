@@ -1,3 +1,15 @@
+/**
+ * Lazy fragment loader used by docs/js/bootstrap.js.
+ *
+ * Adding a new fragment:
+ *   1. Create docs/partials/fragments/<name>.html with the desired markup and
+ *      documentation block.
+ *   2. Place a placeholder element in index.html (or another host file) with
+ *      data-partial="name" (or data-fragment="name") where the fragment should
+ *      render.
+ *   3. No further wiring is needed—bootstrap collects the placeholder names and
+ *      loadFragments() injects the markup before app.js initializes.
+ */
 const fragmentUrl = (name) => new URL(`../../partials/fragments/${name}.html`, import.meta.url);
 
 async function fetchFragmentMarkup(name) {

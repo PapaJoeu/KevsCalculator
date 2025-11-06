@@ -1,8 +1,13 @@
 <!--
-  Fragment: Output Tab Navigation
-  Role: Renders the tab trigger bar used to switch between calculator panels in the output details section.
-  Requires: Tab styling from css/tabs/base.css and behavior from js/tabs/registry.js along with js/app.js initialization.
-  Expected container: Replace the <nav> block at the top of .output-details-section.
+  Load timing:
+    - Injected by docs/js/utils/fragment-loader.js during docs/js/bootstrap.js when a
+      [data-partial="tab-nav"] placeholder is encountered (prior to tab registry setup).
+  Key selectors:
+    - .output-tab-navigation-bar shell plus .output-tab-trigger elements for each tab.
+    - data-tab attributes (inputs, summary, finishing, scores, perforations, warnings, print, presets).
+  JS dependencies:
+    - docs/js/tabs/registry.js binds click listeners to .output-tab-trigger nodes and
+      uses their data-tab values to drive panel activation.
 -->
 <nav class="output-tab-navigation-bar output-tab-navigation print-hidden">
   <div class="output-tab-trigger is-active" data-tab="inputs">Inputs</div>

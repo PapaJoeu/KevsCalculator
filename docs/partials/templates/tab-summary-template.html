@@ -1,15 +1,13 @@
 <!--
-  Tab template: Summary (docs/js/tabs/summary.js)
-  Purpose: Displays computed layout metrics including counts, layout area, utilization, and realized margins.
-  JS entry points:
-    • Summary metric spans (#vAcross, #vDown, #vTotal, #vLayout, #vOrigin, #vRealMargins, #vUsed, #vTrail) populated by summaryTab on activate.
-  Dynamic elements:
-    • Every <span class="summary-metric-value"> is replaced with formatted values when calculations run.
-    • Placeholder em dash values are kept for empty state until the tab is hydrated.
-  Hydration notes:
-    • The summary module hydrates on activation to clone this template and then caches the panel for repeated updates.
-    • IDs must align with selectors used in summary.js to avoid missing updates.
+  Load timing:
+    - Cloned into #tab-summary by docs/js/tabs/registry.hydrateTabPanel('summary') after templates load during bootstrap.
+  Key selectors:
+    - .summary-metrics-grid container and spans #vAcross, #vDown, #vTotal, #vLayout, #vOrigin, #vRealMargins, #vUsed, #vTrail.
+  JS dependencies:
+    - docs/js/tabs/summary.js writes calculated metrics into the spans on activation/registration.
+    - docs/js/app.js feeds formatted measurement strings used by the summary module for display updates.
 -->
+
 <template id="tab-summary-template">
   <div class="summary-metrics-grid">
     <div class="data-card"><h3>Counts</h3>
