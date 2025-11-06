@@ -21,7 +21,7 @@ async function bootstrap() {
 
   await loadFragments(fragmentNames);
   await loadTemplates(templateNames);
-  await import('./app.js');
+  await import('./calculator-app-controller.js');
 }
 
 bootstrap().catch((error) => {
