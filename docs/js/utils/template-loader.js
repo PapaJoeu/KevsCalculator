@@ -1,4 +1,4 @@
-const templateUrl = (name) => new URL(`../../partials/templates/${name}.html`, import.meta.url);
+const templateUrl = (name) => new URL(`../../html-partials/templates/${name}.html`, import.meta.url);
 
 async function fetchTemplateMarkup(name) {
   const response = await fetch(templateUrl(name));
