@@ -7,24 +7,19 @@
 
 /* This container stacks score planning panels and supplemental results. */
 .finishing-score-pane {
-  display: flex;
-  flex-direction: column;
-  gap: 18px;
+  --stack-gap: var(--stack-gap-spacious);
 }
 
 /* This layout splits inputs and results into columns for large screens. */
 .finishing-score-layout {
-  display: grid;
-  gap: 18px;
+  --grid-gap: var(--grid-gap-spacious);
   grid-template-columns: minmax(0, 420px) minmax(0, 1fr);
   align-items: start;
 }
 
 /* Each column stacks cards in the scoring and perforation tabs. */
 .finishing-score-column {
-  display: flex;
-  flex-direction: column;
-  gap: 18px;
+  --stack-gap: var(--stack-gap-spacious);
 }
 
 /* This card introduces the scoring/perforation section with contextual copy. */
@@ -34,7 +29,7 @@
 
 /* This modifier adds breathing room between result cards. */
 .finishing-score-results {
-  gap: 16px;
+  --stack-gap: var(--stack-gap-comfortable);
 }
 
 /* This base card adds vertical rhythm for score configuration forms. */
@@ -81,9 +76,7 @@
 
 /* This container stacks score input labels and helper copy. */
 .finishing-score-field {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
+  --stack-gap: var(--stack-gap-snug);
 }
 
 /* Score labels switch to a column layout for multi-line instructions. */
@@ -154,9 +147,8 @@
 
 /* Result grids arrange tables responsively based on available width. */
 .finishing-score-results-grid {
-  display: grid;
-  gap: 16px;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  --grid-gap: var(--grid-gap-comfortable);
+  --grid-min: 260px;
 }
 
 @media (max-width: 960px) {

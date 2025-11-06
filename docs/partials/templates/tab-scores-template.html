@@ -11,16 +11,16 @@
 -->
 
 <template id="tab-scores-template">
-  <div class="finishing-score-pane">
-    <div class="finishing-score-layout">
-      <div class="finishing-score-column">
-        <div class="data-card layout-stack finishing-score-card-intro">
+  <div class="finishing-score-pane stack">
+    <div class="finishing-score-layout grid">
+      <div class="finishing-score-column stack">
+        <div class="data-card stack finishing-score-card-intro">
           <div class="finishing-score-card-title">
             <h3>Score Planning</h3>
             <p class="text-muted-detail">Scores are normalized to each document. Use a preset for common folds or switch to custom entry to fine-tune the layout.</p>
           </div>
         </div>
-        <div class="data-card layout-stack finishing-score-card finishing-score-card-vertical">
+        <div class="data-card stack finishing-score-card finishing-score-card-vertical">
           <div class="finishing-score-card-header">
             <div class="finishing-score-card-title">
               <h3>Vertical Scores</h3>
@@ -32,7 +32,7 @@
               <button class="action-button" id="scorePresetCustom" type="button">Custom</button>
             </div>
           </div>
-          <div class="finishing-score-field layout-stack-compact">
+          <div class="finishing-score-field stack stack--snug">
             <label class="finishing-score-label" for="scoresV" title="CSV, 0–1 (e.g., 0.5 or 0.33,0.66)">
               <span>Vertical scores</span>
               <input id="scoresV" type="text" placeholder="e.g., 0.5" />
@@ -40,7 +40,7 @@
             <p class="text-muted-detail finishing-score-hint">Values are relative to the document width.</p>
           </div>
         </div>
-        <div class="data-card layout-stack finishing-score-card finishing-score-card-horizontal">
+        <div class="data-card stack finishing-score-card finishing-score-card-horizontal">
           <div class="finishing-score-card-header">
             <div class="finishing-score-card-title">
               <h3>Horizontal Scores</h3>
@@ -52,7 +52,7 @@
               <button class="action-button" id="scorePresetHCustom" type="button">Custom</button>
             </div>
           </div>
-          <div class="finishing-score-field layout-stack-compact">
+          <div class="finishing-score-field stack stack--snug">
             <label class="finishing-score-label" for="scoresH" title="CSV, 0–1">
               <span>Horizontal scores</span>
               <input id="scoresH" type="text" placeholder="e.g., 0.5" />
@@ -68,16 +68,16 @@
           </div>
         </div>
       </div>
-      <div class="finishing-score-column finishing-score-results">
-        <div class="finishing-score-results-grid">
-          <div class="data-card layout-stack finishing-score-table-card">
+      <div class="finishing-score-column stack finishing-score-results">
+        <div class="finishing-score-results-grid grid grid--auto-fit">
+          <div class="data-card stack finishing-score-table-card">
             <div>
               <h3>Scores (Y)</h3>
               <p class="text-muted-detail">Horizontal runs positioned along the sheet height.</p>
             </div>
             <table class="data-table" id="tblScoresH"><thead><tr><th>Label</th><th>in</th><th>mm</th></tr></thead><tbody></tbody></table>
           </div>
-          <div class="data-card layout-stack finishing-score-table-card">
+          <div class="data-card stack finishing-score-table-card">
             <div>
               <h3>Scores (X)</h3>
               <p class="text-muted-detail">Vertical runs positioned along the sheet width.</p>

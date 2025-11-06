@@ -10,16 +10,16 @@
 -->
 
 <template id="tab-perforations-template">
-  <div class="finishing-score-pane">
-    <div class="finishing-score-layout">
-      <div class="finishing-score-column">
-        <div class="data-card layout-stack finishing-score-card-intro">
+  <div class="finishing-score-pane stack">
+    <div class="finishing-score-layout grid">
+      <div class="finishing-score-column stack">
+        <div class="data-card stack finishing-score-card-intro">
           <div class="finishing-score-card-title">
             <h3>Perforation Planning</h3>
             <p class="text-muted-detail">Configure tear-off runs relative to each document before applying them to the layout.</p>
           </div>
         </div>
-        <div class="data-card layout-stack finishing-score-card finishing-score-card-vertical">
+        <div class="data-card stack finishing-score-card finishing-score-card-vertical">
           <div class="finishing-score-card-header">
             <div class="finishing-score-card-title">
               <h3>Vertical Perforations</h3>
@@ -31,7 +31,7 @@
               <button class="action-button" id="perfPresetVCustom" type="button">Custom</button>
             </div>
           </div>
-          <div class="finishing-score-field layout-stack-compact">
+          <div class="finishing-score-field stack stack--snug">
             <label class="finishing-score-label" for="perfV" title="CSV, 0–1 (e.g., 0.5 or 0.33,0.66)">
               <span>Vertical perforations</span>
               <input id="perfV" type="text" placeholder="e.g., 0.5" />
@@ -39,7 +39,7 @@
             <p class="text-muted-detail finishing-score-hint">Values are relative to the document width.</p>
           </div>
         </div>
-        <div class="data-card layout-stack finishing-score-card finishing-score-card-horizontal">
+        <div class="data-card stack finishing-score-card finishing-score-card-horizontal">
           <div class="finishing-score-card-header">
             <div class="finishing-score-card-title">
               <h3>Horizontal Perforations</h3>
@@ -51,7 +51,7 @@
               <button class="action-button" id="perfPresetHCustom" type="button">Custom</button>
             </div>
           </div>
-          <div class="finishing-score-field layout-stack-compact">
+          <div class="finishing-score-field stack stack--snug">
             <label class="finishing-score-label" for="perfH" title="CSV, 0–1">
               <span>Horizontal perforations</span>
               <input id="perfH" type="text" placeholder="e.g., 0.5" />
@@ -66,16 +66,16 @@
           </div>
         </div>
       </div>
-      <div class="finishing-score-column finishing-score-results">
-        <div class="finishing-score-results-grid">
-          <div class="data-card layout-stack finishing-score-table-card">
+      <div class="finishing-score-column stack finishing-score-results">
+        <div class="finishing-score-results-grid grid grid--auto-fit">
+          <div class="data-card stack finishing-score-table-card">
             <div>
               <h3>Perforations (Y)</h3>
               <p class="text-muted-detail">Horizontal perforation runs positioned along the sheet height.</p>
             </div>
             <table class="data-table" id="tblPerforationsH"><thead><tr><th>Label</th><th>in</th><th>mm</th></tr></thead><tbody></tbody></table>
           </div>
-          <div class="data-card layout-stack finishing-score-table-card">
+          <div class="data-card stack finishing-score-table-card">
             <div>
               <h3>Perforations (X)</h3>
               <p class="text-muted-detail">Vertical perforation runs positioned along the sheet width.</p>
