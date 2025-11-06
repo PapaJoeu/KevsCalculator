@@ -179,6 +179,7 @@ const layerVisibility = {
 };
 
 const selectedMeasurements = new Set();
+const perforationMeasurements = new Set();
 let currentMeasurementIds = new Set();
 
 const createMeasurementId = (type, index) => `${type}-${index}`;
@@ -237,6 +238,16 @@ function restoreMeasurementSelections() {
     setMeasurementSelectionClass(id, true);
   });
   stale.forEach((id) => selectedMeasurements.delete(id));
+}
+
+function restorePerforationStates() {
+  const stale = [];
+  perforationMeasurements.forEach((id) => {
+    if (!currentMeasurementIds.has(id)) {
+      stale.push(id);
+    }
+  });
+  stale.forEach((id) => perforationMeasurements.delete(id));
 }
 
 function applyLayerVisibility() {
@@ -354,19 +365,55 @@ function status(txt) {
   $("#status").textContent = txt;
 }
 
+const isScoreMeasurementType = (type) => type === 'score-horizontal' || type === 'score-vertical';
+
 function fillTable(tbody, rows, type = 'measure') {
   if (!tbody) return;
+  const isScoreTable = isScoreMeasurementType(type);
   tbody.innerHTML = rows
     .map((r, index) => {
       const id = createMeasurementId(type, index);
       registerMeasurementId(id);
-      return `<tr class="measurement-row" data-measure-id="${id}" data-measure-type="${type}" data-measure-index="${index}"><td>${r.label}</td><td class="k">${r.inches.toFixed(3)}</td><td class="k">${r.millimeters.toFixed(2)}</td></tr>`;
+      const cells = [
+        `<td>${r.label}</td>`,
+        `<td class="k">${r.inches.toFixed(3)}</td>`,
+        `<td class="k">${r.millimeters.toFixed(2)}</td>`,
+      ];
+      if (isScoreTable) {
+        const checked = perforationMeasurements.has(id) ? "checked" : "";
+        cells.push(
+          `<td class="perforation-cell"><input type="checkbox" class="perforation-toggle" data-perforation-toggle="true" data-measure-id="${id}" ${checked} aria-label="Display ${r.label} as perforation"></td>`
+        );
+      }
+      return `<tr class="measurement-row" data-measure-id="${id}" data-measure-type="${type}" data-measure-index="${index}">${cells.join("")}</tr>`;
     })
     .join("");
   tbody.querySelectorAll('tr[data-measure-id]').forEach((row) => {
     attachMeasurementRowInteractions(row);
     if (selectedMeasurements.has(row.dataset.measureId)) {
       row.classList.add('is-selected');
+    }
+    if (isScoreTable) {
+      const toggle = row.querySelector('input[data-perforation-toggle]');
+      if (toggle) {
+        toggle.addEventListener('click', (evt) => evt.stopPropagation());
+        toggle.addEventListener('keydown', (evt) => {
+          if (evt.key === ' ' || evt.key === 'Enter') {
+            evt.stopPropagation();
+          }
+        });
+        toggle.addEventListener('change', (evt) => {
+          evt.stopPropagation();
+          const id = row.dataset.measureId;
+          if (!id) return;
+          if (toggle.checked) {
+            perforationMeasurements.add(id);
+          } else {
+            perforationMeasurements.delete(id);
+          }
+          update();
+        });
+      }
     }
   });
 }
@@ -460,7 +507,13 @@ function drawSVG(layout, fin) {
     applyLayerAttributes(r, layer);
     svg.appendChild(r);
   };
-  const L = (x1, y1, x2, y2, { stroke = "#22d3ee", width = 1.5, layer, measureId, measureType } = {}) => {
+  const L = (
+    x1,
+    y1,
+    x2,
+    y2,
+    { stroke = "#22d3ee", width = 1.5, layer, measureId, measureType, perforated = false } = {}
+  ) => {
     const l = document.createElementNS("http://www.w3.org/2000/svg", "line");
     l.setAttribute("x1", offX + x1 * s);
     l.setAttribute("y1", offY + y1 * s);
@@ -469,6 +522,9 @@ function drawSVG(layout, fin) {
     l.setAttribute("stroke", stroke);
     l.setAttribute("stroke-width", width);
     l.setAttribute("stroke-linecap", "round");
+    if (perforated) {
+      l.setAttribute("stroke-dasharray", "6 4");
+    }
     applyLayerAttributes(l, layer);
     if (measureId) {
       registerMeasurementId(measureId);
@@ -520,26 +576,31 @@ function drawSVG(layout, fin) {
       measureType: 'slit',
     })
   );
-  fin.scores.horizontal.forEach((sc, index) =>
+  fin.scores.horizontal.forEach((sc, index) => {
+    const measureId = createMeasurementId('score-horizontal', index);
     L(layout.layoutArea.originX, sc.inches, layout.layoutArea.originX + layout.layoutArea.width, sc.inches, {
       stroke: "#a78bfa",
       width: 1,
       layer: "scores",
-      measureId: createMeasurementId('score-horizontal', index),
+      measureId,
       measureType: 'score-horizontal',
-    })
-  );
-  fin.scores.vertical.forEach((sc, index) =>
+      perforated: perforationMeasurements.has(measureId),
+    });
+  });
+  fin.scores.vertical.forEach((sc, index) => {
+    const measureId = createMeasurementId('score-vertical', index);
     L(sc.inches, layout.layoutArea.originY, sc.inches, layout.layoutArea.originY + layout.layoutArea.height, {
       stroke: "#a78bfa",
       width: 1,
       layer: "scores",
-      measureId: createMeasurementId('score-vertical', index),
+      measureId,
       measureType: 'score-vertical',
-    })
-  );
+      perforated: perforationMeasurements.has(measureId),
+    });
+  });
   applyLayerVisibility();
   restoreMeasurementSelections();
+  restorePerforationStates();
 }
 
 // ------------------------------------------------------------
