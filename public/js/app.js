@@ -577,12 +577,18 @@ $('#gut-eighth').addEventListener('click', () => setGutterPreset(0.125, 0.125));
 $('#gut-3125x67').addEventListener('click', () => setGutterPreset(0.3125, 0.67));
 $('#gut-1inch').addEventListener('click', () => setGutterPreset(1, 1));
 
-const scorePresetButtons = {
+const verticalScorePresetButtons = {
   bifold: $('#scorePresetBifold'),
   trifold: $('#scorePresetTrifold'),
   custom: $('#scorePresetCustom'),
 };
+const horizontalScorePresetButtons = {
+  bifold: $('#scorePresetHBifold'),
+  trifold: $('#scorePresetHTrifold'),
+  custom: $('#scorePresetHCustom'),
+};
 const verticalScoreInput = $('#scoresV');
+const horizontalScoreInput = $('#scoresH');
 const SCORE_PRESETS = {
   bifold: [0.5],
   trifold: [1 / 3, 2 / 3],
@@ -616,8 +622,30 @@ function lockVerticalScoreInput(lock, presetKey) {
   }
 }
 
-function setScorePresetState(activeKey) {
-  Object.entries(scorePresetButtons).forEach(([key, btn]) => {
+function setHorizontalScoreOffsets(offsets = []) {
+  if (!horizontalScoreInput) return;
+  if (!Array.isArray(offsets) || offsets.length === 0) {
+    horizontalScoreInput.value = '';
+    return;
+  }
+  horizontalScoreInput.value = offsets.map(formatScoreOffset).join(', ');
+}
+
+function lockHorizontalScoreInput(lock, presetKey) {
+  if (!horizontalScoreInput) return;
+  if (lock) {
+    horizontalScoreInput.setAttribute('readonly', 'true');
+    horizontalScoreInput.classList.add('is-locked');
+    if (presetKey) horizontalScoreInput.dataset.preset = presetKey;
+  } else {
+    horizontalScoreInput.removeAttribute('readonly');
+    horizontalScoreInput.classList.remove('is-locked');
+    delete horizontalScoreInput.dataset.preset;
+  }
+}
+
+function setScorePresetState(buttons, activeKey) {
+  Object.entries(buttons).forEach(([key, btn]) => {
     if (!btn) return;
     const isActive = key === activeKey;
     btn.classList.toggle('is-active', isActive);
@@ -625,39 +653,77 @@ function setScorePresetState(activeKey) {
   });
 }
 
-scorePresetButtons.bifold?.addEventListener('click', () => {
+const setVerticalPresetState = (key) => setScorePresetState(verticalScorePresetButtons, key);
+const setHorizontalPresetState = (key) => setScorePresetState(horizontalScorePresetButtons, key);
+
+verticalScorePresetButtons.bifold?.addEventListener('click', () => {
   setVerticalScoreOffsets(SCORE_PRESETS.bifold);
   lockVerticalScoreInput(true, 'bifold');
-  setScorePresetState('bifold');
+  setVerticalPresetState('bifold');
   update();
-  status('Bifold score preset applied');
+  status('Vertical bifold score preset applied');
 });
 
-scorePresetButtons.trifold?.addEventListener('click', () => {
+verticalScorePresetButtons.trifold?.addEventListener('click', () => {
   setVerticalScoreOffsets(SCORE_PRESETS.trifold);
   lockVerticalScoreInput(true, 'trifold');
-  setScorePresetState('trifold');
+  setVerticalPresetState('trifold');
   update();
-  status('Trifold score preset applied');
+  status('Vertical trifold score preset applied');
 });
 
-scorePresetButtons.custom?.addEventListener('click', () => {
+verticalScorePresetButtons.custom?.addEventListener('click', () => {
   lockVerticalScoreInput(false);
-  setScorePresetState('custom');
+  setVerticalPresetState('custom');
   verticalScoreInput?.focus();
-  status('Custom score entry enabled');
+  update();
+  status('Vertical custom score entry enabled');
 });
 
 if (verticalScoreInput) {
   ['input', 'change'].forEach((evt) =>
     verticalScoreInput.addEventListener(evt, () => {
       if (verticalScoreInput.readOnly) return;
-      setScorePresetState('custom');
+      setVerticalPresetState('custom');
     })
   );
 }
 
-setScorePresetState('custom');
+horizontalScorePresetButtons.bifold?.addEventListener('click', () => {
+  setHorizontalScoreOffsets(SCORE_PRESETS.bifold);
+  lockHorizontalScoreInput(true, 'bifold');
+  setHorizontalPresetState('bifold');
+  update();
+  status('Horizontal bifold score preset applied');
+});
+
+horizontalScorePresetButtons.trifold?.addEventListener('click', () => {
+  setHorizontalScoreOffsets(SCORE_PRESETS.trifold);
+  lockHorizontalScoreInput(true, 'trifold');
+  setHorizontalPresetState('trifold');
+  update();
+  status('Horizontal trifold score preset applied');
+});
+
+horizontalScorePresetButtons.custom?.addEventListener('click', () => {
+  lockHorizontalScoreInput(false);
+  setHorizontalPresetState('custom');
+  horizontalScoreInput?.focus();
+  update();
+  status('Horizontal custom score entry enabled');
+});
+
+if (horizontalScoreInput) {
+  ['input', 'change'].forEach((evt) =>
+    horizontalScoreInput.addEventListener(evt, () => {
+      if (horizontalScoreInput.readOnly) return;
+      setHorizontalPresetState('custom');
+    })
+  );
+}
+
+setVerticalPresetState('custom');
+setHorizontalPresetState('custom');
 const UNIT_PRECISION = { in: 3, mm: 2 };
 const numericInputSelectors = [
   '#sheetW',
