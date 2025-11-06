@@ -329,6 +329,12 @@ select {
   background: transparent;
 }
 
+.btn.is-active {
+  border-color: var(--accent);
+  background: #112024;
+  color: var(--accent);
+}
+
 /* =============================================
  * Tabs & Cards
  * ---------------------------------------------
@@ -357,6 +363,116 @@ select {
 .tab.active {
   color: var(--text);
   border-color: var(--accent);
+}
+
+.scores-pane {
+  --stack-gap: 18px;
+}
+
+.score-card {
+  --stack-gap: 16px;
+}
+
+.score-card-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #1f2430;
+}
+
+.score-card-title p {
+  margin: 0;
+  max-width: 460px;
+}
+
+.score-presets {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.score-presets .btn {
+  min-width: 90px;
+  text-align: center;
+}
+
+.score-inputs {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+}
+
+.score-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.score-field label {
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: flex-start;
+  gap: 8px;
+}
+
+.score-field label span {
+  font-size: 0.85rem;
+  color: #cbd5e1;
+}
+
+.score-field label input {
+  width: 100%;
+  text-align: left;
+}
+
+.score-field label input.is-locked {
+  background: #111821;
+  border-color: #253043;
+  color: #cbd5e1;
+  cursor: not-allowed;
+  opacity: 0.85;
+}
+
+.score-hint {
+  margin: 0;
+  font-size: 0.85rem;
+}
+
+.score-actions {
+  margin: 0;
+  justify-content: space-between;
+}
+
+.score-actions .muted {
+  font-size: 0.85rem;
+}
+
+.score-table-grid {
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+}
+
+.score-table-card {
+  --stack-gap: 12px;
+}
+
+.score-table-card p {
+  margin: 0;
+  font-size: 0.85rem;
+}
+
+@media (max-width: 680px) {
+  .score-card-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .score-presets {
+    justify-content: flex-start;
+  }
 }
 
 .tabpanes > section {

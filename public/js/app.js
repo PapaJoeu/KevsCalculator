@@ -481,6 +481,88 @@ $('#gut-none').addEventListener('click', () => setGutterPreset(0, 0));
 $('#gut-eighth').addEventListener('click', () => setGutterPreset(0.125, 0.125));
 $('#gut-3125x67').addEventListener('click', () => setGutterPreset(0.3125, 0.67));
 $('#gut-1inch').addEventListener('click', () => setGutterPreset(1, 1));
+
+const scorePresetButtons = {
+  bifold: $('#scorePresetBifold'),
+  trifold: $('#scorePresetTrifold'),
+  custom: $('#scorePresetCustom'),
+};
+const verticalScoreInput = $('#scoresV');
+const SCORE_PRESETS = {
+  bifold: [0.5],
+  trifold: [1 / 3, 2 / 3],
+};
+
+const formatScoreOffset = (value) => {
+  const fixed = Number(value || 0).toFixed(4);
+  const trimmed = fixed.replace(/0+$/, '').replace(/\.$/, '');
+  return trimmed === '' ? '0' : trimmed;
+};
+
+function setVerticalScoreOffsets(offsets = []) {
+  if (!verticalScoreInput) return;
+  if (!Array.isArray(offsets) || offsets.length === 0) {
+    verticalScoreInput.value = '';
+    return;
+  }
+  verticalScoreInput.value = offsets.map(formatScoreOffset).join(', ');
+}
+
+function lockVerticalScoreInput(lock, presetKey) {
+  if (!verticalScoreInput) return;
+  if (lock) {
+    verticalScoreInput.setAttribute('readonly', 'true');
+    verticalScoreInput.classList.add('is-locked');
+    if (presetKey) verticalScoreInput.dataset.preset = presetKey;
+  } else {
+    verticalScoreInput.removeAttribute('readonly');
+    verticalScoreInput.classList.remove('is-locked');
+    delete verticalScoreInput.dataset.preset;
+  }
+}
+
+function setScorePresetState(activeKey) {
+  Object.entries(scorePresetButtons).forEach(([key, btn]) => {
+    if (!btn) return;
+    const isActive = key === activeKey;
+    btn.classList.toggle('is-active', isActive);
+    btn.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+  });
+}
+
+scorePresetButtons.bifold?.addEventListener('click', () => {
+  setVerticalScoreOffsets(SCORE_PRESETS.bifold);
+  lockVerticalScoreInput(true, 'bifold');
+  setScorePresetState('bifold');
+  update();
+  status('Bifold score preset applied');
+});
+
+scorePresetButtons.trifold?.addEventListener('click', () => {
+  setVerticalScoreOffsets(SCORE_PRESETS.trifold);
+  lockVerticalScoreInput(true, 'trifold');
+  setScorePresetState('trifold');
+  update();
+  status('Trifold score preset applied');
+});
+
+scorePresetButtons.custom?.addEventListener('click', () => {
+  lockVerticalScoreInput(false);
+  setScorePresetState('custom');
+  verticalScoreInput?.focus();
+  status('Custom score entry enabled');
+});
+
+if (verticalScoreInput) {
+  ['input', 'change'].forEach((evt) =>
+    verticalScoreInput.addEventListener(evt, () => {
+      if (verticalScoreInput.readOnly) return;
+      setScorePresetState('custom');
+    })
+  );
+}
+
+setScorePresetState('custom');
 const UNIT_PRECISION = { in: 3, mm: 2 };
 const numericInputSelectors = [
   '#sheetW',

@@ -181,22 +181,55 @@
           </section>
 
           <section id="tab-scores">
-            <div class="card" style="margin-bottom:10px">
-              <h3>Score Offsets (relative within document)</h3>
-              <div class="row">
-                <label title="CSV, 0–1 (e.g., 0.5 or 0.33,0.66)"><span>Vertical offsets</span>
-                  <input id="scoresV" type="text" value="" placeholder="e.g., 0.5"></label>
-                <label title="CSV, 0–1"><span>Horizontal offsets</span>
-                  <input id="scoresH" type="text" value="" placeholder="e.g., 0.5"></label>
+            <div class="scores-pane stack">
+              <div class="card stack score-card">
+                <div class="score-card-header">
+                  <div class="score-card-title">
+                    <h3>Score Planning</h3>
+                    <p class="muted">Offsets are normalized to each document. Choose a preset for common folds or switch to custom entry to fine-tune the layout.</p>
+                  </div>
+                  <div class="score-presets no-print" role="group" aria-label="Score presets">
+                    <button class="btn" id="scorePresetBifold" type="button">Bifold</button>
+                    <button class="btn" id="scorePresetTrifold" type="button">Trifold</button>
+                    <button class="btn" id="scorePresetCustom" type="button">Custom</button>
+                  </div>
+                </div>
+                <div class="score-inputs">
+                  <div class="score-field stack-sm">
+                    <label class="score-label" for="scoresV" title="CSV, 0–1 (e.g., 0.5 or 0.33,0.66)">
+                      <span>Vertical offsets</span>
+                      <input id="scoresV" type="text" value="" placeholder="e.g., 0.5" />
+                    </label>
+                    <p class="muted score-hint">Positions lines that run top-to-bottom across the sheet. Values are relative to the document width.</p>
+                  </div>
+                  <div class="score-field stack-sm">
+                    <label class="score-label" for="scoresH" title="CSV, 0–1">
+                      <span>Horizontal offsets</span>
+                      <input id="scoresH" type="text" value="" placeholder="e.g., 0.5" />
+                    </label>
+                    <p class="muted score-hint">Positions lines that run left-to-right across the sheet. Values are relative to the document height.</p>
+                  </div>
+                </div>
+                <div class="score-actions toolbar no-print">
+                  <button class="btn primary" id="applyScores" type="button">Apply Scores</button>
+                  <span class="muted">Leave fields blank to omit scores.</span>
+                </div>
               </div>
-              <div class="toolbar no-print"><button class="btn" id="applyScores">Apply Scores</button><span class="muted">Leave blank for no scores</span></div>
-            </div>
-            <div class="grid" style="grid-template-columns:1fr 1fr">
-              <div class="card"><h3>Scores (Y)</h3>
-                <table class="table" id="tblScoresH"><thead><tr><th>Label</th><th>in</th><th>mm</th></tr></thead><tbody></tbody></table>
-              </div>
-              <div class="card"><h3>Scores (X)</h3>
-                <table class="table" id="tblScoresV"><thead><tr><th>Label</th><th>in</th><th>mm</th></tr></thead><tbody></tbody></table>
+              <div class="grid score-table-grid">
+                <div class="card stack score-table-card">
+                  <div>
+                    <h3>Scores (Y)</h3>
+                    <p class="muted">Horizontal runs positioned along the sheet height.</p>
+                  </div>
+                  <table class="table" id="tblScoresH"><thead><tr><th>Label</th><th>in</th><th>mm</th></tr></thead><tbody></tbody></table>
+                </div>
+                <div class="card stack score-table-card">
+                  <div>
+                    <h3>Scores (X)</h3>
+                    <p class="muted">Vertical runs positioned along the sheet width.</p>
+                  </div>
+                  <table class="table" id="tblScoresV"><thead><tr><th>Label</th><th>in</th><th>mm</th></tr></thead><tbody></tbody></table>
+                </div>
               </div>
             </div>
           </section>
