@@ -34,8 +34,76 @@ let currentUnitsSelection = DEFAULT_INPUTS.units;
 let storedContext = { update: () => {}, status: () => {} };
 let keydownHandlerAttached = false;
 
+const EAGLE_IMAGE_SRC = 'media/eagle.svg';
+const EAGLE_AUDIO_SRC = 'media/eagle.wav';
+const EAGLE_CLASS = 'freedom-eagle';
+const ALERT_CLASS = 'freedom-alert';
+let eagleElement = null;
+let eagleAudio = null;
+let alertElement = null;
+let alertDismissTimeout = null;
+
 const getStatus = () => storedContext.status ?? (() => {});
 const getUpdate = () => storedContext.update ?? (() => {});
+
+function destroyEagle() {
+  if (eagleElement) {
+    eagleElement.removeEventListener('animationend', destroyEagle);
+    eagleElement.remove();
+    eagleElement = null;
+  }
+  if (eagleAudio) {
+    eagleAudio.pause();
+    try {
+      eagleAudio.currentTime = 0;
+    } catch (err) {
+      // Some browsers may not allow resetting currentTime immediately after pause.
+    }
+  }
+}
+
+function triggerFreedomEagle() {
+  destroyEagle();
+  if (!eagleAudio) {
+    eagleAudio = new Audio(EAGLE_AUDIO_SRC);
+    eagleAudio.preload = 'auto';
+  }
+  const playPromise = eagleAudio.play();
+  if (playPromise && typeof playPromise.catch === 'function') {
+    playPromise.catch(() => {});
+  }
+
+  const img = document.createElement('img');
+  img.src = EAGLE_IMAGE_SRC;
+  img.alt = '';
+  img.setAttribute('aria-hidden', 'true');
+  img.className = EAGLE_CLASS;
+  img.addEventListener('animationend', destroyEagle, { once: true });
+  document.body.appendChild(img);
+  eagleElement = img;
+}
+
+function dismissAlert() {
+  if (alertDismissTimeout) {
+    clearTimeout(alertDismissTimeout);
+    alertDismissTimeout = null;
+  }
+  if (alertElement) {
+    alertElement.remove();
+    alertElement = null;
+  }
+}
+
+function showFreedomAlert() {
+  dismissAlert();
+  destroyEagle();
+  const alert = document.createElement('div');
+  alert.className = ALERT_CLASS;
+  alert.textContent = 'FREEDOM MODE OFF';
+  document.body.appendChild(alert);
+  alertElement = alert;
+  alertDismissTimeout = setTimeout(dismissAlert, 3500);
+}
 
 const trimTrailingZeros = (str) => {
   if (!str.includes('.')) return str;
@@ -202,6 +270,21 @@ function convertInputs(fromUnits, toUnits) {
   applyNumericInputUnits(toUnits);
 }
 
+function handleUnitCelebration(units) {
+  if (units === 'in') {
+    dismissAlert();
+    triggerFreedomEagle();
+  } else {
+    destroyEagle();
+  }
+
+  if (units === 'mm') {
+    showFreedomAlert();
+  } else if (units !== 'in') {
+    dismissAlert();
+  }
+}
+
 function applyDefaultInputs() {
   const { units, sheet, document, gutter, nonPrintable } = DEFAULT_INPUTS;
   const precision = UNIT_PRECISION[units] ?? 3;
@@ -257,6 +340,7 @@ function attachUnitChangeListener(unitsSelect) {
     refreshPresetDropdowns(getSystemForUnits(nextUnits));
     getStatus()('Units changed');
     getUpdate()();
+    handleUnitCelebration(nextUnits);
   });
 }
 

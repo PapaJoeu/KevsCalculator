@@ -1,0 +1,5 @@
+Placeholder for eagle.wav asset.
+
+Add a short eagle call audio clip named `eagle.wav` (44.1 kHz mono or stereo) to this directory. The script plays this sound whenever the user switches to inch units, so the clip should match the patriotic tone described in the feature request.
+
+Replace this text file with the actual `eagle.wav` binary once it is available.
