@@ -1,6 +1,10 @@
+import { hydrateTabPanel } from './registry.js';
+
 let initialized = false;
+const TAB_KEY = 'finishing';
 
 function init() {
+  hydrateTabPanel(TAB_KEY);
   if (initialized) return;
   initialized = true;
 }

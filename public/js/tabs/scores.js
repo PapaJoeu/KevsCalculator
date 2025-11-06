@@ -1,4 +1,5 @@
 import { $, parseOffsets } from '../utils/dom.js';
+import { hydrateTabPanel } from './registry.js';
 
 const SCORE_PRESETS = {
   bifold: [0.5],
@@ -6,6 +7,7 @@ const SCORE_PRESETS = {
 };
 
 let initialized = false;
+const TAB_KEY = 'scores';
 let storedContext = { update: () => {}, status: () => {} };
 let verticalScoreInput = null;
 let horizontalScoreInput = null;
@@ -180,11 +182,11 @@ function attachInputListeners() {
 }
 
 function init(context = {}) {
+  hydrateTabPanel(TAB_KEY);
+  storedContext = { ...storedContext, ...context };
   if (initialized) {
-    storedContext = { ...storedContext, ...context };
     return;
   }
-  storedContext = { ...storedContext, ...context };
   verticalScoreInput = $('#scoresV');
   horizontalScoreInput = $('#scoresH');
 

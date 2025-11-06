@@ -1,8 +1,11 @@
 import { $$, getLayerVisibility, setLayerVisibility, applyLayerVisibility } from '../utils/dom.js';
+import { hydrateTabPanel } from './registry.js';
 
 let initialized = false;
+const TAB_KEY = 'summary';
 
 function init() {
+  hydrateTabPanel(TAB_KEY);
   if (initialized) return;
   $$('.layer-visibility-toggle-input').forEach((input) => {
     const layer = input.dataset.layer;

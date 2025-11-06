@@ -1,6 +1,8 @@
 import { $, $$ } from '../utils/dom.js';
 import { formatValueForUnits } from '../utils/units.js';
+import { hydrateTabPanel } from './registry.js';
 
+const TAB_KEY = 'presets';
 const marginInputSelectors = ['#mTop', '#mRight', '#mBottom', '#mLeft'];
 
 let initialized = false;
@@ -89,11 +91,11 @@ function attachPresetButtons() {
 }
 
 function init(context = {}) {
+  hydrateTabPanel(TAB_KEY);
+  storedContext = { ...storedContext, ...context };
   if (initialized) {
-    storedContext = { ...storedContext, ...context };
     return;
   }
-  storedContext = { ...storedContext, ...context };
   attachPresetButtons();
   initialized = true;
 }

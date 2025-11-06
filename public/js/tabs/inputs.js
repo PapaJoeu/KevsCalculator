@@ -2,7 +2,9 @@ import { sheetPresets, documentPresets, gutterPresets } from '../input-presets.j
 import { DEFAULT_INPUTS } from '../config/defaults.js';
 import { $ } from '../utils/dom.js';
 import { MM_PER_INCH, convertForUnits, describePresetValue } from '../utils/units.js';
+import { hydrateTabPanel } from './registry.js';
 
+const TAB_KEY = 'inputs';
 const marginInputSelectors = ['#mTop', '#mRight', '#mBottom', '#mLeft'];
 const numericInputSelectors = [
   '#sheetW',
@@ -320,8 +322,9 @@ function runUnitConversionRegression() {
 }
 
 function init(context = {}) {
-  if (initialized) return;
+  hydrateTabPanel(TAB_KEY);
   storedContext = { ...storedContext, ...context };
+  if (initialized) return;
   setAutoMarginMode(autoMarginMode);
   attachMarginListeners();
   attachUnitChangeListener($('#units'));

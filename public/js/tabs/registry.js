@@ -10,6 +10,35 @@ const getTabTrigger = (key) =>
     ? document.querySelector(`.output-tab-trigger[data-tab='${key}']`)
     : null;
 const getTabPanel = (key) => (typeof document !== 'undefined' ? document.querySelector(`#tab-${key}`) : null);
+const hydratedPanels = new Set();
+
+const cloneTemplateIntoPanel = (panel) => {
+  if (!panel || typeof document === 'undefined') return panel;
+  if (panel.childElementCount > 0) return panel;
+  const templateId = panel.dataset?.tabTemplate;
+  if (!templateId) return panel;
+  const template = document.getElementById(templateId);
+  if (!template?.content) return panel;
+  const fragment = template.content.cloneNode(true);
+  panel.appendChild(fragment);
+  return panel;
+};
+
+export const getTabPanelTemplateId = (key) => getTabPanel(key)?.dataset?.tabTemplate ?? null;
+
+export function hydrateTabPanel(key) {
+  if (hydratedPanels.has(key)) {
+    return getTabPanel(key);
+  }
+  const panel = getTabPanel(key);
+  if (!panel) return null;
+  const hydratedPanel = cloneTemplateIntoPanel(panel);
+  hydratedPanels.add(key);
+  if (hydratedPanel) {
+    hydratedPanel.dataset.tabHydrated = 'true';
+  }
+  return hydratedPanel;
+}
 
 const resolveTabElements = (preferredKey) => {
   const attemptKey = preferredKey ?? fallbackTabKey;
