@@ -1,5 +1,14 @@
 import { sheetPresets, documentPresets, gutterPresets } from './input-presets.js';
 import { DEFAULT_INPUTS } from './config/defaults.js';
+import { initializeTabRegistry, registerTab } from './tabs/registry.js';
+import inputsTab from './tabs/inputs.js';
+import summaryTab from './tabs/summary.js';
+import finishingTab from './tabs/finishing.js';
+import scoresTab from './tabs/scores.js';
+import perforationsTab from './tabs/perforations.js';
+import warningsTab from './tabs/warnings.js';
+import printTab from './tabs/print.js';
+import presetsTab from './tabs/presets.js';
 import {
   MM_PER_INCH,
   clampToZero,
@@ -609,26 +618,16 @@ function drawSVG(layout, fin) {
 // ------------------------------------------------------------
 // 4. Event bindings
 // ------------------------------------------------------------
-const DEFAULT_TAB_KEY = 'inputs';
+registerTab(inputsTab.key, inputsTab);
+registerTab(summaryTab.key, summaryTab);
+registerTab(finishingTab.key, finishingTab);
+registerTab(scoresTab.key, scoresTab);
+registerTab(perforationsTab.key, perforationsTab);
+registerTab(warningsTab.key, warningsTab);
+registerTab(printTab.key, printTab);
+registerTab(presetsTab.key, presetsTab);
 
-function activateTab(targetKey = DEFAULT_TAB_KEY) {
-  const requestedTab = $(`.output-tab-trigger[data-tab='${targetKey}']`);
-  const requestedPane = document.querySelector(`#tab-${targetKey}`);
-  const fallbackTab = $(`.output-tab-trigger[data-tab='${DEFAULT_TAB_KEY}']`);
-  const fallbackPane = document.querySelector(`#tab-${DEFAULT_TAB_KEY}`);
-  const tabToActivate = requestedTab ?? fallbackTab;
-  const paneToActivate = requestedPane ?? fallbackPane;
-  if (!tabToActivate || !paneToActivate) return;
-  $$('.output-tab-trigger').forEach((x) => x.classList.remove('is-active'));
-  $$('.output-tabpanel-collection>section').forEach((s) => s.classList.remove('is-active'));
-  tabToActivate.classList.add('is-active');
-  paneToActivate.classList.add('is-active');
-}
-
-$$('.output-tab-trigger').forEach((t) => t.addEventListener('click', () => activateTab(t.dataset.tab)));
-
-const initiallyActiveTab = document.querySelector('.output-tab-trigger.is-active');
-activateTab(initiallyActiveTab ? initiallyActiveTab.dataset.tab : DEFAULT_TAB_KEY);
+initializeTabRegistry();
 
 $$('.layer-visibility-toggle-input').forEach((input) => {
   const layer = input.dataset.layer;
