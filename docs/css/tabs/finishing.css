@@ -56,7 +56,7 @@
   justify-content: space-between;
   gap: 16px;
   padding-bottom: 12px;
-  border-bottom: 1px solid #1f2430;
+  border-bottom: 1px solid var(--border-overlay);
 }
 
 /* This container limits explanatory copy to a comfortable width. */
@@ -97,7 +97,7 @@
 /* Score labels inherit a smaller caption style for descriptors. */
 .finishing-score-field label span {
   font-size: 0.85rem;
-  color: #cbd5e1;
+  color: var(--text-secondary);
 }
 
 /* Inputs span the full width when editing score values. */
@@ -108,9 +108,9 @@
 
 /* Locked score inputs adopt a disabled palette to indicate read-only state. */
 .finishing-score-field label input.is-locked {
-  background: #111821;
-  border-color: #253043;
-  color: #cbd5e1;
+  background: var(--surface-tab);
+  border-color: var(--border-tab);
+  color: var(--text-secondary);
   cursor: not-allowed;
   opacity: 0.85;
 }
