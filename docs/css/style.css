@@ -1099,9 +1099,19 @@ select {
 }
 
 .print-actions {
+  display: grid;
+  gap: 12px;
+}
+
+.print-action-row {
   display: flex;
   flex-wrap: wrap;
   gap: 12px;
+}
+
+.print-actions-hint {
+  margin: 0;
+  font-size: 0.85rem;
 }
 
 .print-preview-card {
