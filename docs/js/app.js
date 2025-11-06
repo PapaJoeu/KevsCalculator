@@ -31,7 +31,7 @@ import {
 } from './utils/dom.js';
 
 // ============================================================
-// Print Layout Calculator — Application Script
+// Kevin’s Bitchin’ Print Calculator — Application Script
 // ------------------------------------------------------------
 // The logic is organized in the following sections:
 //   1. Calculation helpers (core math + data shaping)
