@@ -12,14 +12,14 @@
   <body>
     <div class="layout-app-shell">
       <!-- Fragment placeholder: App header -->
-      <div data-fragment="app-header"></div>
+      <div data-partial="app-header"></div>
 
       <!-- Fragment placeholder: Sheet preview visualizer -->
-      <div data-fragment="visualizer"></div>
+      <div data-partial="visualizer"></div>
 
       <main class="content-section output-details-section">
         <!-- Fragment placeholder: Output tab navigation -->
-        <div data-fragment="tab-nav"></div>
+        <div data-partial="tab-nav"></div>
 
         <div class="output-tabpanel-collection">
           <section id="tab-inputs" class="is-active" data-tab-template="tab-inputs-template"></section>
@@ -35,6 +35,8 @@
         <!-- Tab panel templates are loaded at runtime from docs/partials/templates via template-loader.js. -->
       </main>
     </div>
+
+    <div data-template-host hidden></div>
 
     <script type="module" src="./js/bootstrap.js"></script>
   </body>

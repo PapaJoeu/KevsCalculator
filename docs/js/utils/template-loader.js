@@ -15,6 +15,18 @@ function extractTemplateElement(markup) {
   return container.querySelector('template');
 }
 
+const ensureTemplateHost = () => {
+  if (typeof document === 'undefined') return null;
+  let host = document.querySelector('[data-template-host]');
+  if (!host) {
+    host = document.createElement('div');
+    host.hidden = true;
+    host.setAttribute('data-template-host', '');
+    document.body.appendChild(host);
+  }
+  return host;
+};
+
 async function injectTemplate(name) {
   if (typeof document === 'undefined') return null;
   const existing = document.getElementById(name);
@@ -27,7 +39,11 @@ async function injectTemplate(name) {
     if (!template) {
       throw new Error(`Template "${name}" did not include a <template> element.`);
     }
-    document.body.appendChild(template);
+    const host = ensureTemplateHost();
+    if (!host) {
+      throw new Error('Unable to locate or create template host container.');
+    }
+    host.appendChild(template);
     return template;
   } catch (error) {
     console.error(error);

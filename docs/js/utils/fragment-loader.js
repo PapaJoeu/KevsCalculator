@@ -8,9 +8,14 @@ async function fetchFragmentMarkup(name) {
   return response.text();
 }
 
+const selectFragmentPlaceholder = (name) =>
+  typeof document !== 'undefined'
+    ? document.querySelector(`[data-partial='${name}'], [data-fragment='${name}']`)
+    : null;
+
 async function injectFragment(name) {
   if (typeof document === 'undefined') return null;
-  const placeholder = document.querySelector(`[data-fragment='${name}']`);
+  const placeholder = selectFragmentPlaceholder(name);
   if (!placeholder) return null;
 
   try {
