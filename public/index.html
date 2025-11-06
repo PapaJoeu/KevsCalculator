@@ -9,179 +9,189 @@
   </head>
   <body>
     <div class="wrap">
-      <div class="grid cols-2">
-        <!-- LEFT: Inputs -->
-        <aside class="panel" id="inputs">
-          <h1>Layout Inputs</h1>
-          <div class="inputs-scroll">
-            <div class="toolbar no-print inputs-toolbar">
-              <button class="btn" id="preset-letter">Letter 8.5×11</button>
-              <button class="btn" id="preset-1218">12×18</button>
-              <button class="btn ghost" id="swap-wh">Swap W/H</button>
-              <span>Units:</span>
-              <select id="units">
-                <option value="in">inches</option>
-                <option value="mm">millimeters</option>
-              </select>
-            </div>
+      <header class="app-header">
+        <h1>Print Layout Calculator</h1>
+        <p class="muted">Plan your sheet, finishing, and print-ready outputs from a single workspace.</p>
+      </header>
 
-            <div class="stack stack-sm">
-              <div class="card">
-                <h2>Sheet</h2>
-                <div class="row">
-                  <label><span>Width</span><input id="sheetW" type="number" step="0.001" value="12"></label>
-                  <label><span>Height</span><input id="sheetH" type="number" step="0.001" value="18"></label>
-                </div>
-              </div>
-
-              <div class="card">
-                <h2>Document</h2>
-                <div class="row">
-                  <label><span>Width</span><input id="docW" type="number" step="0.001" value="3.5"></label>
-                  <label><span>Height</span><input id="docH" type="number" step="0.001" value="2"></label>
-                </div>
-              </div>
-
-              <div class="card">
-                <h2>Gutter</h2>
-                <div class="row">
-                  <label><span>Horizontal</span><input id="gutH" type="number" step="0.001" value="0.125"></label>
-                  <label><span>Vertical</span><input id="gutV" type="number" step="0.001" value="0.125"></label>
-                </div>
-              </div>
-
-              <div class="card">
-                <h2>Docs (limit)</h2>
-                <div class="row">
-                  <label title="Leave blank for auto max"><span>Across</span><input id="forceAcross" type="number" step="1" min="1" placeholder="auto"></label>
-                  <label title="Leave blank for auto max"><span>Down</span><input id="forceDown" type="number" step="1" min="1" placeholder="auto"></label>
-                </div>
-              </div>
-
-              <div class="card">
-                <h2>Margins (inside printable)</h2>
-                <div class="row4">
-                  <label><span>Top</span><input id="mTop" type="number" step="0.001" value="" placeholder="auto"></label>
-                  <label><span>Right</span><input id="mRight" type="number" step="0.001" value="" placeholder="auto"></label>
-                  <label><span>Bottom</span><input id="mBottom" type="number" step="0.001" value="" placeholder="auto"></label>
-                  <label><span>Left</span><input id="mLeft" type="number" step="0.001" value="" placeholder="auto"></label>
-                </div>
-              </div>
-
-              <div class="card">
-                <h2>Non‑Printable Edge</h2>
-                <div class="row4">
-                  <label><span>Top</span><input id="npTop" type="number" step="0.001" value="0.0625"></label>
-                  <label><span>Right</span><input id="npRight" type="number" step="0.001" value="0.0625"></label>
-                  <label><span>Bottom</span><input id="npBottom" type="number" step="0.001" value="0.0625"></label>
-                  <label><span>Left</span><input id="npLeft" type="number" step="0.001" value="0.0625"></label>
-                </div>
-              </div>
-
-              <div class="toolbar no-print inputs-actions">
-                <button class="btn primary" id="calcBtn">Update Preview</button>
-                <button class="btn" id="resetBtn">Reset</button>
-                <span class="k" id="status"></span>
-              </div>
-            </div>
+      <section class="panel preview-panel">
+        <div class="output-preview">
+          <div class="preview"><svg id="svg" width="960" height="600" viewBox="0 0 960 600" aria-label="sheet preview"></svg></div>
+          <div class="legend no-print">
+            <span><i class="dot grid"></i>Layout Area</span>
+            <span><i class="dot doc"></i>Documents</span>
+            <span><i class="dot cut"></i>Cut/Slit Lines</span>
+            <span><i class="dot score"></i>Scores</span>
           </div>
-        </aside>
+        </div>
+      </section>
 
-        <!-- RIGHT: Output/Tabs -->
-        <main class="panel output-panel">
-          <div class="output-preview">
-            <div class="preview"><svg id="svg" width="960" height="600" viewBox="0 0 960 600" aria-label="sheet preview"></svg></div>
-            <div class="legend no-print">
-              <span><i class="dot grid"></i>Layout Area</span>
-              <span><i class="dot doc"></i>Documents</span>
-              <span><i class="dot cut"></i>Cut/Slit Lines</span>
-              <span><i class="dot score"></i>Scores</span>
+      <main class="panel tab-panel">
+        <nav class="tabbar no-print output-tabs">
+          <div class="tab active" data-tab="layout">Layout</div>
+          <div class="tab" data-tab="summary">Summary</div>
+          <div class="tab" data-tab="finishing">Cuts / Slits</div>
+          <div class="tab" data-tab="scores">Scores</div>
+          <div class="tab" data-tab="print">Print</div>
+        </nav>
+
+        <div class="tabpanes">
+          <section id="tab-layout" class="active">
+            <div class="layout-pane">
+              <div class="layout-header">
+                <h2>Layout Inputs</h2>
+                <p class="muted">Define the sheet, document, and safety settings to drive the preview.</p>
+              </div>
+
+              <div class="inputs-scroll">
+                <div class="toolbar no-print inputs-toolbar">
+                  <button class="btn" id="preset-letter">Letter 8.5×11</button>
+                  <button class="btn" id="preset-1218">12×18</button>
+                  <button class="btn ghost" id="swap-wh">Swap W/H</button>
+                  <span>Units:</span>
+                  <select id="units">
+                    <option value="in">inches</option>
+                    <option value="mm">millimeters</option>
+                  </select>
+                </div>
+
+                <div class="layout-grid">
+                  <div class="card">
+                    <h2>Sheet</h2>
+                    <div class="row">
+                      <label><span>Width</span><input id="sheetW" type="number" step="0.001" value="12"></label>
+                      <label><span>Height</span><input id="sheetH" type="number" step="0.001" value="18"></label>
+                    </div>
+                  </div>
+
+                  <div class="card">
+                    <h2>Document</h2>
+                    <div class="row">
+                      <label><span>Width</span><input id="docW" type="number" step="0.001" value="3.5"></label>
+                      <label><span>Height</span><input id="docH" type="number" step="0.001" value="2"></label>
+                    </div>
+                  </div>
+
+                  <div class="card">
+                    <h2>Gutter</h2>
+                    <div class="row">
+                      <label><span>Horizontal</span><input id="gutH" type="number" step="0.001" value="0.125"></label>
+                      <label><span>Vertical</span><input id="gutV" type="number" step="0.001" value="0.125"></label>
+                    </div>
+                  </div>
+
+                  <div class="card">
+                    <h2>Docs (limit)</h2>
+                    <div class="row">
+                      <label title="Leave blank for auto max"><span>Across</span><input id="forceAcross" type="number" step="1" min="1" placeholder="auto"></label>
+                      <label title="Leave blank for auto max"><span>Down</span><input id="forceDown" type="number" step="1" min="1" placeholder="auto"></label>
+                    </div>
+                  </div>
+
+                  <div class="card">
+                    <h2>Margins (inside printable)</h2>
+                    <div class="row4">
+                      <label><span>Top</span><input id="mTop" type="number" step="0.001" value="" placeholder="auto"></label>
+                      <label><span>Right</span><input id="mRight" type="number" step="0.001" value="" placeholder="auto"></label>
+                      <label><span>Bottom</span><input id="mBottom" type="number" step="0.001" value="" placeholder="auto"></label>
+                      <label><span>Left</span><input id="mLeft" type="number" step="0.001" value="" placeholder="auto"></label>
+                    </div>
+                  </div>
+
+                  <div class="card">
+                    <h2>Non‑Printable Edge</h2>
+                    <div class="row4">
+                      <label><span>Top</span><input id="npTop" type="number" step="0.001" value="0.0625"></label>
+                      <label><span>Right</span><input id="npRight" type="number" step="0.001" value="0.0625"></label>
+                      <label><span>Bottom</span><input id="npBottom" type="number" step="0.001" value="0.0625"></label>
+                      <label><span>Left</span><input id="npLeft" type="number" step="0.001" value="0.0625"></label>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="toolbar no-print inputs-actions">
+                  <button class="btn primary" id="calcBtn">Update Preview</button>
+                  <button class="btn" id="resetBtn">Reset</button>
+                  <span class="k" id="status"></span>
+                </div>
+              </div>
             </div>
-          </div>
+          </section>
 
-          <nav class="tabbar no-print output-tabs">
-            <div class="tab active" data-tab="summary">Summary</div>
-            <div class="tab" data-tab="finishing">Cuts / Slits</div>
-            <div class="tab" data-tab="scores">Scores</div>
-            <div class="tab" data-tab="print">Print</div>
-          </nav>
-
-          <div class="tabpanes">
-            <section id="tab-summary" class="active">
-              <div class="summary">
-                <div class="card"><h3>Counts</h3>
-                  <div>Across: <span class="v" id="vAcross">—</span></div>
-                  <div>Down: <span class="v" id="vDown">—</span></div>
-                  <div>Total: <span class="v" id="vTotal">—</span></div>
-                </div>
-                <div class="card"><h3>Layout Area</h3>
-                  <div>W × H: <span class="v" id="vLayout">—</span></div>
-                  <div>Origin: <span class="v" id="vOrigin">—</span></div>
-                  <div>Realized Margins: <span class="v" id="vRealMargins">—</span></div>
-                </div>
-                <div class="card"><h3>Utilization</h3>
-                  <div>Used W/H: <span class="v" id="vUsed">—</span></div>
-                  <div>Trailing W/H: <span class="v" id="vTrail">—</span></div>
-                </div>
+          <section id="tab-summary">
+            <div class="summary">
+              <div class="card"><h3>Counts</h3>
+                <div>Across: <span class="v" id="vAcross">—</span></div>
+                <div>Down: <span class="v" id="vDown">—</span></div>
+                <div>Total: <span class="v" id="vTotal">—</span></div>
               </div>
-            </section>
-
-            <section id="tab-finishing">
-              <h3 style="margin-bottom:6px">Cut & Slit Systems</h3>
-              <div class="grid" style="grid-template-columns:1fr 1fr">
-                <div class="card"><h3>Cuts (Y edges)</h3>
-                  <table class="table" id="tblCuts"><thead><tr><th>Label</th><th>in</th><th>mm</th></tr></thead><tbody></tbody></table>
-                </div>
-                <div class="card"><h3>Slits (X edges)</h3>
-                  <table class="table" id="tblSlits"><thead><tr><th>Label</th><th>in</th><th>mm</th></tr></thead><tbody></tbody></table>
-                </div>
+              <div class="card"><h3>Layout Area</h3>
+                <div>W × H: <span class="v" id="vLayout">—</span></div>
+                <div>Origin: <span class="v" id="vOrigin">—</span></div>
+                <div>Realized Margins: <span class="v" id="vRealMargins">—</span></div>
               </div>
-            </section>
-
-            <section id="tab-scores">
-              <div class="card" style="margin-bottom:10px">
-                <h3>Score Offsets (relative within document)</h3>
-                <div class="row">
-                  <label title="CSV, 0–1 (e.g., 0.5 or 0.33,0.66)"><span>Vertical offsets</span>
-                    <input id="scoresV" type="text" value="" placeholder="e.g., 0.5"></label>
-                  <label title="CSV, 0–1"><span>Horizontal offsets</span>
-                    <input id="scoresH" type="text" value="" placeholder="e.g., 0.5"></label>
-                </div>
-                <div class="toolbar no-print"><button class="btn" id="applyScores">Apply Scores</button><span class="muted">Leave blank for no scores</span></div>
+              <div class="card"><h3>Utilization</h3>
+                <div>Used W/H: <span class="v" id="vUsed">—</span></div>
+                <div>Trailing W/H: <span class="v" id="vTrail">—</span></div>
               </div>
-              <div class="grid" style="grid-template-columns:1fr 1fr">
-                <div class="card"><h3>Scores (Y)</h3>
-                  <table class="table" id="tblScoresH"><thead><tr><th>Label</th><th>in</th><th>mm</th></tr></thead><tbody></tbody></table>
-                </div>
-                <div class="card"><h3>Scores (X)</h3>
-                  <table class="table" id="tblScoresV"><thead><tr><th>Label</th><th>in</th><th>mm</th></tr></thead><tbody></tbody></table>
-                </div>
-              </div>
-            </section>
+            </div>
+          </section>
 
-            <section id="tab-print">
+          <section id="tab-finishing">
+            <h3 style="margin-bottom:6px">Cut & Slit Systems</h3>
+            <div class="grid" style="grid-template-columns:1fr 1fr">
+              <div class="card"><h3>Cuts (Y edges)</h3>
+                <table class="table" id="tblCuts"><thead><tr><th>Label</th><th>in</th><th>mm</th></tr></thead><tbody></tbody></table>
+              </div>
+              <div class="card"><h3>Slits (X edges)</h3>
+                <table class="table" id="tblSlits"><thead><tr><th>Label</th><th>in</th><th>mm</th></tr></thead><tbody></tbody></table>
+              </div>
+            </div>
+          </section>
+
+          <section id="tab-scores">
+            <div class="card" style="margin-bottom:10px">
+              <h3>Score Offsets (relative within document)</h3>
               <div class="row">
-                <div class="card">
-                  <h3>Print Summary</h3>
-                  <p class="muted">Choose a page size. We inject an <code>@page</code> rule, then open print.</p>
-                  <div class="toolbar no-print"><button class="btn" id="btnPrintLetter">Print — Letter</button><button class="btn" id="btnPrint1218">Print — 12×18</button></div>
-                  <ul>
-                    <li><b>Sheet</b>: <span id="pSheet">—</span></li>
-                    <li><b>Doc</b>: <span id="pDoc">—</span></li>
-                    <li><b>Counts</b>: <span id="pCounts">—</span></li>
-                    <li><b>Gutter</b>: <span id="pGutter">—</span></li>
-                    <li><b>Margins</b>: <span id="pMargins">—</span></li>
-                  </ul>
-                </div>
-                <div class="card"><h3>What prints?</h3>
-                  <p class="muted">Summary cards and finishing tables. Inputs/tabs are hidden.</p>
-                </div>
+                <label title="CSV, 0–1 (e.g., 0.5 or 0.33,0.66)"><span>Vertical offsets</span>
+                  <input id="scoresV" type="text" value="" placeholder="e.g., 0.5"></label>
+                <label title="CSV, 0–1"><span>Horizontal offsets</span>
+                  <input id="scoresH" type="text" value="" placeholder="e.g., 0.5"></label>
               </div>
-              <div class="print-only" id="printTables"></div>
-            </section>
-          </div>
-        </main>
-      </div>
+              <div class="toolbar no-print"><button class="btn" id="applyScores">Apply Scores</button><span class="muted">Leave blank for no scores</span></div>
+            </div>
+            <div class="grid" style="grid-template-columns:1fr 1fr">
+              <div class="card"><h3>Scores (Y)</h3>
+                <table class="table" id="tblScoresH"><thead><tr><th>Label</th><th>in</th><th>mm</th></tr></thead><tbody></tbody></table>
+              </div>
+              <div class="card"><h3>Scores (X)</h3>
+                <table class="table" id="tblScoresV"><thead><tr><th>Label</th><th>in</th><th>mm</th></tr></thead><tbody></tbody></table>
+              </div>
+            </div>
+          </section>
+
+          <section id="tab-print">
+            <div class="row">
+              <div class="card">
+                <h3>Print Summary</h3>
+                <p class="muted">Choose a page size. We inject an <code>@page</code> rule, then open print.</p>
+                <div class="toolbar no-print"><button class="btn" id="btnPrintLetter">Print — Letter</button><button class="btn" id="btnPrint1218">Print — 12×18</button></div>
+                <ul>
+                  <li><b>Sheet</b>: <span id="pSheet">—</span></li>
+                  <li><b>Doc</b>: <span id="pDoc">—</span></li>
+                  <li><b>Counts</b>: <span id="pCounts">—</span></li>
+                  <li><b>Gutter</b>: <span id="pGutter">—</span></li>
+                  <li><b>Margins</b>: <span id="pMargins">—</span></li>
+                </ul>
+              </div>
+              <div class="card"><h3>What prints?</h3>
+                <p class="muted">Summary cards and finishing tables. Inputs/tabs are hidden.</p>
+              </div>
+            </div>
+            <div class="print-only" id="printTables"></div>
+          </section>
+        </div>
+      </main>
     </div>
 
     <script src="./js/app.js"></script>
