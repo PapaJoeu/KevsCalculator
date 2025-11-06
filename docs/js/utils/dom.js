@@ -1,3 +1,5 @@
+import { inchesToMillimeters } from './units.js';
+
 export const $ = (selector) => document.querySelector(selector);
 export const $$ = (selector) => Array.from(document.querySelectorAll(selector));
 
@@ -9,6 +11,7 @@ const layerVisibility = {
   slits: true,
   scores: true,
   perforations: true,
+  holes: true,
 };
 
 const selectedMeasurements = new Set();
@@ -108,6 +111,37 @@ export const fillTable = (tbody, rows, type = 'measure') => {
         `<td class="k">${row.millimeters.toFixed(2)}</td>`,
       ];
       return `<tr class="measurement-row" data-measure-id="${id}" data-measure-type="${type}" data-measure-index="${index}">${cells.join('')}</tr>`;
+    })
+    .join('');
+  tbody.querySelectorAll('tr[data-measure-id]').forEach((row) => {
+    attachMeasurementRowInteractions(row);
+    if (isMeasurementSelected(row.dataset.measureId)) {
+      row.classList.add('is-selected');
+    }
+  });
+};
+
+export const fillHoleTable = (tbody, holes = []) => {
+  if (!tbody) return;
+  const rows = Array.isArray(holes) ? holes : [];
+  tbody.innerHTML = rows
+    .map((hole, index) => {
+      const id = createMeasurementId('hole', index);
+      registerMeasurementId(id);
+      const label = hole?.label ?? `Hole ${index + 1}`;
+      const x = Number(hole?.x ?? 0);
+      const y = Number(hole?.y ?? 0);
+      const diameter = Math.max(0, Number(hole?.diameter ?? 0));
+      const cells = [
+        `<td>${label}</td>`,
+        `<td class="k">${x.toFixed(3)}</td>`,
+        `<td class="k">${y.toFixed(3)}</td>`,
+        `<td class="k">${diameter.toFixed(3)}</td>`,
+        `<td class="k">${inchesToMillimeters(x).toFixed(2)}</td>`,
+        `<td class="k">${inchesToMillimeters(y).toFixed(2)}</td>`,
+        `<td class="k">${inchesToMillimeters(diameter).toFixed(2)}</td>`,
+      ];
+      return `<tr class="measurement-row" data-measure-id="${id}" data-measure-type="hole" data-measure-index="${index}">${cells.join('')}</tr>`;
     })
     .join('');
   tbody.querySelectorAll('tr[data-measure-id]').forEach((row) => {
