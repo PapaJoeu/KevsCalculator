@@ -28,84 +28,87 @@
         </select>
       </div>
 
-      <div class="input-card-grid grid grid--auto-fit">
-        <div class="data-card">
-          <h2>Sheet</h2>
-          <div class="control-toolbar preset-selector-toolbar print-hidden">
-            <label>
-              <span class="text-muted-detail">Preset</span>
-              <select id="sheetPresetSelect" class="preset-selector-control">
-                <option value="">Choose a sheet preset…</option>
-              </select>
-            </label>
-          </div>
-          <div class="input-field-row grid grid--auto-fit grid--compact">
-            <label><span>Width</span><input id="sheetW" type="number" step="0.25" data-inch-step="0.25"></label>
-            <label><span>Height</span><input id="sheetH" type="number" step="0.25" data-inch-step="0.25"></label>
-          </div>
+      <div class="input-2col-grid">
+        <div class="col-left">
+          <section class="group">
+            <h2>Sheet</h2>
+            <div class="control-toolbar preset-selector-toolbar print-hidden">
+              <label>
+                <span class="text-muted-detail">Preset</span>
+                <select id="sheetPresetSelect" class="preset-selector-control">
+                  <option value="">Choose a sheet preset…</option>
+                </select>
+              </label>
+            </div>
+            <div class="input-field-row">
+              <label><span>Width</span><input id="sheetW" type="number" step="0.25" data-inch-step="0.25"></label>
+              <label><span>Height</span><input id="sheetH" type="number" step="0.25" data-inch-step="0.25"></label>
+            </div>
+          </section>
+
+          <section class="group">
+            <h2>Document</h2>
+            <div class="control-toolbar preset-selector-toolbar print-hidden">
+              <label>
+                <span class="text-muted-detail">Preset</span>
+                <select id="documentPresetSelect" class="preset-selector-control">
+                  <option value="">Choose a document preset…</option>
+                </select>
+              </label>
+            </div>
+            <div class="input-field-row">
+              <label><span>Width</span><input id="docW" type="number" step="0.125" data-inch-step="0.125"></label>
+              <label><span>Height</span><input id="docH" type="number" step="0.125" data-inch-step="0.125"></label>
+            </div>
+          </section>
+
+          <section class="group">
+            <h2>Gutter</h2>
+            <div class="control-toolbar preset-selector-toolbar print-hidden">
+              <label>
+                <span class="text-muted-detail">Preset</span>
+                <select id="gutterPresetSelect" class="preset-selector-control">
+                  <option value="">Choose a gutter preset…</option>
+                </select>
+              </label>
+            </div>
+            <div class="input-field-row">
+              <label><span>Horizontal</span><input id="gutH" type="number" step="0.0625" data-inch-step="0.0625"></label>
+              <label><span>Vertical</span><input id="gutV" type="number" step="0.0625" data-inch-step="0.0625"></label>
+            </div>
+          </section>
+
+          <section class="group">
+            <h2>Docs (limit)</h2>
+            <div class="input-field-row">
+              <label title="Leave blank for auto max"><span>Across</span><input id="forceAcross" type="number" step="1" min="1" data-inch-step="1" data-inch-min="1" placeholder="auto"></label>
+              <label title="Leave blank for auto max"><span>Down</span><input id="forceDown" type="number" step="1" min="1" data-inch-step="1" data-inch-min="1" placeholder="auto"></label>
+            </div>
+          </section>
         </div>
 
-        <div class="data-card">
-          <h2>Document</h2>
-          <div class="control-toolbar preset-selector-toolbar print-hidden">
-            <label>
-              <span class="text-muted-detail">Preset</span>
-              <select id="documentPresetSelect" class="preset-selector-control">
-                <option value="">Choose a document preset…</option>
-              </select>
-            </label>
-          </div>
-          <div class="input-field-row grid grid--auto-fit grid--compact">
-            <label><span>Width</span><input id="docW" type="number" step="0.125" data-inch-step="0.125"></label>
-            <label><span>Height</span><input id="docH" type="number" step="0.125" data-inch-step="0.125"></label>
-          </div>
-        </div>
+        <div class="col-right">
+          <section class="group">
+            <h2>Margins (inside printable)</h2>
+            <div class="input-field-row-quad">
+              <label><span>Top</span><input id="mTop" type="number" step="0.125" data-inch-step="0.125" placeholder="auto"></label>
+              <label><span>Right</span><input id="mRight" type="number" step="0.125" data-inch-step="0.125" placeholder="auto"></label>
+              <label><span>Bottom</span><input id="mBottom" type="number" step="0.125" data-inch-step="0.125" placeholder="auto"></label>
+              <label><span>Left</span><input id="mLeft" type="number" step="0.125" data-inch-step="0.125" placeholder="auto"></label>
+            </div>
+          </section>
 
-        <div class="data-card">
-          <h2>Gutter</h2>
-          <div class="control-toolbar preset-selector-toolbar print-hidden">
-            <label>
-              <span class="text-muted-detail">Preset</span>
-              <select id="gutterPresetSelect" class="preset-selector-control">
-                <option value="">Choose a gutter preset…</option>
-              </select>
-            </label>
-          </div>
-          <div class="input-field-row grid grid--auto-fit grid--compact">
-            <label><span>Horizontal</span><input id="gutH" type="number" step="0.0625" data-inch-step="0.0625"></label>
-            <label><span>Vertical</span><input id="gutV" type="number" step="0.0625" data-inch-step="0.0625"></label>
-          </div>
-        </div>
-
-        <div class="data-card">
-          <h2>Docs (limit)</h2>
-          <div class="input-field-row grid grid--auto-fit grid--compact">
-            <label title="Leave blank for auto max"><span>Across</span><input id="forceAcross" type="number" step="1" min="1" data-inch-step="1" data-inch-min="1" placeholder="auto"></label>
-            <label title="Leave blank for auto max"><span>Down</span><input id="forceDown" type="number" step="1" min="1" data-inch-step="1" data-inch-min="1" placeholder="auto"></label>
-          </div>
-        </div>
-
-        <div class="data-card">
-          <h2>Margins (inside printable)</h2>
-          <div class="input-field-row-quad grid grid--auto-fit grid--compact">
-            <label><span>Top</span><input id="mTop" type="number" step="0.125" data-inch-step="0.125" placeholder="auto"></label>
-            <label><span>Right</span><input id="mRight" type="number" step="0.125" data-inch-step="0.125" placeholder="auto"></label>
-            <label><span>Bottom</span><input id="mBottom" type="number" step="0.125" data-inch-step="0.125" placeholder="auto"></label>
-            <label><span>Left</span><input id="mLeft" type="number" step="0.125" data-inch-step="0.125" placeholder="auto"></label>
-          </div>
-        </div>
-
-        <div class="data-card">
-          <h2>Non‑Printable Area</h2>
-          <div class="input-field-row-quad grid grid--auto-fit grid--compact">
-            <label><span>Top</span><input id="npTop" type="number" step="0.625" data-inch-step="0.625"></label>
-            <label><span>Right</span><input id="npRight" type="number" step="0.625" data-inch-step="0.625"></label>
-            <label><span>Bottom</span><input id="npBottom" type="number" step="0.625" data-inch-step="0.625"></label>
-            <label><span>Left</span><input id="npLeft" type="number" step="0.625" data-inch-step="0.625"></label>
-          </div>
+          <section class="group">
+            <h2>Non‑Printable Area</h2>
+            <div class="input-field-row-quad">
+              <label><span>Top</span><input id="npTop" type="number" step="0.625" data-inch-step="0.625"></label>
+              <label><span>Right</span><input id="npRight" type="number" step="0.625" data-inch-step="0.625"></label>
+              <label><span>Bottom</span><input id="npBottom" type="number" step="0.625" data-inch-step="0.625"></label>
+              <label><span>Left</span><input id="npLeft" type="number" step="0.625" data-inch-step="0.625"></label>
+            </div>
+          </section>
         </div>
       </div>
-
       <div class="control-toolbar input-action-toolbar print-hidden">
         <button class="action-button action-button-primary" id="calcBtn">Update Preview</button>
         <button class="action-button" id="resetBtn">Reset</button>
