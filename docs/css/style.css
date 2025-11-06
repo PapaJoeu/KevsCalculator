@@ -670,6 +670,60 @@ select {
 /* =============================================
  * Preview Stage & Legend
  * ============================================= */
+#svg .svg-line {
+  stroke-linecap: round;
+}
+
+#svg .svg-sheet-outline {
+  fill: none;
+  stroke: #334155;
+  stroke-width: 1.5;
+}
+
+#svg .svg-nonprintable-region {
+  fill: rgba(249, 115, 22, 0.28);
+  stroke: none;
+}
+
+#svg .svg-printable-outline {
+  fill: none;
+  stroke: #f97316;
+  stroke-width: 1;
+}
+
+#svg .svg-layout-area {
+  fill: none;
+  stroke: #38bdf8;
+  stroke-width: 1.5;
+}
+
+#svg .svg-document-area {
+  fill: rgba(94, 234, 212, 0.18);
+  stroke: #5eead4;
+  stroke-width: 1;
+}
+
+#svg .svg-cut-line {
+  stroke: #22d3ee;
+  stroke-width: 1;
+}
+
+#svg .svg-slit-line {
+  stroke: #facc15;
+  stroke-width: 1;
+}
+
+#svg .svg-score-line {
+  stroke: #a855f7;
+  stroke-width: 1;
+}
+
+#svg .svg-perforation-line {
+  stroke: #fb7185;
+  stroke-width: 1;
+  stroke-dasharray: 6 4;
+}
+
 .sheet-preview-layout {
   display: flex;
   gap: 16px;
