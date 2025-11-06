@@ -717,6 +717,23 @@ function setScorePresetState(buttons, activeKey) {
 const setVerticalPresetState = (key) => setScorePresetState(verticalScorePresetButtons, key);
 const setHorizontalPresetState = (key) => setScorePresetState(horizontalScorePresetButtons, key);
 
+function swapScoreOffsets() {
+  if (!verticalScoreInput || !horizontalScoreInput) return;
+  const verticalOffsets = parseOffsets(verticalScoreInput.value);
+  const horizontalOffsets = parseOffsets(horizontalScoreInput.value);
+
+  lockVerticalScoreInput(false);
+  lockHorizontalScoreInput(false);
+  setVerticalPresetState('custom');
+  setHorizontalPresetState('custom');
+
+  setVerticalScoreOffsets(horizontalOffsets);
+  setHorizontalScoreOffsets(verticalOffsets);
+
+  update();
+  status('Swapped vertical and horizontal score offsets');
+}
+
 verticalScorePresetButtons.bifold?.addEventListener('click', () => {
   setVerticalScoreOffsets(SCORE_PRESETS.bifold);
   lockVerticalScoreInput(true, 'bifold');
@@ -773,6 +790,8 @@ horizontalScorePresetButtons.custom?.addEventListener('click', () => {
   update();
   status('Horizontal custom score entry enabled');
 });
+
+$('#swapScoreOffsets')?.addEventListener('click', swapScoreOffsets);
 
 if (horizontalScoreInput) {
   ['input', 'change'].forEach((evt) =>
