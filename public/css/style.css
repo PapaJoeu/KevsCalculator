@@ -412,6 +412,25 @@ select {
   gap: 6px;
 }
 
+.score-field-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: stretch;
+  gap: 8px;
+}
+
+.score-field-controls .score-label {
+  flex: 1 1 220px;
+}
+
+.score-presets-inline {
+  justify-content: flex-end;
+}
+
+.score-field-controls .score-presets-inline {
+  flex: 1 1 180px;
+}
+
 .score-field label {
   flex-direction: column;
   align-items: stretch;

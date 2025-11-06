@@ -203,10 +203,17 @@
                     <p class="muted score-hint">Positions lines that run top-to-bottom across the sheet. Values are relative to the document width.</p>
                   </div>
                   <div class="score-field stack-sm">
-                    <label class="score-label" for="scoresH" title="CSV, 0–1">
-                      <span>Horizontal offsets</span>
-                      <input id="scoresH" type="text" value="" placeholder="e.g., 0.5" />
-                    </label>
+                    <div class="score-field-controls">
+                      <label class="score-label" for="scoresH" title="CSV, 0–1">
+                        <span>Horizontal offsets</span>
+                        <input id="scoresH" type="text" value="" placeholder="e.g., 0.5" />
+                      </label>
+                      <div class="score-presets score-presets-inline no-print" role="group" aria-label="Horizontal score presets">
+                        <button class="btn" id="scorePresetHBifold" type="button">Bifold</button>
+                        <button class="btn" id="scorePresetHTrifold" type="button">Trifold</button>
+                        <button class="btn" id="scorePresetHCustom" type="button">Custom</button>
+                      </div>
+                    </div>
                     <p class="muted score-hint">Positions lines that run left-to-right across the sheet. Values are relative to the document height.</p>
                   </div>
                 </div>
