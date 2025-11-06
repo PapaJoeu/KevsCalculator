@@ -674,15 +674,26 @@ function drawSVG(layout, fin) {
 // ------------------------------------------------------------
 // 4. Event bindings
 // ------------------------------------------------------------
-$$('.tab').forEach((t) =>
-  t.addEventListener('click', () => {
-    $$('.tab').forEach((x) => x.classList.remove('active'));
-    t.classList.add('active');
-    const target = t.dataset.tab;
-    $$('.tabpanes>section').forEach((s) => s.classList.remove('active'));
-    document.querySelector(`#tab-${target}`).classList.add('active');
-  })
-);
+const DEFAULT_TAB_KEY = 'inputs';
+
+function activateTab(targetKey = DEFAULT_TAB_KEY) {
+  const requestedTab = $(`.tab[data-tab='${targetKey}']`);
+  const requestedPane = document.querySelector(`#tab-${targetKey}`);
+  const fallbackTab = $(`.tab[data-tab='${DEFAULT_TAB_KEY}']`);
+  const fallbackPane = document.querySelector(`#tab-${DEFAULT_TAB_KEY}`);
+  const tabToActivate = requestedTab ?? fallbackTab;
+  const paneToActivate = requestedPane ?? fallbackPane;
+  if (!tabToActivate || !paneToActivate) return;
+  $$('.tab').forEach((x) => x.classList.remove('active'));
+  $$('.tabpanes>section').forEach((s) => s.classList.remove('active'));
+  tabToActivate.classList.add('active');
+  paneToActivate.classList.add('active');
+}
+
+$$('.tab').forEach((t) => t.addEventListener('click', () => activateTab(t.dataset.tab)));
+
+const initiallyActiveTab = document.querySelector('.tab.active');
+activateTab(initiallyActiveTab ? initiallyActiveTab.dataset.tab : DEFAULT_TAB_KEY);
 
 $$('.layer-toggle').forEach((input) => {
   const layer = input.dataset.layer;
