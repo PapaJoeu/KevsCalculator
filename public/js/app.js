@@ -208,6 +208,7 @@ const layerVisibility = {
 const selectedMeasurements = new Set();
 const perforationMeasurements = new Set();
 let currentMeasurementIds = new Set();
+let pendingPerforationPreset = null;
 
 const createMeasurementId = (type, index) => `${type}-${index}`;
 
@@ -360,6 +361,12 @@ function currentInputs() {
 
 const convertForUnits = (value, units) => (units === "mm" ? (value * MM_PER_INCH).toFixed(2) : value);
 const describePresetValue = (value, units) => (units === "mm" ? (value * MM_PER_INCH).toFixed(2) : value.toString());
+const formatValueForUnits = (value, units) => {
+  if (value == null) return "";
+  if (units === "mm") return (value * MM_PER_INCH).toFixed(2);
+  if (!Number.isFinite(value)) return "";
+  return Number(value.toFixed(4)).toString();
+};
 
 function setSheetPreset(w, h) {
   const units = $("#units").value;
@@ -390,6 +397,35 @@ function setGutterPreset(horizontal, vertical) {
 
 function status(txt) {
   $("#status").textContent = txt;
+}
+
+function applyPendingPerforations(layout, inp) {
+  if (!pendingPerforationPreset) return;
+  const approxEqual = (a, b) => Math.abs(Number(a) - Number(b)) < 1e-4;
+  const normalizeOffsets = (list) =>
+    Array.isArray(list) ? list.map(Number).filter((n) => Number.isFinite(n)) : [];
+  const presetHorizontal = normalizeOffsets(pendingPerforationPreset.horizontal);
+  const presetVertical = normalizeOffsets(pendingPerforationPreset.vertical);
+  perforationMeasurements.clear();
+  const applyForAxis = (type, presetOffsets, inputOffsets, docCount) => {
+    if (!presetOffsets.length || !Array.isArray(inputOffsets) || !inputOffsets.length || docCount <= 0) return;
+    const indexes = [];
+    inputOffsets.forEach((value, index) => {
+      if (presetOffsets.some((target) => approxEqual(target, value))) {
+        indexes.push(index);
+      }
+    });
+    if (!indexes.length) return;
+    indexes.forEach((offsetIndex) => {
+      for (let doc = 0; doc < docCount; doc++) {
+        const measurementIndex = doc * inputOffsets.length + offsetIndex;
+        perforationMeasurements.add(createMeasurementId(type, measurementIndex));
+      }
+    });
+  };
+  applyForAxis('score-horizontal', presetHorizontal, inp.scoreH, layout.counts.down);
+  applyForAxis('score-vertical', presetVertical, inp.scoreV, layout.counts.across);
+  pendingPerforationPreset = null;
 }
 
 const isScoreMeasurementType = (type) => type === 'score-horizontal' || type === 'score-vertical';
@@ -482,6 +518,7 @@ function update() {
     $("#mLeft").value = f(leftMargin);
   }
 
+  applyPendingPerforations(layout, inp);
   currentMeasurementIds = new Set();
   const fin = calculateFinishing(layout, { horizontalOffsets: inp.scoreH, verticalOffsets: inp.scoreV });
 
@@ -680,6 +717,12 @@ $('#gut-eighth').addEventListener('click', () => setGutterPreset(0.125, 0.125));
 $('#gut-3125x67').addEventListener('click', () => setGutterPreset(0.3125, 0.67));
 $('#gut-1inch').addEventListener('click', () => setGutterPreset(1, 1));
 
+$$('[data-layout-preset]').forEach((btn) => {
+  const key = btn.dataset.layoutPreset;
+  if (!key) return;
+  btn.addEventListener('click', () => applyLayoutPreset(key));
+});
+
 const verticalScorePresetButtons = {
   bifold: $('#scorePresetBifold'),
   trifold: $('#scorePresetTrifold'),
@@ -758,6 +801,55 @@ function setScorePresetState(buttons, activeKey) {
 
 const setVerticalPresetState = (key) => setScorePresetState(verticalScorePresetButtons, key);
 const setHorizontalPresetState = (key) => setScorePresetState(horizontalScorePresetButtons, key);
+
+function applyLayoutPreset(presetKey) {
+  const presets = window.LAYOUT_PRESETS || {};
+  const preset = presets[presetKey];
+  if (!preset) {
+    status(`Unknown layout preset: ${presetKey}`);
+    return;
+  }
+  setAutoMarginMode(true);
+  marginInputSelectors.forEach((selector) => {
+    const el = $(selector);
+    if (el) el.value = '';
+  });
+
+  const units = $('#units').value;
+  const setValue = (selector, value) => {
+    const el = $(selector);
+    if (!el || !Number.isFinite(Number(value))) return;
+    el.value = formatValueForUnits(Number(value), units);
+  };
+
+  setValue('#sheetW', preset.sheet?.width ?? 0);
+  setValue('#sheetH', preset.sheet?.height ?? 0);
+  setValue('#docW', preset.document?.width ?? 0);
+  setValue('#docH', preset.document?.height ?? 0);
+  setValue('#gutH', preset.gutter?.horizontal ?? 0);
+  setValue('#gutV', preset.gutter?.vertical ?? 0);
+
+  const np = preset.nonPrintable || {};
+  setValue('#npTop', np.top ?? 0);
+  setValue('#npRight', np.right ?? 0);
+  setValue('#npBottom', np.bottom ?? 0);
+  setValue('#npLeft', np.left ?? 0);
+
+  lockVerticalScoreInput(false);
+  lockHorizontalScoreInput(false);
+  setVerticalPresetState('custom');
+  setHorizontalPresetState('custom');
+  setVerticalScoreOffsets(preset.scores?.vertical ?? []);
+  setHorizontalScoreOffsets(preset.scores?.horizontal ?? []);
+
+  pendingPerforationPreset = {
+    horizontal: Array.isArray(preset.perforations?.horizontal) ? [...preset.perforations.horizontal] : [],
+    vertical: Array.isArray(preset.perforations?.vertical) ? [...preset.perforations.vertical] : [],
+  };
+
+  update();
+  status(`${preset.label} preset applied`);
+}
 
 function swapScoreOffsets() {
   if (!verticalScoreInput || !horizontalScoreInput) return;
