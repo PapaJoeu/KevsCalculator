@@ -2,223 +2,215 @@ import {
   $,
   applyLayerVisibility,
   createMeasurementId,
-  isMeasurementSelected,
-  registerMeasurementId,
   restoreMeasurementSelections,
-  setMeasurementHover,
-  toggleMeasurementSelection,
 } from '../utils/dom.js';
+import { createLineFactory, createRectFactory } from './svg-shape-factories.js';
 
-const SVG_COLORS = {
-  layoutStroke: '#38bdf8',
-  documentStroke: '#5eead4',
-  documentFill: 'rgba(94, 234, 212, 0.18)',
-  nonPrintableFill: 'rgba(249, 115, 22, 0.28)',
-  nonPrintableStroke: '#f97316',
-  cutStroke: '#22d3ee',
-  slitStroke: '#facc15',
-  scoreStroke: '#a855f7',
-  perforationStroke: '#fb7185',
-};
-
-function applyLayerAttributes(el, layer) {
-  if (!layer) return;
-  el.dataset.layer = layer;
-  el.setAttribute('class', `layer layer-${layer}`);
-}
-
-function createRectFactory(svg, s, offX, offY) {
-  return function R(x, y, w, h, { stroke = '#26323e', strokeWidth = 1.5, fill = 'none', layer } = {}) {
-    const r = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-    r.setAttribute('x', offX + x * s);
-    r.setAttribute('y', offY + y * s);
-    r.setAttribute('width', Math.max(0.5, w * s));
-    r.setAttribute('height', Math.max(0.5, h * s));
-    r.setAttribute('fill', fill);
-    r.setAttribute('stroke', stroke);
-    if (stroke !== 'none') {
-      r.setAttribute('stroke-width', strokeWidth);
-    }
-    r.setAttribute('rx', 6);
-    applyLayerAttributes(r, layer);
-    svg.appendChild(r);
+function getNonPrintableMetrics(sheet) {
+  const nonPrintable = sheet?.nonPrintable ?? {};
+  return {
+    top: Math.max(0, nonPrintable.top ?? 0),
+    right: Math.max(0, nonPrintable.right ?? 0),
+    bottom: Math.max(0, nonPrintable.bottom ?? 0),
+    left: Math.max(0, nonPrintable.left ?? 0),
   };
 }
 
-function createLineFactory(svg, s, offX, offY) {
-  return function L(
-    x1,
-    y1,
-    x2,
-    y2,
-    { stroke = '#22d3ee', width = 1.5, layer, measureId, measureType, perforated = false } = {}
-  ) {
-    const l = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-    l.setAttribute('x1', offX + x1 * s);
-    l.setAttribute('y1', offY + y1 * s);
-    l.setAttribute('x2', offX + x2 * s);
-    l.setAttribute('y2', offY + y2 * s);
-    l.setAttribute('stroke', stroke);
-    l.setAttribute('stroke-width', width);
-    l.setAttribute('stroke-linecap', 'round');
-    if (perforated) {
-      l.setAttribute('stroke-dasharray', '6 4');
-    }
-    applyLayerAttributes(l, layer);
-    if (measureId) {
-      registerMeasurementId(measureId);
-      l.dataset.measureId = measureId;
-      l.classList.add('measurement-line');
-      if (measureType) l.dataset.measureType = measureType;
-      if (isMeasurementSelected(measureId)) {
-        l.classList.add('is-selected');
-      }
-      l.addEventListener('mouseenter', () => setMeasurementHover(measureId, true));
-      l.addEventListener('mouseleave', () => setMeasurementHover(measureId, false));
-      l.addEventListener('click', () => toggleMeasurementSelection(measureId));
-    }
-    svg.appendChild(l);
-  };
+function getPrintableDimensions(sheet, nonPrintable) {
+  const width = Math.max(0, sheet.rawWidth - nonPrintable.left - nonPrintable.right);
+  const height = Math.max(0, sheet.rawHeight - nonPrintable.top - nonPrintable.bottom);
+
+  return { width, height };
 }
 
 export function drawSVG(layout, fin) {
   const svg = $('#svg');
-  const W = svg.viewBox.baseVal.width,
-    H = svg.viewBox.baseVal.height;
-  const pad = 20;
+  const { width: viewBoxWidth, height: viewBoxHeight } = svg.viewBox.baseVal;
+  const padding = 20;
+
   svg.innerHTML = '';
-  const sx = (W - 2 * pad) / layout.sheet.rawWidth,
-    sy = (H - 2 * pad) / layout.sheet.rawHeight,
-    s = Math.min(sx, sy);
-  const offX = pad + (W - 2 * pad - layout.sheet.rawWidth * s) / 2;
-  const offY = pad + (H - 2 * pad - layout.sheet.rawHeight * s) / 2;
 
-  const R = createRectFactory(svg, s, offX, offY);
-  const L = createLineFactory(svg, s, offX, offY);
+  const scaleX = (viewBoxWidth - 2 * padding) / layout.sheet.rawWidth;
+  const scaleY = (viewBoxHeight - 2 * padding) / layout.sheet.rawHeight;
+  const scale = Math.min(scaleX, scaleY);
+  const offsetX = padding + (viewBoxWidth - 2 * padding - layout.sheet.rawWidth * scale) / 2;
+  const offsetY = padding + (viewBoxHeight - 2 * padding - layout.sheet.rawHeight * scale) / 2;
 
-  R(0, 0, layout.sheet.rawWidth, layout.sheet.rawHeight, { stroke: '#334155' });
-  const np = layout.sheet?.nonPrintable ?? {};
-  const npTop = Math.max(0, np.top ?? 0);
-  const npRight = Math.max(0, np.right ?? 0);
-  const npBottom = Math.max(0, np.bottom ?? 0);
-  const npLeft = Math.max(0, np.left ?? 0);
-  const printableWidth = Math.max(0, layout.sheet.rawWidth - npLeft - npRight);
-  const printableHeight = Math.max(0, layout.sheet.rawHeight - npTop - npBottom);
-  if (npTop > 0) {
-    R(0, 0, layout.sheet.rawWidth, npTop, {
-      stroke: 'none',
-      fill: SVG_COLORS.nonPrintableFill,
-      layer: 'nonPrintable',
-    });
-  }
-  if (npBottom > 0) {
-    R(0, layout.sheet.rawHeight - npBottom, layout.sheet.rawWidth, npBottom, {
-      stroke: 'none',
-      fill: SVG_COLORS.nonPrintableFill,
-      layer: 'nonPrintable',
-    });
-  }
-  const verticalBandHeight = Math.max(0, layout.sheet.rawHeight - npTop - npBottom);
-  if (npLeft > 0 && verticalBandHeight > 0) {
-    R(0, npTop, npLeft, verticalBandHeight, {
-      stroke: 'none',
-      fill: SVG_COLORS.nonPrintableFill,
-      layer: 'nonPrintable',
-    });
-  }
-  if (npRight > 0 && verticalBandHeight > 0) {
-    R(layout.sheet.rawWidth - npRight, npTop, npRight, verticalBandHeight, {
-      stroke: 'none',
-      fill: SVG_COLORS.nonPrintableFill,
-      layer: 'nonPrintable',
-    });
-  }
-  if (printableWidth > 0 && printableHeight > 0) {
-    R(npLeft, npTop, printableWidth, printableHeight, {
-      stroke: SVG_COLORS.nonPrintableStroke,
-      strokeWidth: 1,
-      fill: 'none',
-      layer: 'nonPrintable',
-    });
-  }
-  R(layout.layoutArea.originX, layout.layoutArea.originY, layout.layoutArea.width, layout.layoutArea.height, {
-    stroke: SVG_COLORS.layoutStroke,
-    strokeWidth: 1.5,
-    layer: 'layout',
+  const drawRect = createRectFactory(svg, scale, offsetX, offsetY);
+  const drawLine = createLineFactory(svg, scale, offsetX, offsetY);
+
+  drawRect(0, 0, layout.sheet.rawWidth, layout.sheet.rawHeight, {
+    layer: 'sheet',
+    classNames: ['svg-sheet-outline'],
   });
-  const across = layout.counts.across,
-    down = layout.counts.down;
+
+  const nonPrintable = getNonPrintableMetrics(layout.sheet);
+  const printable = getPrintableDimensions(layout.sheet, nonPrintable);
+
+  if (nonPrintable.top > 0) {
+    drawRect(0, 0, layout.sheet.rawWidth, nonPrintable.top, {
+      layer: 'nonPrintable',
+      classNames: ['svg-nonprintable-region'],
+    });
+  }
+
+  if (nonPrintable.bottom > 0) {
+    drawRect(0, layout.sheet.rawHeight - nonPrintable.bottom, layout.sheet.rawWidth, nonPrintable.bottom, {
+      layer: 'nonPrintable',
+      classNames: ['svg-nonprintable-region'],
+    });
+  }
+
+  const verticalBandHeight = Math.max(0, layout.sheet.rawHeight - nonPrintable.top - nonPrintable.bottom);
+  if (nonPrintable.left > 0 && verticalBandHeight > 0) {
+    drawRect(0, nonPrintable.top, nonPrintable.left, verticalBandHeight, {
+      layer: 'nonPrintable',
+      classNames: ['svg-nonprintable-region'],
+    });
+  }
+
+  if (nonPrintable.right > 0 && verticalBandHeight > 0) {
+    drawRect(
+      layout.sheet.rawWidth - nonPrintable.right,
+      nonPrintable.top,
+      nonPrintable.right,
+      verticalBandHeight,
+      {
+        layer: 'nonPrintable',
+        classNames: ['svg-nonprintable-region'],
+      },
+    );
+  }
+
+  if (printable.width > 0 && printable.height > 0) {
+    drawRect(nonPrintable.left, nonPrintable.top, printable.width, printable.height, {
+      layer: 'nonPrintable',
+      classNames: ['svg-printable-outline'],
+    });
+  }
+
+  drawRect(
+    layout.layoutArea.originX,
+    layout.layoutArea.originY,
+    layout.layoutArea.width,
+    layout.layoutArea.height,
+    {
+      layer: 'layout',
+      classNames: ['svg-layout-area'],
+    },
+  );
+
+  const across = layout.counts.across;
+  const down = layout.counts.down;
+
   for (let y = 0; y < down; y++) {
     for (let x = 0; x < across; x++) {
-      const dx = layout.layoutArea.originX + x * (layout.document.width + layout.gutter.horizontal);
-      const dy = layout.layoutArea.originY + y * (layout.document.height + layout.gutter.vertical);
-      R(dx, dy, layout.document.width, layout.document.height, {
-        stroke: SVG_COLORS.documentStroke,
-        strokeWidth: 1,
-        fill: SVG_COLORS.documentFill,
+      const documentOriginX =
+        layout.layoutArea.originX + x * (layout.document.width + layout.gutter.horizontal);
+      const documentOriginY =
+        layout.layoutArea.originY + y * (layout.document.height + layout.gutter.vertical);
+
+      drawRect(documentOriginX, documentOriginY, layout.document.width, layout.document.height, {
         layer: 'docs',
+        classNames: ['svg-document-area'],
       });
     }
   }
-  fin.cuts.forEach((c, index) =>
-    L(layout.layoutArea.originX, c.inches, layout.layoutArea.originX + layout.layoutArea.width, c.inches, {
-      stroke: SVG_COLORS.cutStroke,
-      width: 1,
-      layer: 'cuts',
-      measureId: createMeasurementId('cut', index),
-      measureType: 'cut',
-    })
+
+  fin.cuts.forEach((cut, index) =>
+    drawLine(
+      layout.layoutArea.originX,
+      cut.inches,
+      layout.layoutArea.originX + layout.layoutArea.width,
+      cut.inches,
+      {
+        layer: 'cuts',
+        classNames: ['svg-cut-line'],
+        measurement: {
+          id: createMeasurementId('cut', index),
+          type: 'cut',
+        },
+      },
+    ),
   );
-  fin.slits.forEach((s, index) =>
-    L(s.inches, layout.layoutArea.originY, s.inches, layout.layoutArea.originY + layout.layoutArea.height, {
-      stroke: SVG_COLORS.slitStroke,
-      width: 1,
+
+  fin.slits.forEach((slit, index) =>
+    drawLine(slit.inches, layout.layoutArea.originY, slit.inches, layout.layoutArea.originY + layout.layoutArea.height, {
       layer: 'slits',
-      measureId: createMeasurementId('slit', index),
-      measureType: 'slit',
-    })
+      classNames: ['svg-slit-line'],
+      measurement: {
+        id: createMeasurementId('slit', index),
+        type: 'slit',
+      },
+    }),
   );
-  fin.scores.horizontal.forEach((sc, index) => {
-    const measureId = createMeasurementId('score-horizontal', index);
-    L(layout.layoutArea.originX, sc.inches, layout.layoutArea.originX + layout.layoutArea.width, sc.inches, {
-      stroke: SVG_COLORS.scoreStroke,
-      width: 1,
-      layer: 'scores',
-      measureId,
-      measureType: 'score-horizontal',
-    });
+
+  fin.scores.horizontal.forEach((score, index) => {
+    drawLine(
+      layout.layoutArea.originX,
+      score.inches,
+      layout.layoutArea.originX + layout.layoutArea.width,
+      score.inches,
+      {
+        layer: 'scores',
+        classNames: ['svg-score-line'],
+        measurement: {
+          id: createMeasurementId('score-horizontal', index),
+          type: 'score-horizontal',
+        },
+      },
+    );
   });
-  fin.scores.vertical.forEach((sc, index) => {
-    const measureId = createMeasurementId('score-vertical', index);
-    L(sc.inches, layout.layoutArea.originY, sc.inches, layout.layoutArea.originY + layout.layoutArea.height, {
-      stroke: SVG_COLORS.scoreStroke,
-      width: 1,
-      layer: 'scores',
-      measureId,
-      measureType: 'score-vertical',
-    });
+
+  fin.scores.vertical.forEach((score, index) => {
+    drawLine(
+      score.inches,
+      layout.layoutArea.originY,
+      score.inches,
+      layout.layoutArea.originY + layout.layoutArea.height,
+      {
+        layer: 'scores',
+        classNames: ['svg-score-line'],
+        measurement: {
+          id: createMeasurementId('score-vertical', index),
+          type: 'score-vertical',
+        },
+      },
+    );
   });
-  fin.perforations.horizontal.forEach((pf, index) => {
-    const measureId = createMeasurementId('perforation-horizontal', index);
-    L(layout.layoutArea.originX, pf.inches, layout.layoutArea.originX + layout.layoutArea.width, pf.inches, {
-      stroke: SVG_COLORS.perforationStroke,
-      width: 1,
-      layer: 'perforations',
-      measureId,
-      measureType: 'perforation-horizontal',
-      perforated: true,
-    });
+
+  fin.perforations.horizontal.forEach((perforation, index) => {
+    drawLine(
+      layout.layoutArea.originX,
+      perforation.inches,
+      layout.layoutArea.originX + layout.layoutArea.width,
+      perforation.inches,
+      {
+        layer: 'perforations',
+        classNames: ['svg-perforation-line'],
+        measurement: {
+          id: createMeasurementId('perforation-horizontal', index),
+          type: 'perforation-horizontal',
+        },
+      },
+    );
   });
-  fin.perforations.vertical.forEach((pf, index) => {
-    const measureId = createMeasurementId('perforation-vertical', index);
-    L(pf.inches, layout.layoutArea.originY, pf.inches, layout.layoutArea.originY + layout.layoutArea.height, {
-      stroke: SVG_COLORS.perforationStroke,
-      width: 1,
-      layer: 'perforations',
-      measureId,
-      measureType: 'perforation-vertical',
-      perforated: true,
-    });
+
+  fin.perforations.vertical.forEach((perforation, index) => {
+    drawLine(
+      perforation.inches,
+      layout.layoutArea.originY,
+      perforation.inches,
+      layout.layoutArea.originY + layout.layoutArea.height,
+      {
+        layer: 'perforations',
+        classNames: ['svg-perforation-line'],
+        measurement: {
+          id: createMeasurementId('perforation-vertical', index),
+          type: 'perforation-vertical',
+        },
+      },
+    );
   });
 
   applyLayerVisibility();
