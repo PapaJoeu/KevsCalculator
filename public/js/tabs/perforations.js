@@ -1,4 +1,5 @@
 import { $ } from '../utils/dom.js';
+import { hydrateTabPanel } from './registry.js';
 
 const PERFORATION_PRESETS = {
   bifold: [0.5],
@@ -6,6 +7,7 @@ const PERFORATION_PRESETS = {
 };
 
 let initialized = false;
+const TAB_KEY = 'perforations';
 let storedContext = { update: () => {}, status: () => {} };
 let verticalPerforationInput = null;
 let horizontalPerforationInput = null;
@@ -163,11 +165,11 @@ function attachInputListeners() {
 }
 
 function init(context = {}) {
+  hydrateTabPanel(TAB_KEY);
+  storedContext = { ...storedContext, ...context };
   if (initialized) {
-    storedContext = { ...storedContext, ...context };
     return;
   }
-  storedContext = { ...storedContext, ...context };
   verticalPerforationInput = $('#perfV');
   horizontalPerforationInput = $('#perfH');
 
