@@ -1,0 +1,34 @@
+<!--
+  Tab template: Print (docs/js/tabs/print.js)
+  Purpose: Summarizes the layout in a print-friendly view and exposes a container for printable tables.
+  JS entry points:
+    • Summary spans (#pSheet, #pDoc, #pCounts, #pGutter, #pMargins) populated by printTab.
+    • Container #printTables receives cloned tables from other tabs when print mode is prepared.
+  Dynamic elements:
+    • Summary values update whenever the layout recalculates.
+    • The print-only container is emptied and refilled with export tables immediately before printing.
+  Hydration notes:
+    • Hydrated via registry so spans exist for measurement updates and printTables container can be targeted.
+    • Print tab relies on CSS classes like .print-only-content to toggle visibility during print.
+-->
+<template id="tab-print-template">
+  <div class="layout-grid-group">
+    <div class="data-card">
+      <h3>Summary Snapshot</h3>
+      <p class="text-muted-detail">Review the calculated layout details without opening a print dialog.</p>
+      <div class="summary-metrics-grid">
+        <div>Sheet: <span class="summary-metric-value" id="pSheet">—</span></div>
+        <div>Doc: <span class="summary-metric-value" id="pDoc">—</span></div>
+        <div>Counts: <span class="summary-metric-value" id="pCounts">—</span></div>
+        <div>Gutter: <span class="summary-metric-value" id="pGutter">—</span></div>
+        <div>Margins: <span class="summary-metric-value" id="pMargins">—</span></div>
+      </div>
+    </div>
+    <div class="data-card">
+      <h3>What prints?</h3>
+      <p class="text-muted-detail">Summary cards and finishing tables remain available for browser printing.</p>
+      <p class="text-muted-detail">Use this tab as a quick reference for layout specs shared with production.</p>
+    </div>
+  </div>
+  <div class="print-only-content" id="printTables"></div>
+</template>

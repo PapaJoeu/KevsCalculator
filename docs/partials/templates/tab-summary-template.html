@@ -1,0 +1,30 @@
+<!--
+  Tab template: Summary (docs/js/tabs/summary.js)
+  Purpose: Displays computed layout metrics including counts, layout area, utilization, and realized margins.
+  JS entry points:
+    • Summary metric spans (#vAcross, #vDown, #vTotal, #vLayout, #vOrigin, #vRealMargins, #vUsed, #vTrail) populated by summaryTab on activate.
+  Dynamic elements:
+    • Every <span class="summary-metric-value"> is replaced with formatted values when calculations run.
+    • Placeholder em dash values are kept for empty state until the tab is hydrated.
+  Hydration notes:
+    • The summary module hydrates on activation to clone this template and then caches the panel for repeated updates.
+    • IDs must align with selectors used in summary.js to avoid missing updates.
+-->
+<template id="tab-summary-template">
+  <div class="summary-metrics-grid">
+    <div class="data-card"><h3>Counts</h3>
+      <div>Across: <span class="summary-metric-value" id="vAcross">—</span></div>
+      <div>Down: <span class="summary-metric-value" id="vDown">—</span></div>
+      <div>Total: <span class="summary-metric-value" id="vTotal">—</span></div>
+    </div>
+    <div class="data-card"><h3>Layout Area</h3>
+      <div>W × H: <span class="summary-metric-value" id="vLayout">—</span></div>
+      <div>Origin: <span class="summary-metric-value" id="vOrigin">—</span></div>
+      <div>Realized Margins: <span class="summary-metric-value" id="vRealMargins">—</span></div>
+    </div>
+    <div class="data-card"><h3>Utilization</h3>
+      <div>Used W/H: <span class="summary-metric-value" id="vUsed">—</span></div>
+      <div>Trailing W/H: <span class="summary-metric-value" id="vTrail">—</span></div>
+    </div>
+  </div>
+</template>

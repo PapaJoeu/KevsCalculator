@@ -1,0 +1,95 @@
+<!--
+  Tab template: Scores (docs/js/tabs/scores.js)
+  Purpose: Enables configuration of vertical and horizontal scoring operations and previews calculated results.
+  JS entry points:
+    • Preset buttons (#scorePresetBifold, #scorePresetTrifold, #scorePresetCustom, #scorePresetHBifold, #scorePresetHTrifold, #scorePresetHCustom) used to seed score inputs.
+    • Text fields #scoresV and #scoresH accept CSV offsets and are read by scoresTab.
+    • Tables #tblScoresH and #tblScoresV receive computed measurement rows.
+    • Action buttons #swapScoreOffsets and #applyScores trigger handlers in scores.js.
+  Dynamic elements:
+    • Preset button groups toggle active states based on current mode.
+    • Score input fields are updated when presets apply or when offset swapping occurs.
+    • Result tables are regenerated after score calculations.
+  Hydration notes:
+    • Hydrated when the scores module registers so tables/buttons exist for event wiring.
+    • Layout classes coordinate with CSS for two-column layout and must stay intact.
+-->
+<template id="tab-scores-template">
+  <div class="finishing-score-pane">
+    <div class="finishing-score-layout">
+      <div class="finishing-score-column">
+        <div class="data-card layout-stack finishing-score-card-intro">
+          <div class="finishing-score-card-title">
+            <h3>Score Planning</h3>
+            <p class="text-muted-detail">Scores are normalized to each document. Use a preset for common folds or switch to custom entry to fine-tune the layout.</p>
+          </div>
+        </div>
+        <div class="data-card layout-stack finishing-score-card finishing-score-card-vertical">
+          <div class="finishing-score-card-header">
+            <div class="finishing-score-card-title">
+              <h3>Vertical Scores</h3>
+              <p class="text-muted-detail">Set positions for lines that run top-to-bottom across the sheet relative to the document width.</p>
+            </div>
+            <div class="finishing-score-preset-group print-hidden" role="group" aria-label="Vertical score presets">
+              <button class="action-button" id="scorePresetBifold" type="button">Bifold</button>
+              <button class="action-button" id="scorePresetTrifold" type="button">Trifold</button>
+              <button class="action-button" id="scorePresetCustom" type="button">Custom</button>
+            </div>
+          </div>
+          <div class="finishing-score-field layout-stack-compact">
+            <label class="finishing-score-label" for="scoresV" title="CSV, 0–1 (e.g., 0.5 or 0.33,0.66)">
+              <span>Vertical scores</span>
+              <input id="scoresV" type="text" placeholder="e.g., 0.5" />
+            </label>
+            <p class="text-muted-detail finishing-score-hint">Values are relative to the document width.</p>
+          </div>
+        </div>
+        <div class="data-card layout-stack finishing-score-card finishing-score-card-horizontal">
+          <div class="finishing-score-card-header">
+            <div class="finishing-score-card-title">
+              <h3>Horizontal Scores</h3>
+              <p class="text-muted-detail">Set positions for lines that run left-to-right across the sheet relative to the document height.</p>
+            </div>
+            <div class="finishing-score-preset-group print-hidden" role="group" aria-label="Horizontal score presets">
+              <button class="action-button" id="scorePresetHBifold" type="button">Bifold</button>
+              <button class="action-button" id="scorePresetHTrifold" type="button">Trifold</button>
+              <button class="action-button" id="scorePresetHCustom" type="button">Custom</button>
+            </div>
+          </div>
+          <div class="finishing-score-field layout-stack-compact">
+            <label class="finishing-score-label" for="scoresH" title="CSV, 0–1">
+              <span>Horizontal scores</span>
+              <input id="scoresH" type="text" placeholder="e.g., 0.5" />
+            </label>
+            <p class="text-muted-detail finishing-score-hint">Values are relative to the document height.</p>
+          </div>
+        </div>
+        <div class="data-card finishing-action-card">
+          <div class="control-toolbar finishing-action-toolbar print-hidden">
+            <button class="action-button" id="swapScoreOffsets" type="button">Swap vertical ↔ horizontal scores</button>
+            <button class="action-button action-button-primary" id="applyScores" type="button">Apply Scores</button>
+            <span class="text-muted-detail">Leave fields blank to omit scores.</span>
+          </div>
+        </div>
+      </div>
+      <div class="finishing-score-column finishing-score-results">
+        <div class="finishing-score-results-grid">
+          <div class="data-card layout-stack finishing-score-table-card">
+            <div>
+              <h3>Scores (Y)</h3>
+              <p class="text-muted-detail">Horizontal runs positioned along the sheet height.</p>
+            </div>
+            <table class="data-table" id="tblScoresH"><thead><tr><th>Label</th><th>in</th><th>mm</th></tr></thead><tbody></tbody></table>
+          </div>
+          <div class="data-card layout-stack finishing-score-table-card">
+            <div>
+              <h3>Scores (X)</h3>
+              <p class="text-muted-detail">Vertical runs positioned along the sheet width.</p>
+            </div>
+            <table class="data-table" id="tblScoresV"><thead><tr><th>Label</th><th>in</th><th>mm</th></tr></thead><tbody></tbody></table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
