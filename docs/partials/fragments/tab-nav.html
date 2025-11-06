@@ -3,20 +3,20 @@
     - Injected by docs/js/utils/fragment-loader.js during docs/js/bootstrap.js when a
       [data-partial="tab-nav"] placeholder is encountered (prior to tab registry setup).
   Key selectors:
-    - .output-tab-navigation-bar shell plus .output-tab-trigger elements for each tab.
-    - data-tab attributes (inputs, summary, finishing, scores, perforations, warnings, print, presets).
+    - .nav-bar with .output-tab-trigger buttons for each tab.
+    - data-tab attributes (inputs, summary, finishing, program-sequence, scores, perforations, warnings, print, presets).
   JS dependencies:
     - docs/js/tabs/registry.js binds click listeners to .output-tab-trigger nodes and
       uses their data-tab values to drive panel activation.
 -->
-<nav class="output-tab-navigation-bar output-tab-navigation print-hidden">
-  <div class="output-tab-trigger is-active" data-tab="inputs">Inputs</div>
-  <div class="output-tab-trigger" data-tab="summary">Summary</div>
-  <div class="output-tab-trigger" data-tab="finishing">Cuts / Slits</div>
-  <div class="output-tab-trigger" data-tab="program-sequence">Program Sequence</div>
-  <div class="output-tab-trigger" data-tab="scores">Scores</div>
-  <div class="output-tab-trigger" data-tab="perforations">Perforations</div>
-  <div class="output-tab-trigger" data-tab="warnings">Warnings</div>
-  <div class="output-tab-trigger" data-tab="print">Print</div>
-  <div class="output-tab-trigger" data-tab="presets">Presets</div>
+<nav class="nav-bar nav-bar--tabs output-tab-navigation print-hidden">
+  <button type="button" class="nav-trigger nav-trigger--tab output-tab-trigger is-active" data-tab="inputs">Inputs</button>
+  <button type="button" class="nav-trigger nav-trigger--tab output-tab-trigger" data-tab="summary">Summary</button>
+  <button type="button" class="nav-trigger nav-trigger--tab output-tab-trigger" data-tab="finishing">Cuts / Slits</button>
+  <button type="button" class="nav-trigger nav-trigger--tab output-tab-trigger" data-tab="program-sequence">Program Sequence</button>
+  <button type="button" class="nav-trigger nav-trigger--tab output-tab-trigger" data-tab="scores">Scores</button>
+  <button type="button" class="nav-trigger nav-trigger--tab output-tab-trigger" data-tab="perforations">Perforations</button>
+  <button type="button" class="nav-trigger nav-trigger--tab output-tab-trigger" data-tab="warnings">Warnings</button>
+  <button type="button" class="nav-trigger nav-trigger--tab output-tab-trigger" data-tab="print">Print</button>
+  <button type="button" class="nav-trigger nav-trigger--tab output-tab-trigger" data-tab="presets">Presets</button>
 </nav>

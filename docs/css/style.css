@@ -36,6 +36,13 @@
   --text-muted: #8892a6;
   --text-inverse: #000;
 
+  /* Navigation tokens */
+  --nav-text-muted: #c0c6d4;
+  --nav-text-hover: var(--text-secondary);
+  --nav-text-active: var(--text-primary);
+  --nav-border: var(--border-overlay);
+  --nav-border-active: var(--accent-primary);
+
   /* Accent & status tokens */
   --accent-primary: #5eead4;
   --status-danger: #ef4444;
@@ -507,12 +514,88 @@ select {
 }
 
 /* =============================================
+ * Navigation Controls
+ * ---------------------------------------------
+ * Shared primitives for navigation groups and
+ * trigger styling (tabs, segmented controls, etc.).
+ * ============================================= */
+/* Navigation bars align triggers on a shared horizontal axis. */
+.nav-bar {
+  display: flex;
+  align-items: stretch;
+  gap: var(--nav-gap, 8px);
+  padding: var(--nav-padding, 0);
+  border-bottom: var(--nav-border-size, 0px) solid var(--nav-border-color, transparent);
+}
+
+/* Tab navigation tightens spacing and mirrors card padding offsets. */
+.nav-bar--tabs {
+  --nav-gap: 6px;
+  --nav-padding: 0 10px;
+  --nav-border-size: 1px;
+  --nav-border-color: var(--nav-border);
+}
+
+/* Navigation triggers adopt button-like affordances with bottom borders. */
+.nav-trigger {
+  appearance: none;
+  background: none;
+  border: none;
+  border-bottom: var(--nav-trigger-border-width, 2px) solid transparent;
+  color: var(--nav-text-muted);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  font: inherit;
+  font-weight: 500;
+  gap: 6px;
+  line-height: 1.2;
+  padding: var(--nav-trigger-padding, 8px 12px);
+  transition: color 0.18s ease, border-color 0.18s ease;
+}
+
+/* Tab triggers inherit spacing tuned for the output navigation row. */
+.nav-trigger--tab {
+  --nav-trigger-padding: 10px 12px;
+  --nav-trigger-border-width: 2px;
+}
+
+/* Hover and focus states brighten the label to indicate interactivity. */
+.nav-trigger:hover {
+  color: var(--nav-text-hover);
+}
+
+.nav-trigger:focus-visible {
+  outline: 2px solid var(--border-highlight);
+  outline-offset: 2px;
+}
+
+/* Active triggers reinforce selection through accent colors. */
+.nav-trigger.is-active {
+  color: var(--nav-text-active);
+  border-bottom-color: var(--nav-border-active);
+}
+
+/* =============================================
  * Tabs & Cards
  * ---------------------------------------------
  * Styles for the output area, including tabs,
  * summary cards, and supporting tables.
  * ============================================= */
-/* This navigation bar anchors the tab triggers above the output content. */
+
+/* The output navigation reuses the nav primitives while exposing print controls. */
+.output-tab-navigation {
+  margin: 0 -14px 10px;
+}
+
+/* Tab panels stay hidden until their associated trigger is activated. */
+.output-tabpanel-collection > section {
+  display: none;
+}
+
+.output-tabpanel-collection > section.is-active {
+  display: block;
+}
 
 /* This grid displays key metrics in three columns. */
 .summary-metrics-grid {
