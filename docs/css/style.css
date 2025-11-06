@@ -5,14 +5,75 @@
  * overall layout helpers shared across the UI.
  * ============================================= */
 :root {
-  --bg: #0f1115;
-  --panel: #171a21;
-  --muted: #8892a6;
-  --text: #e6e9ef;
-  --accent: #5eead4;
-  --danger: #ef4444;
-  --ok: #22c55e;
-  --warn: #f59e0b;
+  /* Surface tokens */
+  --surface-bg: #0f1115;
+  --surface-panel: #171a21;
+  --surface-panel-elevated: #0b0d12;
+  --surface-panel-overlay: #11141b;
+  --surface-control: #0d1117;
+  --surface-control-accent: #112024;
+  --surface-control-strong: #0e1b1b;
+  --surface-card: #0e1219;
+  --surface-inset: #101522;
+  --surface-tab: #111821;
+
+  /* Border tokens */
+  --border-default: #222632;
+  --border-subtle: #283041;
+  --border-strong: #1b2030;
+  --border-overlay: #1f2430;
+  --border-muted: #263041;
+  --border-highlight: #334155;
+  --border-accent: #1f8a8a;
+  --border-card: #1c2230;
+  --border-tab: #253043;
+  --border-dashed: #222233;
+
+  /* Text tokens */
+  --text-primary: #e6e9ef;
+  --text-secondary: #cbd5e1;
+  --text-bright: #e2e8f0;
+  --text-muted: #8892a6;
+  --text-inverse: #000;
+
+  /* Accent & status tokens */
+  --accent-primary: #5eead4;
+  --status-danger: #ef4444;
+  --status-success: #22c55e;
+  --status-warning: #f59e0b;
+
+  /* Measurement palette */
+  --measure-layout: #38bdf8;
+  --measure-document: #5eead4;
+  --measure-margin: #f97316;
+  --measure-cut: #22d3ee;
+  --measure-slit: #facc15;
+  --measure-score: #a855f7;
+  --measure-perforation: #fb7185;
+  --measure-cut-glow: #67e8f9;
+  --measure-score-glow: #c4b5fd;
+  --measure-cut-bg-hover: color-mix(in srgb, var(--measure-cut) 12%, transparent);
+  --measure-cut-bg-selected: color-mix(in srgb, var(--measure-cut) 22%, transparent);
+  --measure-score-bg-hover: color-mix(in srgb, var(--measure-score) 12%, transparent);
+  --measure-score-bg-selected: color-mix(in srgb, var(--measure-score) 22%, transparent);
+  --measure-cut-glow-soft: color-mix(in srgb, var(--measure-cut-glow) 60%, transparent);
+  --measure-score-glow-soft: color-mix(in srgb, var(--measure-score-glow) 60%, transparent);
+
+  /* Utility tokens */
+  --surface-control-hover: color-mix(in srgb, var(--surface-control) 85%, var(--text-inverse) 15%);
+  --shadow-elevated: color-mix(in srgb, var(--surface-bg) 65%, transparent);
+  --shadow-deep: color-mix(in srgb, var(--text-inverse) 25%, transparent);
+  --surface-paper: #fff;
+
+  /* Legacy aliases */
+  --bg: var(--surface-bg);
+  --panel: var(--surface-panel);
+  --muted: var(--text-muted);
+  --text: var(--text-primary);
+  --accent: var(--accent-primary);
+  --danger: var(--status-danger);
+  --ok: var(--status-success);
+  --warn: var(--status-warning);
 }
 
 * {
@@ -26,8 +87,8 @@ body {
 
 body {
   margin: 0;
-  background: var(--bg);
-  color: var(--text);
+  background: var(--surface-bg);
+  color: var(--text-primary);
   font: 14px/1.45 system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
 }
 
@@ -43,12 +104,12 @@ h1 {
 
 h2 {
   font-size: 1.05rem;
-  color: #cbd5e1;
+  color: var(--text-secondary);
 }
 
 h3 {
   font-size: 0.95rem;
-  color: #cbd5e1;
+  color: var(--text-secondary);
 }
 
 /* =============================================
@@ -121,9 +182,9 @@ h3 {
   position: sticky;
   top: 0;
   padding: 6px 0 10px;
-  background: var(--panel);
+  background: var(--surface-panel);
   z-index: 1;
-  box-shadow: 0 6px 12px rgba(15, 17, 21, 0.65);
+  box-shadow: 0 6px 12px var(--shadow-elevated);
   margin: 0;
 }
 
@@ -133,17 +194,17 @@ h3 {
   position: absolute;
   inset: auto 0 0;
   height: 1px;
-  background: #222632;
+  background: var(--border-default);
   opacity: 0.6;
 }
 
 /* This class standardizes the chrome around the primary content groupings. */
 .content-section {
-  background: var(--panel);
-  border: 1px solid #222632;
+  background: var(--surface-panel);
+  border: 1px solid var(--border-default);
   border-radius: 14px;
   padding: 14px;
-  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.25);
+  box-shadow: 0 4px 24px var(--shadow-deep);
 }
 
 /* This class structures the visualizer section that houses the preview canvas and legend. */
@@ -175,7 +236,7 @@ h3 {
   height: auto;
   z-index: 9999;
   pointer-events: none;
-  filter: drop-shadow(0 14px 18px rgba(0, 0, 0, 0.55));
+  filter: drop-shadow(0 14px 18px color-mix(in srgb, var(--text-inverse) 55%, transparent));
   animation: freedom-eagle-flight 4s cubic-bezier(0.32, 0.64, 0.45, 1) forwards;
   will-change: transform, opacity;
 }
@@ -206,13 +267,13 @@ h3 {
   z-index: 9999;
   padding: 12px 20px;
   border-radius: 999px;
-  background: rgba(15, 17, 21, 0.88);
-  color: var(--text);
+  background: color-mix(in srgb, var(--surface-bg) 88%, transparent);
+  color: var(--text-primary);
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  border: 2px solid rgba(136, 146, 166, 0.4);
-  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.35);
+  border: 2px solid color-mix(in srgb, var(--text-muted) 40%, transparent);
+  box-shadow: 0 14px 30px color-mix(in srgb, var(--text-inverse) 35%, transparent);
   pointer-events: none;
   animation: freedom-alert-fade 3.5s ease-in-out forwards;
 }
@@ -317,7 +378,7 @@ h3 {
  * ============================================= */
 /* This utility softens copy for supporting descriptions and helper text. */
 .text-muted-detail {
-  color: var(--muted);
+  color: var(--text-muted);
 }
 
 /* This utility aligns inline values to a fixed numeric width for quick comparisons. */
@@ -338,32 +399,32 @@ label {
   gap: 6px;
   padding: 4px 6px;
   background: transparent;
-  border: 1px solid #283041;
+  border: 1px solid var(--border-subtle);
   border-radius: 8px;
 }
 
 label span {
-  color: var(--muted);
+  color: var(--text-muted);
   font-size: 0.9rem;
 }
 
 label input {
   all: unset;
-  background: #0b0d12;
-  border: 1px solid #1b2030;
+  background: var(--surface-panel-elevated);
+  border: 1px solid var(--border-strong);
   padding: 6px 8px;
   border-radius: 8px;
   width: 80px;
-  color: var(--text);
+  color: var(--text-primary);
   text-align: right;
 }
 
 select {
-  background: #0b0d12;
-  border: 1px solid #1b2030;
+  background: var(--surface-panel-elevated);
+  border: 1px solid var(--border-strong);
   padding: 6px 8px;
   border-radius: 8px;
-  color: var(--text);
+  color: var(--text-primary);
   width: 100%;
 }
 
@@ -411,8 +472,8 @@ select {
 .layer-visibility-toolbar {
   justify-content: flex-start;
   padding: 8px 10px;
-  background: #11141b;
-  border: 1px solid #1f2430;
+  background: var(--surface-panel-overlay);
+  border: 1px solid var(--border-overlay);
   border-radius: 10px;
 }
 
@@ -423,17 +484,17 @@ select {
   gap: 6px;
   padding: 6px 10px;
   border-radius: 8px;
-  border: 1px solid #1f2430;
-  background: #0d1117;
-  color: var(--text);
+  border: 1px solid var(--border-overlay);
+  background: var(--surface-control);
+  color: var(--text-primary);
   cursor: pointer;
   font-size: 0.9rem;
 }
 
 /* Hover states highlight the label border to reinforce interactivity. */
 .layer-visibility-toolbar label:hover {
-  border-color: #334155;
-  background: #131926;
+  border-color: var(--border-highlight);
+  background: var(--surface-control-hover);
 }
 
 /* Checkbox styling aligns with the neon accent of the preview. */
@@ -441,7 +502,7 @@ select {
   margin: 0;
   width: 16px;
   height: 16px;
-  accent-color: var(--accent);
+  accent-color: var(--accent-primary);
 }
 
 /* =============================================
@@ -453,9 +514,9 @@ select {
 /* This base button class unifies shape, padding, and neutral chroma across actions. */
 .action-button {
   appearance: none;
-  border: 1px solid #263041;
-  background: #0d1117;
-  color: var(--text);
+  border: 1px solid var(--border-muted);
+  background: var(--surface-control);
+  color: var(--text-primary);
   padding: 8px 10px;
   border-radius: 10px;
   cursor: pointer;
@@ -463,14 +524,14 @@ select {
 
 /* Hover states slightly brighten the border for feedback. */
 .action-button:hover {
-  border-color: #334155;
-  background: #101522;
+  border-color: var(--border-highlight);
+  background: var(--surface-inset);
 }
 
 /* This modifier emphasizes primary actions with teal accents. */
 .action-button-primary {
-  border-color: #1f8a8a;
-  background: #0e1b1b;
+  border-color: var(--border-accent);
+  background: var(--surface-control-strong);
 }
 
 /* This variant keeps the button transparent for subtle inline actions. */
@@ -480,9 +541,9 @@ select {
 
 /* This state class highlights the active button in toggle groups. */
 .action-button.is-active {
-  border-color: var(--accent);
-  background: #112024;
-  color: var(--accent);
+  border-color: var(--accent-primary);
+  background: var(--surface-control-accent);
+  color: var(--accent-primary);
 }
 
 /* =============================================
@@ -502,8 +563,8 @@ select {
 
 /* Cards provide a consistent surface for presenting grouped content. */
 .data-card {
-  background: #0e1219;
-  border: 1px solid #1c2230;
+  background: var(--surface-card);
+  border: 1px solid var(--border-card);
   border-radius: 12px;
   padding: 12px;
 }
@@ -523,13 +584,13 @@ select {
 /* Table cell padding creates airy spacing for tabular data. */
 .data-table th, .data-table td {
   padding: 8px 10px;
-  border-bottom: 1px dashed #223;
+  border-bottom: 1px dashed var(--border-dashed);
 }
 
 /* Table headers use a brighter tone to stand out from data rows. */
 .data-table th {
   text-align: left;
-  color: #cbd5e1;
+  color: var(--text-secondary);
 }
 
 /* Interactive measurement rows change background on hover/selection to mirror preview cues. */
@@ -540,33 +601,33 @@ select {
 
 /* Focus outlines assist keyboard navigation within the tables. */
 .measurement-row:focus {
-  outline: 1px solid var(--accent);
+  outline: 1px solid var(--accent-primary);
   outline-offset: -2px;
 }
 
 /* Hover and selected states brighten the text color for readability. */
 .measurement-row.is-hovered, .measurement-row.is-selected {
-  color: #e2e8f0;
+  color: var(--text-bright);
 }
 
 /* Cut and slit rows adopt aqua tones to match the preview overlay. */
 .measurement-row[data-measure-type="cut"].is-hovered, .measurement-row[data-measure-type="slit"].is-hovered {
-  background: rgba(34, 211, 238, 0.12);
+  background: var(--measure-cut-bg-hover);
 }
 
 /* Selected cut and slit rows deepen the aqua fill. */
 .measurement-row[data-measure-type="cut"].is-selected, .measurement-row[data-measure-type="slit"].is-selected {
-  background: rgba(34, 211, 238, 0.22);
+  background: var(--measure-cut-bg-selected);
 }
 
 /* Hover states for score rows use lavender to mirror their overlay color. */
 .measurement-row[data-measure-type="score-horizontal"].is-hovered, .measurement-row[data-measure-type="score-vertical"].is-hovered {
-  background: rgba(167, 139, 250, 0.12);
+  background: var(--measure-score-bg-hover);
 }
 
 /* Selected score rows intensify the lavender shading. */
 .measurement-row[data-measure-type="score-horizontal"].is-selected, .measurement-row[data-measure-type="score-vertical"].is-selected {
-  background: rgba(167, 139, 250, 0.22);
+  background: var(--measure-score-bg-selected);
 }
 
 /* Preview measurement lines transition smoothly when interacted with from the tables. */
@@ -584,14 +645,14 @@ select {
 
 /* Cut and slit lines glow aqua when highlighted. */
 .measurement-line[data-measure-type="cut"].is-hovered, .measurement-line[data-measure-type="cut"].is-selected, .measurement-line[data-measure-type="slit"].is-hovered, .measurement-line[data-measure-type="slit"].is-selected {
-  stroke: #67e8f9;
-  filter: drop-shadow(0 0 4px rgba(103, 232, 249, 0.6));
+  stroke: var(--measure-cut-glow);
+  filter: drop-shadow(0 0 4px var(--measure-cut-glow-soft));
 }
 
 /* Score lines glow lavender to mirror the measurement legend. */
 .measurement-line[data-measure-type="score-horizontal"].is-hovered, .measurement-line[data-measure-type="score-horizontal"].is-selected, .measurement-line[data-measure-type="score-vertical"].is-hovered, .measurement-line[data-measure-type="score-vertical"].is-selected {
-  stroke: #c4b5fd;
-  filter: drop-shadow(0 0 4px rgba(196, 181, 253, 0.6));
+  stroke: var(--measure-score-glow);
+  filter: drop-shadow(0 0 4px var(--measure-score-glow-soft));
 }
 
 /* =============================================
@@ -602,8 +663,8 @@ select {
  * ============================================= */
 /* This stage centers the SVG preview and provides a dark surround. */
 .sheet-preview-stage {
-  background: #0b0d12;
-  border: 1px solid #1b2030;
+  background: var(--surface-panel-elevated);
+  border: 1px solid var(--border-strong);
   border-radius: 12px;
   display: flex;
   align-items: center;
@@ -618,7 +679,7 @@ select {
   flex-wrap: wrap;
   font-size: 0.9rem;
   margin-top: 8px;
-  color: #cbd5e1;
+  color: var(--text-secondary);
 }
 
 /* Each swatch displays the color associated with a preview layer. */
@@ -632,37 +693,37 @@ select {
 
 /* Swatch color for the layout grid boundary. */
 .legend-swatch-layout-area {
-  background: #38bdf8;
+  background: var(--measure-layout);
 }
 
 /* Swatch color for document outlines. */
 .legend-swatch-documents {
-  background: #5eead4;
+  background: var(--measure-document);
 }
 
 /* Swatch color for non-printable margins. */
 .legend-swatch-non-printable {
-  background: #f97316;
+  background: var(--measure-margin);
 }
 
 /* Swatch color for cut indications. */
 .legend-swatch-cuts {
-  background: #22d3ee;
+  background: var(--measure-cut);
 }
 
 /* Swatch color for slit indications. */
 .legend-swatch-slits {
-  background: #facc15;
+  background: var(--measure-slit);
 }
 
 /* Swatch color for score overlays. */
 .legend-swatch-scores {
-  background: #a855f7;
+  background: var(--measure-score);
 }
 
 /* Swatch color for perforation overlays. */
 .legend-swatch-perforations {
-  background: #fb7185;
+  background: var(--measure-perforation);
 }
 
 /* =============================================
@@ -673,8 +734,8 @@ select {
  * ============================================= */
 @media print {
   body {
-    background: #fff;
-    color: #000;
+    background: var(--surface-paper);
+    color: var(--text-inverse);
   }
 
   /* Elements with this class disappear from printed output. */
