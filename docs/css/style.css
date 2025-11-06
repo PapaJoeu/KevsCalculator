@@ -84,6 +84,16 @@
   --grid-gap-comfortable: 16px;
   --grid-gap-spacious: 18px;
 
+  /* Compact spacing scale */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+
+  /* Type scale helpers */
+  --font-xs: 0.8rem;
+  --font-sm: 0.9rem;
+
   /* Legacy aliases */
   --bg: var(--surface-bg);
   --panel: var(--surface-panel);
@@ -290,9 +300,41 @@ h3 {
   font-size: 0.95rem;
 }
 
-/* This grid arranges configuration cards responsively based on available width. */
-.input-card-grid {
-  --grid-min: 240px;
+/* Compact two-column grid that replaces the bulky cards in the inputs tab. */
+.input-2col-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-4);
+  align-items: start;
+}
+
+/* Columns stack their groups with consistent spacing. */
+.input-2col-grid .col-left,
+.input-2col-grid .col-right {
+  display: grid;
+  gap: var(--space-4);
+  align-content: start;
+}
+
+/* Lightweight grouping keeps headings and rows aligned without card chrome. */
+.input-2col-grid .group {
+  display: grid;
+  grid-template-rows: auto auto;
+  row-gap: var(--space-2);
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+
+.input-2col-grid .group > h2 {
+  font-size: var(--font-sm);
+  font-weight: 600;
+  margin: 0 0 var(--space-1);
+  opacity: 0.9;
+}
+
+.input-2col-grid .control-toolbar {
+  margin: 0;
 }
 
 /* This container stacks the preview canvas, its controls, and legend. */
@@ -300,22 +342,50 @@ h3 {
   --stack-gap: 8px;
 }
 
-/* This grid arranges input fields into flexible, multi-column rows. */
-.input-field-row {
-  --grid-min: 120px;
-  --grid-gap: var(--grid-gap-tight);
+/* Input field rows now rely on explicit grid tracks for consistent density. */
+.input-field-row,
+.input-field-row-quad {
+  display: grid;
+  gap: var(--space-2);
 }
 
-/* This variation supports four-up field clusters with narrower minimum widths. */
+.input-field-row {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
 .input-field-row-quad {
-  --grid-min: 100px;
-  --grid-gap: var(--grid-gap-tight);
+  grid-template-columns: repeat(4, minmax(0, 1fr));
 }
 
 /* This helper distributes form controls evenly based on available width. */
 .input-field-row-auto {
   --grid-gap: var(--grid-gap-snug);
   --grid-min: 150px;
+}
+
+@media (max-width: 1024px) {
+  .input-2col-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .input-2col-grid .col-left,
+  .input-2col-grid .col-right {
+    gap: var(--space-3);
+  }
+
+  .input-field-row-quad {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 600px) {
+  .input-field-row {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .input-field-row-quad {
+    grid-template-columns: 1fr 1fr;
+  }
 }
 
 @media (max-width: 900px) {
@@ -405,10 +475,44 @@ select {
   width: 100%;
 }
 
+/* Input grid overrides tighten spacing and typography for dense layout. */
+.input-2col-grid label {
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: flex-start;
+  gap: var(--space-1);
+  padding: var(--space-1) var(--space-2);
+}
+
+.input-2col-grid label > span {
+  font-size: var(--font-xs);
+  opacity: 0.85;
+  color: var(--text-muted);
+}
+
+.input-2col-grid input,
+.input-2col-grid select {
+  height: 2rem;
+  padding: 0 var(--space-2);
+  font-size: var(--font-sm);
+  line-height: 2rem;
+  width: 100%;
+}
+
+.input-2col-grid input {
+  text-align: right;
+}
+
+.input-2col-grid input.is-invalid,
+.input-2col-grid select.is-invalid {
+  box-shadow: 0 0 0 1px var(--status-danger);
+  background: color-mix(in srgb, var(--status-danger) 12%, transparent);
+}
+
 /* This base class standardizes horizontal control group layouts across the app. */
 .control-toolbar {
   display: flex;
-  gap: 8px;
+  gap: var(--space-2);
   align-items: center;
   flex-wrap: wrap;
   margin: 0.5rem 0 0;
