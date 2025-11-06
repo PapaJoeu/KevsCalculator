@@ -1,4 +1,5 @@
 import { sheetPresets, documentPresets, gutterPresets } from './input-presets.js';
+import { DEFAULT_INPUTS } from './config/defaults.js';
 
 // ============================================================
 // Print Layout Calculator — Application Script
@@ -771,8 +772,6 @@ handlePresetSelect(sheetPresetSelect, 'sheet', setSheetPreset);
 handlePresetSelect(documentPresetSelect, 'document', setDocumentPreset);
 handlePresetSelect(gutterPresetSelect, 'gutter', setGutterPreset);
 
-refreshPresetDropdowns(getSystemForUnits($('#units').value));
-
 $$('[data-layout-preset]').forEach((btn) => {
   const key = btn.dataset.layoutPreset;
   if (!key) return;
@@ -1218,12 +1217,54 @@ function convertInputs(fromUnits, toUnits) {
   applyNumericInputUnits(toUnits);
 }
 
-let currentUnitsSelection = $('#units').value;
-if (currentUnitsSelection === 'in') {
-  applyNumericInputUnits(currentUnitsSelection);
-} else {
-  convertInputs('in', currentUnitsSelection);
+let currentUnitsSelection = DEFAULT_INPUTS.units;
+
+function applyDefaultInputs() {
+  const { units, sheet, document, gutter, nonPrintable } = DEFAULT_INPUTS;
+  const precision = UNIT_PRECISION[units] ?? 3;
+  const setValue = (selector, value) => {
+    const el = $(selector);
+    if (!el) return;
+    if (value == null || value === '') {
+      el.value = '';
+      return;
+    }
+    el.value = formatUnitValue(value, precision);
+  };
+
+  $('#units').value = units;
+  currentUnitsSelection = units;
+  setAutoMarginMode(true);
+
+  setValue('#sheetW', sheet.width);
+  setValue('#sheetH', sheet.height);
+  setValue('#docW', document.width);
+  setValue('#docH', document.height);
+  setValue('#gutH', gutter.horizontal);
+  setValue('#gutV', gutter.vertical);
+  setValue('#npTop', nonPrintable.top);
+  setValue('#npRight', nonPrintable.right);
+  setValue('#npBottom', nonPrintable.bottom);
+  setValue('#npLeft', nonPrintable.left);
+
+  ['#mTop', '#mRight', '#mBottom', '#mLeft', '#forceAcross', '#forceDown', '#scoresV', '#scoresH', '#perfV', '#perfH'].forEach(
+    (selector) => {
+      const el = $(selector);
+      if (!el) return;
+      el.value = '';
+    }
+  );
+
+  if (sheetPresetSelect) sheetPresetSelect.value = '';
+  if (documentPresetSelect) documentPresetSelect.value = '';
+  if (gutterPresetSelect) gutterPresetSelect.value = '';
+
+  status('');
+  applyNumericInputUnits(units);
 }
+
+applyDefaultInputs();
+refreshPresetDropdowns(getSystemForUnits(currentUnitsSelection));
 
 $('#units').addEventListener('change', (e) => {
   const nextUnits = e.target.value;
@@ -1234,7 +1275,11 @@ $('#units').addEventListener('change', (e) => {
   update();
 });
 $('#calcBtn').addEventListener('click', update);
-$('#resetBtn').addEventListener('click', () => location.reload());
+$('#resetBtn').addEventListener('click', () => {
+  applyDefaultInputs();
+  refreshPresetDropdowns(getSystemForUnits(currentUnitsSelection));
+  update();
+});
 
 $('#applyScores').addEventListener('click', update);
 $('#applyPerforations').addEventListener('click', update);
@@ -1250,15 +1295,15 @@ document.addEventListener('keydown', (e) => {
   console.assert(inchesToMillimeters(1) === 25.4, '1 inch should be 25.4 mm');
   console.assert(calculateDocumentCount(10, 2, 0) === 5, '10/2=5 docs');
   const ctx = createCalculationContext({
-    sheet: { width: 12, height: 18 },
-    document: { width: 3.5, height: 2 },
-    gutter: { horizontal: 0.125, vertical: 0.125 },
+    sheet: { ...DEFAULT_INPUTS.sheet },
+    document: { ...DEFAULT_INPUTS.document },
+    gutter: { ...DEFAULT_INPUTS.gutter },
     margins: { top: 0, right: 0, bottom: 0, left: 0 },
-    nonPrintable: { top: 0.0625, right: 0.0625, bottom: 0.0625, left: 0.0625 },
+    nonPrintable: { ...DEFAULT_INPUTS.nonPrintable },
   });
   const layout = calculateLayout(ctx);
   console.assert(layout.counts.across >= 1 && layout.counts.down >= 1, 'Counts should be >=1 with defaults');
-  const initialUnits = $('#units').value;
+  const initialUnits = currentUnitsSelection;
   const alternateUnits = initialUnits === 'in' ? 'mm' : 'in';
   const snapshot = numericInputSelectors
     .map((selector) => {
