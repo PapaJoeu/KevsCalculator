@@ -11,67 +11,15 @@
   </head>
   <body>
     <div class="layout-app-shell">
-      <header class="layout-app-header">
-        <h1>Kevin’s Bitchin’ Print Calculator</h1>
-        <p class="text-muted-detail">Dial in your sheet specs, finishing steps, and print-ready outputs from one bitchin’ workspace.</p>
-      </header>
+      <!-- Fragment placeholder: App header -->
+      <div data-fragment="app-header"></div>
 
-      <section class="content-section sheet-preview-visualizer">
-        <div class="sheet-preview-container">
-          <div class="visualizer-visibility-toggles layer-visibility-toolbar print-hidden">
-            <label>
-              <input class="layer-visibility-toggle-input" type="checkbox" data-layer="layout" checked />
-              <span>Layout Area</span>
-            </label>
-            <label>
-              <input class="layer-visibility-toggle-input" type="checkbox" data-layer="docs" checked />
-              <span>Documents</span>
-            </label>
-            <label>
-              <input class="layer-visibility-toggle-input" type="checkbox" data-layer="nonPrintable" checked />
-              <span>Non-Printable Area</span>
-            </label>
-            <label>
-              <input class="layer-visibility-toggle-input" type="checkbox" data-layer="cuts" checked />
-              <span>Cuts</span>
-            </label>
-            <label>
-              <input class="layer-visibility-toggle-input" type="checkbox" data-layer="slits" checked />
-              <span>Slits</span>
-            </label>
-            <label>
-              <input class="layer-visibility-toggle-input" type="checkbox" data-layer="scores" checked />
-              <span>Scores</span>
-            </label>
-            <label>
-              <input class="layer-visibility-toggle-input" type="checkbox" data-layer="perforations" checked />
-              <span>Perforations</span>
-            </label>
-          </div>
-          <div class="sheet-preview-stage"><svg id="svg" width="960" height="600" viewBox="0 0 960 600" aria-label="sheet preview"></svg></div>
-          <div class="sheet-preview-legend print-hidden">
-            <span><i class="legend-color-swatch legend-swatch-layout-area"></i>Layout Area</span>
-            <span><i class="legend-color-swatch legend-swatch-documents"></i>Documents</span>
-            <span><i class="legend-color-swatch legend-swatch-non-printable"></i>Non-Printable Area</span>
-            <span><i class="legend-color-swatch legend-swatch-cuts"></i>Cuts</span>
-            <span><i class="legend-color-swatch legend-swatch-slits"></i>Slits</span>
-            <span><i class="legend-color-swatch legend-swatch-scores"></i>Scores</span>
-            <span><i class="legend-color-swatch legend-swatch-perforations"></i>Perforations</span>
-          </div>
-        </div>
-      </section>
+      <!-- Fragment placeholder: Sheet preview visualizer -->
+      <div data-fragment="visualizer"></div>
 
       <main class="content-section output-details-section">
-        <nav class="output-tab-navigation-bar output-tab-navigation print-hidden">
-          <div class="output-tab-trigger is-active" data-tab="inputs">Inputs</div>
-          <div class="output-tab-trigger" data-tab="summary">Summary</div>
-          <div class="output-tab-trigger" data-tab="finishing">Cuts / Slits</div>
-          <div class="output-tab-trigger" data-tab="scores">Scores</div>
-          <div class="output-tab-trigger" data-tab="perforations">Perforations</div>
-          <div class="output-tab-trigger" data-tab="warnings">Warnings</div>
-          <div class="output-tab-trigger" data-tab="print">Print</div>
-          <div class="output-tab-trigger" data-tab="presets">Presets</div>
-        </nav>
+        <!-- Fragment placeholder: Output tab navigation -->
+        <div data-fragment="tab-nav"></div>
 
         <div class="output-tabpanel-collection">
           <section id="tab-inputs" class="is-active" data-tab-template="tab-inputs-template"></section>
@@ -473,6 +421,6 @@
       </main>
     </div>
 
-    <script type="module" src="./js/app.js"></script>
+    <script type="module" src="./js/bootstrap.js"></script>
   </body>
 </html>
