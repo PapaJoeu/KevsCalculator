@@ -437,6 +437,36 @@ function attachApplyButtons() {
   $('#applyPerforations')?.addEventListener('click', () => getUpdate()());
 }
 
+function swapInputValues(selectorA, selectorB) {
+  const elA = $(selectorA);
+  const elB = $(selectorB);
+  if (!elA || !elB) return false;
+  const temp = elA.value;
+  elA.value = elB.value;
+  elB.value = temp;
+  return true;
+}
+
+function attachSwapButtons() {
+  const buttons = document.querySelectorAll('.input-swap-button[data-swap-targets]');
+  buttons.forEach((button) => {
+    button.addEventListener('click', () => {
+      const rawTargets = button.dataset.swapTargets || '';
+      const selectors = rawTargets
+        .split(',')
+        .map((selector) => selector.trim())
+        .filter(Boolean);
+      if (selectors.length !== 2) return;
+      if (!swapInputValues(selectors[0], selectors[1])) return;
+      const message = button.dataset.swapMessage;
+      if (message) {
+        getStatus()(message);
+      }
+      getUpdate()();
+    });
+  });
+}
+
 function attachKeyboardShortcut() {
   if (keydownHandlerAttached) return;
   document.addEventListener('keydown', (e) => {
@@ -474,6 +504,7 @@ function init(context = {}) {
   attachUnitChangeListener($('#units'));
   attachPresetDropdownHandlers();
   attachActionButtons();
+  attachSwapButtons();
   attachApplyButtons();
   attachKeyboardShortcut();
   applyDefaultInputs();

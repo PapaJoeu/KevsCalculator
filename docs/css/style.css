@@ -353,6 +353,45 @@ h3 {
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
+.input-field-row.with-action {
+  grid-template-columns: repeat(2, minmax(0, 1fr)) auto;
+  align-items: end;
+}
+
+.input-field-action {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.input-swap-button {
+  --swap-size: 32px;
+  inline-size: var(--swap-size);
+  block-size: var(--swap-size);
+  border-radius: 999px;
+  border: 1px solid var(--color-border-subtle);
+  background: var(--color-surface);
+  color: inherit;
+  font-size: 1rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+
+.input-swap-button:hover,
+.input-swap-button:focus {
+  background: var(--color-accent-muted);
+  border-color: var(--color-accent);
+  color: var(--color-text);
+  outline: none;
+}
+
+.input-swap-button:focus-visible {
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-accent) 40%, transparent);
+}
+
 .input-field-row-quad {
   grid-template-columns: repeat(4, minmax(0, 1fr));
 }
@@ -385,6 +424,15 @@ h3 {
 
   .input-field-row-quad {
     grid-template-columns: 1fr 1fr;
+  }
+
+  .input-field-row.with-action {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .input-field-row.with-action .input-field-action {
+    grid-column: 1 / -1;
+    justify-content: flex-end;
   }
 }
 
