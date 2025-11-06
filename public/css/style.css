@@ -556,22 +556,37 @@ select {
 
 /* Swatch color for the layout grid boundary. */
 .legend-swatch-layout-area {
-  background: #26323e;
+  background: #38bdf8;
 }
 
 /* Swatch color for document outlines. */
 .legend-swatch-documents {
-  background: #64748b;
+  background: #5eead4;
 }
 
-/* Swatch color for cut and slit indications. */
+/* Swatch color for non-printable margins. */
+.legend-swatch-non-printable {
+  background: #f97316;
+}
+
+/* Swatch color for cut indications. */
 .legend-swatch-cuts {
   background: #22d3ee;
 }
 
+/* Swatch color for slit indications. */
+.legend-swatch-slits {
+  background: #facc15;
+}
+
 /* Swatch color for score overlays. */
 .legend-swatch-scores {
-  background: #a78bfa;
+  background: #a855f7;
+}
+
+/* Swatch color for perforation overlays. */
+.legend-swatch-perforations {
+  background: #fb7185;
 }
 
 /* =============================================

@@ -370,12 +370,24 @@ function drawSVG(layout, fin) {
     s = Math.min(sx, sy);
   const offX = pad + ((W - 2 * pad - layout.sheet.rawWidth * s) / 2);
   const offY = pad + ((H - 2 * pad - layout.sheet.rawHeight * s) / 2);
+  const colors = {
+    layoutStroke: '#38bdf8',
+    documentStroke: '#5eead4',
+    documentFill: 'rgba(94, 234, 212, 0.18)',
+    nonPrintableFill: 'rgba(249, 115, 22, 0.28)',
+    nonPrintableStroke: '#f97316',
+    cutStroke: '#22d3ee',
+    slitStroke: '#facc15',
+    scoreStroke: '#a855f7',
+    perforationStroke: '#fb7185',
+  };
+
   const applyLayerAttributes = (el, layer) => {
     if (!layer) return;
     el.dataset.layer = layer;
     el.setAttribute("class", `layer layer-${layer}`);
   };
-  const R = (x, y, w, h, { stroke = "#26323e", fill = "none", layer } = {}) => {
+  const R = (x, y, w, h, { stroke = "#26323e", strokeWidth = 1.5, fill = "none", layer } = {}) => {
     const r = document.createElementNS("http://www.w3.org/2000/svg", "rect");
     r.setAttribute("x", offX + x * s);
     r.setAttribute("y", offY + y * s);
@@ -383,6 +395,9 @@ function drawSVG(layout, fin) {
     r.setAttribute("height", Math.max(0.5, h * s));
     r.setAttribute("fill", fill);
     r.setAttribute("stroke", stroke);
+    if (stroke !== "none") {
+      r.setAttribute("stroke-width", strokeWidth);
+    }
     r.setAttribute("rx", 6);
     applyLayerAttributes(r, layer);
     svg.appendChild(r);
@@ -421,8 +436,53 @@ function drawSVG(layout, fin) {
     svg.appendChild(l);
   };
   R(0, 0, layout.sheet.rawWidth, layout.sheet.rawHeight, { stroke: "#334155" });
+  const np = layout.sheet?.nonPrintable ?? {};
+  const npTop = Math.max(0, np.top ?? 0);
+  const npRight = Math.max(0, np.right ?? 0);
+  const npBottom = Math.max(0, np.bottom ?? 0);
+  const npLeft = Math.max(0, np.left ?? 0);
+  const printableWidth = Math.max(0, layout.sheet.rawWidth - npLeft - npRight);
+  const printableHeight = Math.max(0, layout.sheet.rawHeight - npTop - npBottom);
+  if (npTop > 0) {
+    R(0, 0, layout.sheet.rawWidth, npTop, {
+      stroke: "none",
+      fill: colors.nonPrintableFill,
+      layer: "nonPrintable",
+    });
+  }
+  if (npBottom > 0) {
+    R(0, layout.sheet.rawHeight - npBottom, layout.sheet.rawWidth, npBottom, {
+      stroke: "none",
+      fill: colors.nonPrintableFill,
+      layer: "nonPrintable",
+    });
+  }
+  const verticalBandHeight = Math.max(0, layout.sheet.rawHeight - npTop - npBottom);
+  if (npLeft > 0 && verticalBandHeight > 0) {
+    R(0, npTop, npLeft, verticalBandHeight, {
+      stroke: "none",
+      fill: colors.nonPrintableFill,
+      layer: "nonPrintable",
+    });
+  }
+  if (npRight > 0 && verticalBandHeight > 0) {
+    R(layout.sheet.rawWidth - npRight, npTop, npRight, verticalBandHeight, {
+      stroke: "none",
+      fill: colors.nonPrintableFill,
+      layer: "nonPrintable",
+    });
+  }
+  if (printableWidth > 0 && printableHeight > 0) {
+    R(npLeft, npTop, printableWidth, printableHeight, {
+      stroke: colors.nonPrintableStroke,
+      strokeWidth: 1,
+      fill: "none",
+      layer: "nonPrintable",
+    });
+  }
   R(layout.layoutArea.originX, layout.layoutArea.originY, layout.layoutArea.width, layout.layoutArea.height, {
-    stroke: "#26323e",
+    stroke: colors.layoutStroke,
+    strokeWidth: 1.5,
     layer: "layout",
   });
   const across = layout.counts.across,
@@ -432,15 +492,16 @@ function drawSVG(layout, fin) {
       const dx = layout.layoutArea.originX + x * (layout.document.width + layout.gutter.horizontal);
       const dy = layout.layoutArea.originY + y * (layout.document.height + layout.gutter.vertical);
       R(dx, dy, layout.document.width, layout.document.height, {
-        stroke: "#475569",
-        fill: "#64748b33",
+        stroke: colors.documentStroke,
+        strokeWidth: 1,
+        fill: colors.documentFill,
         layer: "docs",
       });
     }
   }
   fin.cuts.forEach((c, index) =>
     L(layout.layoutArea.originX, c.inches, layout.layoutArea.originX + layout.layoutArea.width, c.inches, {
-      stroke: "#22d3ee",
+      stroke: colors.cutStroke,
       width: 1,
       layer: "cuts",
       measureId: createMeasurementId('cut', index),
@@ -449,9 +510,9 @@ function drawSVG(layout, fin) {
   );
   fin.slits.forEach((s, index) =>
     L(s.inches, layout.layoutArea.originY, s.inches, layout.layoutArea.originY + layout.layoutArea.height, {
-      stroke: "#22d3ee",
+      stroke: colors.slitStroke,
       width: 1,
-      layer: "cuts",
+      layer: "slits",
       measureId: createMeasurementId('slit', index),
       measureType: 'slit',
     })
@@ -459,7 +520,7 @@ function drawSVG(layout, fin) {
   fin.scores.horizontal.forEach((sc, index) => {
     const measureId = createMeasurementId('score-horizontal', index);
     L(layout.layoutArea.originX, sc.inches, layout.layoutArea.originX + layout.layoutArea.width, sc.inches, {
-      stroke: "#a78bfa",
+      stroke: colors.scoreStroke,
       width: 1,
       layer: "scores",
       measureId,
@@ -469,7 +530,7 @@ function drawSVG(layout, fin) {
   fin.scores.vertical.forEach((sc, index) => {
     const measureId = createMeasurementId('score-vertical', index);
     L(sc.inches, layout.layoutArea.originY, sc.inches, layout.layoutArea.originY + layout.layoutArea.height, {
-      stroke: "#a78bfa",
+      stroke: colors.scoreStroke,
       width: 1,
       layer: "scores",
       measureId,
@@ -479,9 +540,9 @@ function drawSVG(layout, fin) {
   fin.perforations.horizontal.forEach((pf, index) => {
     const measureId = createMeasurementId('perforation-horizontal', index);
     L(layout.layoutArea.originX, pf.inches, layout.layoutArea.originX + layout.layoutArea.width, pf.inches, {
-      stroke: "#f97316",
+      stroke: colors.perforationStroke,
       width: 1,
-      layer: "scores",
+      layer: "perforations",
       measureId,
       measureType: 'perforation-horizontal',
       perforated: true,
@@ -490,9 +551,9 @@ function drawSVG(layout, fin) {
   fin.perforations.vertical.forEach((pf, index) => {
     const measureId = createMeasurementId('perforation-vertical', index);
     L(pf.inches, layout.layoutArea.originY, pf.inches, layout.layoutArea.originY + layout.layoutArea.height, {
-      stroke: "#f97316",
+      stroke: colors.perforationStroke,
       width: 1,
-      layer: "scores",
+      layer: "perforations",
       measureId,
       measureType: 'perforation-vertical',
       perforated: true,
