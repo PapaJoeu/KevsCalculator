@@ -484,7 +484,7 @@ function drawSVG(layout, fin) {
     }
     svg.appendChild(l);
   };
-  R(0, 0, layout.sheet.rawWidth, layout.sheet.rawHeight, { stroke: "#334155", layer: "layout" });
+  R(0, 0, layout.sheet.rawWidth, layout.sheet.rawHeight, { stroke: "#334155" });
   R(layout.layoutArea.originX, layout.layoutArea.originY, layout.layoutArea.width, layout.layoutArea.height, {
     stroke: "#26323e",
     layer: "layout",
