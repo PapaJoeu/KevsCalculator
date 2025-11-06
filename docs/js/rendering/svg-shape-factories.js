@@ -48,3 +48,21 @@ export function createLineFactory(svg, scale, offsetX, offsetY) {
     svg.appendChild(line);
   };
 }
+
+export function createCircleFactory(svg, scale, offsetX, offsetY) {
+  return function drawCircle(cx, cy, radius, { layer, classNames, measurement } = {}) {
+    const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    circle.setAttribute('cx', offsetX + cx * scale);
+    circle.setAttribute('cy', offsetY + cy * scale);
+    circle.setAttribute('r', Math.max(0.5, radius * scale));
+
+    addClassNames(circle, classNames);
+    applyLayerAttributes(circle, layer);
+
+    if (measurement) {
+      setupMeasurementLine(circle, measurement.id, measurement.type);
+    }
+
+    svg.appendChild(circle);
+  };
+}

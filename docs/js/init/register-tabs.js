@@ -2,6 +2,7 @@ import { layoutPresets } from '../data/layout-presets.js';
 import inputsTab, { enableAutoMarginMode, isAutoMarginModeEnabled } from '../tabs/inputs.js';
 import finishingTab from '../tabs/finishing.js';
 import perforationsTab from '../tabs/perforations.js';
+import drillingTab from '../tabs/drilling.js';
 import presetsTab from '../tabs/presets.js';
 import printTab from '../tabs/print.js';
 import programSequenceTab from '../tabs/program-sequence.js';
@@ -17,6 +18,7 @@ const TAB_REGISTRATIONS = ({ update, status }) => [
   { module: programSequenceTab, context: {} },
   { module: scoresTab, context: { update, status } },
   { module: perforationsTab, context: { update, status } },
+  { module: drillingTab, context: { update, status } },
   { module: warningsTab, context: {} },
   { module: printTab, context: {} },
   {

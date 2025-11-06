@@ -1,0 +1,90 @@
+<!--
+  Load timing:
+    - Cloned into #tab-drilling when docs/js/tabs/registry.hydrateTabPanel('drilling') runs after bootstrap template loading.
+  Key selectors:
+    - #drillPreset, #drillSize, and #holePlanData store drilling plan controls.
+    - #drillLocations hosts dynamically managed custom hole rows; #drillAddLocation inserts new rows.
+    - #tblHoles renders resolved sheet measurements for drilled holes.
+  JS dependencies:
+    - docs/js/tabs/drilling.js manages preset behavior, hidden state, and update wiring.
+    - docs/js/controllers/layout-updater.js parses #holePlanData and fills #tblHoles with resolved measurements.
+-->
+
+<template id="tab-drilling-template">
+  <div class="finishing-score-pane stack">
+    <div class="finishing-score-layout grid">
+      <div class="finishing-score-column stack">
+        <div class="data-card stack finishing-score-card-intro">
+          <div class="finishing-score-card-title">
+            <h3>Hole Drilling Planner</h3>
+            <p class="text-muted-detail">Define punching patterns that repeat for each document in the layout.</p>
+          </div>
+        </div>
+        <div class="data-card stack drilling-configuration-card">
+          <div class="finishing-score-card-header">
+            <div class="finishing-score-card-title">
+              <h3>Plan Settings</h3>
+              <p class="text-muted-detail">Choose a preset or build a custom plan relative to the document edges.</p>
+            </div>
+          </div>
+          <div class="drilling-plan-fields grid">
+            <label class="finishing-score-label" for="drillPreset">
+              <span>Hole preset</span>
+              <select id="drillPreset">
+                <option value="none">No holes</option>
+                <option value="three-hole">3-hole (left edge)</option>
+                <option value="custom">Custom</option>
+              </select>
+            </label>
+            <label class="finishing-score-label" for="drillSize">
+              <span>Hole size</span>
+              <select id="drillSize">
+                <option value="0.25">1/4 in (0.250)</option>
+                <option value="0.1875">3/16 in (0.1875)</option>
+                <option value="0.3125">5/16 in (0.3125)</option>
+                <option value="0.375">3/8 in (0.375)</option>
+              </select>
+            </label>
+          </div>
+          <div class="drilling-custom-config stack stack--comfortable" data-custom-config hidden>
+            <p class="text-muted-detail">
+              Add hole locations and offsets relative to the document. Alignment determines where the row begins; offsets
+              move the hole along and into the sheet.
+            </p>
+            <div class="drilling-location-list stack stack--comfortable" id="drillLocations"></div>
+            <button class="action-button action-button-secondary" id="drillAddLocation" type="button">Add hole location</button>
+          </div>
+          <input id="holePlanData" type="hidden" value="" />
+        </div>
+        <div class="data-card drilling-action-card">
+          <div class="control-toolbar finishing-action-toolbar print-hidden">
+            <button class="action-button action-button-primary" id="applyDrilling" type="button">Apply Drilling</button>
+            <span class="text-muted-detail">Leave the preset on “No holes” to omit drilling from the layout.</span>
+          </div>
+        </div>
+      </div>
+      <div class="finishing-score-column stack finishing-score-results">
+        <div class="data-card stack finishing-score-table-card">
+          <div>
+            <h3>Hole Locations</h3>
+            <p class="text-muted-detail">Centers are reported from the sheet origin with diameter conversions.</p>
+          </div>
+          <table class="data-table" id="tblHoles">
+            <thead>
+              <tr>
+                <th>Label</th>
+                <th>X (in)</th>
+                <th>Y (in)</th>
+                <th>Ø (in)</th>
+                <th>X (mm)</th>
+                <th>Y (mm)</th>
+                <th>Ø (mm)</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>

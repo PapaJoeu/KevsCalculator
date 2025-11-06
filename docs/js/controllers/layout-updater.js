@@ -9,6 +9,7 @@ import { isAutoMarginModeEnabled } from '../tabs/inputs.js';
 import {
   $,
   fillTable,
+  fillHoleTable,
   parseOffsets,
   readIntOptional,
   readNumber,
@@ -62,8 +63,37 @@ function currentInputs() {
     perfH: parseOffsets($('#perfH')?.value || ''),
     forceAcross: readIntOptional('#forceAcross'),
     forceDown: readIntOptional('#forceDown'),
+    drilling: readHolePlan(),
     autoMargins,
   };
+}
+
+function readHolePlan() {
+  const el = $('#holePlanData');
+  if (!el) {
+    return { preset: 'none', size: 0, entries: [] };
+  }
+  const raw = el.value;
+  if (!raw) {
+    return { preset: 'none', size: 0, entries: [] };
+  }
+  try {
+    const parsed = JSON.parse(raw);
+    if (!parsed || typeof parsed !== 'object') {
+      return { preset: 'none', size: 0, entries: [] };
+    }
+    const preset = typeof parsed.preset === 'string' ? parsed.preset : 'none';
+    const size = Number(parsed.size);
+    const entries = Array.isArray(parsed.entries) ? parsed.entries : [];
+    return {
+      preset,
+      size: Number.isFinite(size) ? size : 0,
+      entries,
+    };
+  } catch (error) {
+    console.error('Failed to parse hole plan data', error);
+    return { preset: 'none', size: 0, entries: [] };
+  }
 }
 
 export function status(txt) {
@@ -109,6 +139,7 @@ export function update() {
     scoreVertical: inp.scoreV,
     perforationHorizontal: inp.perfH,
     perforationVertical: inp.perfV,
+    holePlan: inp.drilling,
   });
   const programSequence = calculateProgramSequence(layout);
 
@@ -139,6 +170,7 @@ export function update() {
   fillTable($('#tblPerforationsH tbody'), fin.perforations.horizontal, 'perforation-horizontal');
   fillTable($('#tblPerforationsV tbody'), fin.perforations.vertical, 'perforation-vertical');
   fillTable($('#tblProgramSequence tbody'), programSequence, 'program-sequence');
+  fillHoleTable($('#tblHoles tbody'), fin.holes ?? []);
 
   $('#pSheet').textContent = fmtIn(ctx.sheet.rawWidth) + ' × ' + fmtIn(ctx.sheet.rawHeight);
   $('#pDoc').textContent = fmtIn(ctx.document.width) + ' × ' + fmtIn(ctx.document.height);

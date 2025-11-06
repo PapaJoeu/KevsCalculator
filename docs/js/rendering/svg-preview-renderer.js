@@ -4,7 +4,7 @@ import {
   createMeasurementId,
   restoreMeasurementSelections,
 } from '../utils/dom.js';
-import { createLineFactory, createRectFactory } from './svg-shape-factories.js';
+import { createCircleFactory, createLineFactory, createRectFactory } from './svg-shape-factories.js';
 
 function getNonPrintableMetrics(sheet) {
   const nonPrintable = sheet?.nonPrintable ?? {};
@@ -38,6 +38,7 @@ export function drawSVG(layout, fin) {
 
   const drawRect = createRectFactory(svg, scale, offsetX, offsetY);
   const drawLine = createLineFactory(svg, scale, offsetX, offsetY);
+  const drawCircle = createCircleFactory(svg, scale, offsetX, offsetY);
 
   drawRect(0, 0, layout.sheet.rawWidth, layout.sheet.rawHeight, {
     layer: 'sheet',
@@ -211,6 +212,20 @@ export function drawSVG(layout, fin) {
         },
       },
     );
+  });
+
+  (fin.holes ?? []).forEach((hole, index) => {
+    const diameter = Number(hole?.diameter ?? 0);
+    if (!Number.isFinite(diameter) || diameter <= 0) return;
+    const radius = diameter / 2;
+    drawCircle(hole.x ?? 0, hole.y ?? 0, radius, {
+      layer: 'holes',
+      classNames: ['svg-hole'],
+      measurement: {
+        id: createMeasurementId('hole', index),
+        type: 'hole',
+      },
+    });
   });
 
   applyLayerVisibility();

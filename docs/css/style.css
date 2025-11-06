@@ -88,6 +88,7 @@
   --measure-margin: #FFA500;        /* Orange — safe area */
   --measure-cut: #FF0000;           /* Red — trim/die */
   --measure-score: #800080;         /* Purple — fold/perf/slit (merged) */
+  --measure-hole: #2563eb;          /* Blue — drilling */
 
   /* Line styles for extra differentiation (esp. grayscale proofs) */
   --line-cut-style: solid;          /* solid red = cut */
@@ -101,12 +102,16 @@
   --measure-cut-bg-selected: color-mix(in srgb, var(--measure-cut) 25%, transparent);
   --measure-score-bg-hover: color-mix(in srgb, var(--measure-score) 15%, transparent);
   --measure-score-bg-selected: color-mix(in srgb, var(--measure-score) 25%, transparent);
+  --measure-hole-bg-hover: color-mix(in srgb, var(--measure-hole) 15%, transparent);
+  --measure-hole-bg-selected: color-mix(in srgb, var(--measure-hole) 25%, transparent);
 
   /* Line glow colors (preview) */
   --measure-cut-glow: #ff6666;        /* light red highlight */
   --measure-score-glow: #c4b5fd;      /* lavender highlight */
   --measure-cut-glow-soft: color-mix(in srgb, var(--measure-cut-glow) 60%, transparent);
   --measure-score-glow-soft: color-mix(in srgb, var(--measure-score-glow) 60%, transparent);
+  --measure-hole-glow: #93c5fd;       /* light blue highlight */
+  --measure-hole-glow-soft: color-mix(in srgb, var(--measure-hole-glow) 60%, transparent);
 
   /* -------------------------------------------------------
      Shadows
@@ -635,6 +640,15 @@ select {
   background: var(--measure-score-bg-selected);
 }
 
+.measurement-row[data-measure-type="hole"].is-hovered,
+.measurement-row[data-measure-type="hole"].is-selected {
+  background: var(--measure-hole-bg-hover);
+}
+
+.measurement-row[data-measure-type="hole"].is-selected {
+  background: var(--measure-hole-bg-selected);
+}
+
 /* Preview lines */
 .measurement-line {
   pointer-events: auto;
@@ -665,6 +679,12 @@ select {
 .measurement-line[data-measure-type="perforation"].is-selected {
   stroke: var(--measure-score-glow);
   filter: drop-shadow(0 0 4px var(--measure-score-glow-soft));
+}
+
+.measurement-line[data-measure-type="hole"].is-hovered,
+.measurement-line[data-measure-type="hole"].is-selected {
+  stroke: var(--measure-hole-glow);
+  filter: drop-shadow(0 0 4px var(--measure-hole-glow-soft));
 }
 
 /* =============================================
@@ -722,6 +742,12 @@ select {
   stroke: #fb7185;
   stroke-width: 1;
   stroke-dasharray: 6 4;
+}
+
+#svg .svg-hole {
+  fill: color-mix(in srgb, var(--measure-hole) 12%, transparent);
+  stroke: var(--measure-hole);
+  stroke-width: 1;
 }
 
 .sheet-preview-layout {
@@ -853,6 +879,7 @@ select {
 .legend-swatch-slits,
 .legend-swatch-perforations    { background: var(--measure-score); }
 .legend-swatch-scores          { background: var(--measure-score); }
+.legend-swatch-holes           { background: var(--measure-hole); }
 
 /* =============================================
  * Print Styles

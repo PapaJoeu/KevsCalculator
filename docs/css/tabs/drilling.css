@@ -1,0 +1,67 @@
+/* =============================================
+ * Drilling Planner
+ * ---------------------------------------------
+ * Layout styles for the hole drilling configuration tab.
+ * ============================================= */
+
+.drilling-configuration-card {
+  --stack-gap: 16px;
+}
+
+.drilling-plan-fields {
+  --grid-gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  align-items: flex-end;
+}
+
+.drilling-plan-fields label select {
+  width: 100%;
+}
+
+.drilling-custom-config > p {
+  margin: 0;
+}
+
+.drilling-location-list {
+  --stack-gap: 12px;
+}
+
+.drilling-location-row {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  align-items: end;
+  padding: 12px;
+  border: 1px solid var(--border-overlay);
+  border-radius: 12px;
+  background: var(--surface-control);
+}
+
+.drilling-location-row .finishing-score-label span {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+.drilling-location-row .text-muted-detail {
+  margin: 0;
+  font-size: 0.8rem;
+}
+
+.drilling-location-row button {
+  align-self: center;
+  justify-self: flex-start;
+}
+
+.drilling-action-card {
+  padding: 0;
+}
+
+.drilling-action-card .finishing-action-toolbar {
+  padding: 12px;
+}
+
+@media (max-width: 720px) {
+  .drilling-location-row {
+    grid-template-columns: 1fr;
+  }
+}

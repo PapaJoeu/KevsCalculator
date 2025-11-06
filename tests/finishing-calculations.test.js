@@ -81,6 +81,8 @@ describe('finishing calculations integration', () => {
       }))
     );
 
+    expect(result.holes).toEqual([]);
+
     const readouts = [
       ...result.cuts,
       ...result.slits,
@@ -93,6 +95,41 @@ describe('finishing calculations integration', () => {
     readouts.forEach(({ inches, millimeters }) => {
       expect(millimeters).toBeCloseTo(mm(inches), 3);
     });
+  });
+});
+
+describe('hole drilling generation', () => {
+  it('produces hole centers for each document using edge alignment and offsets', () => {
+    const layout = {
+      layoutArea: { originX: 1, originY: 2 },
+      counts: { across: 2, down: 2 },
+      document: { width: 4, height: 6 },
+      gutter: { horizontal: 1, vertical: 2 },
+    };
+
+    const holePlan = {
+      size: 0.25,
+      entries: [
+        { edge: 'left', align: 'start', axisOffset: 0.5, offset: 0.3125 },
+        { edge: 'left', align: 'center', axisOffset: 0, offset: 0.3125 },
+        { edge: 'left', align: 'end', axisOffset: 0.5, offset: 0.3125 },
+      ],
+    };
+
+    const result = calculateFinishing(layout, { holePlan });
+
+    expect(result.holes).toHaveLength(12);
+
+    const expectedFirstDoc = [
+      { label: 'Hole 1 — Doc 1,1', x: 1.3125, y: 2.5, diameter: 0.25 },
+      { label: 'Hole 2 — Doc 1,1', x: 1.3125, y: 5, diameter: 0.25 },
+      { label: 'Hole 3 — Doc 1,1', x: 1.3125, y: 7.5, diameter: 0.25 },
+    ];
+
+    expect(result.holes.slice(0, 3)).toMatchObject(expectedFirstDoc);
+
+    const expectedSecondRowFirstDoc = { label: 'Hole 1 — Doc 1,2', x: 1.3125, y: 10.5, diameter: 0.25 };
+    expect(result.holes[6]).toMatchObject(expectedSecondRowFirstDoc);
   });
 });
 
