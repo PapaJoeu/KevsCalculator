@@ -1,5 +1,0 @@
-Placeholder for eagle.svg asset.
-
-Please add a vector image named `eagle.svg` in this directory. The SVG should depict the stylized eagle used for the flight animation that travels across the calculator viewport when inch units are selected.
-
-Once you have the final artwork, replace this file with the real `eagle.svg` asset while keeping the same filename.
