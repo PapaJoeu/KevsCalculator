@@ -1,5 +1,32 @@
 import { sheetPresets, documentPresets, gutterPresets } from './input-presets.js';
 import { DEFAULT_INPUTS } from './config/defaults.js';
+import {
+  MM_PER_INCH,
+  clampToZero,
+  toNumber,
+  inchesToMillimeters,
+  convertForUnits,
+  formatValueForUnits,
+  describePresetValue,
+} from './utils/units.js';
+import {
+  $,
+  $$,
+  applyLayerVisibility,
+  createMeasurementId,
+  fillTable,
+  getLayerVisibility,
+  isMeasurementSelected,
+  parseOffsets,
+  readIntOptional,
+  readNumber,
+  registerMeasurementId,
+  resetMeasurementRegistry,
+  restoreMeasurementSelections,
+  setLayerVisibility,
+  setMeasurementHover,
+  toggleMeasurementSelection,
+} from './utils/dom.js';
 
 // ============================================================
 // Print Layout Calculator — Application Script
@@ -15,13 +42,6 @@ import { DEFAULT_INPUTS } from './config/defaults.js';
 // ------------------------------------------------------------
 // 1. Calculation helpers
 // ------------------------------------------------------------
-const MM_PER_INCH = 25.4;
-const clampToZero = (v) => Math.max(0, v);
-const toNumber = (v) => {
-  const n = Number(v);
-  return Number.isFinite(n) ? n : 0;
-};
-const inchesToMillimeters = (inches, p = 3) => Number((inches * MM_PER_INCH).toFixed(p));
 const normalizePerSide = (s = {}) => ({
   top: toNumber(s.top),
   right: toNumber(s.right),
@@ -228,110 +248,6 @@ function calculateFinishing(layout, options = {}) {
 // ------------------------------------------------------------
 // 2. UI utilities
 // ------------------------------------------------------------
-const $ = (s) => document.querySelector(s);
-const $$ = (s) => Array.from(document.querySelectorAll(s));
-
-const layerVisibility = {
-  layout: true,
-  docs: true,
-  cuts: true,
-  scores: true,
-};
-
-const selectedMeasurements = new Set();
-let currentMeasurementIds = new Set();
-
-const createMeasurementId = (type, index) => `${type}-${index}`;
-
-function registerMeasurementId(id) {
-  if (!id) return;
-  currentMeasurementIds.add(id);
-}
-
-const measurementElements = (id) => $$(`[data-measure-id="${id}"]`);
-
-function setMeasurementHover(id, hovered) {
-  measurementElements(id).forEach((el) => el.classList.toggle('is-hovered', hovered));
-}
-
-function setMeasurementSelectionClass(id, selected) {
-  measurementElements(id).forEach((el) => el.classList.toggle('is-selected', selected));
-}
-
-function toggleMeasurementSelection(id) {
-  if (!id) return;
-  const willSelect = !selectedMeasurements.has(id);
-  if (willSelect) {
-    selectedMeasurements.add(id);
-  } else {
-    selectedMeasurements.delete(id);
-  }
-  setMeasurementSelectionClass(id, willSelect);
-}
-
-function attachMeasurementRowInteractions(row) {
-  if (!row) return;
-  const id = row.dataset.measureId;
-  if (!id) return;
-  row.setAttribute('tabindex', '0');
-  row.addEventListener('mouseenter', () => setMeasurementHover(id, true));
-  row.addEventListener('mouseleave', () => setMeasurementHover(id, false));
-  row.addEventListener('click', () => toggleMeasurementSelection(id));
-  row.addEventListener('focus', () => setMeasurementHover(id, true));
-  row.addEventListener('blur', () => setMeasurementHover(id, false));
-  row.addEventListener('keydown', (evt) => {
-    if (evt.key === 'Enter' || evt.key === ' ') {
-      evt.preventDefault();
-      toggleMeasurementSelection(id);
-    }
-  });
-}
-
-function restoreMeasurementSelections() {
-  const stale = [];
-  selectedMeasurements.forEach((id) => {
-    if (!currentMeasurementIds.has(id)) {
-      stale.push(id);
-      return;
-    }
-    setMeasurementSelectionClass(id, true);
-  });
-  stale.forEach((id) => selectedMeasurements.delete(id));
-}
-
-function applyLayerVisibility() {
-  const svg = $("#svg");
-  if (!svg) return;
-  Object.entries(layerVisibility).forEach(([layer, visible]) => {
-    svg.querySelectorAll(`[data-layer="${layer}"]`).forEach((el) => {
-      el.style.display = visible ? "" : "none";
-    });
-  });
-}
-
-function setLayerVisibility(layer, visible) {
-  if (!(layer in layerVisibility)) return;
-  layerVisibility[layer] = Boolean(visible);
-  applyLayerVisibility();
-}
-const readNumber = (id) => {
-  const v = $(id).value;
-  const n = Number(v);
-  return Number.isFinite(n) ? n : 0;
-};
-const readIntOptional = (id) => {
-  const raw = ($(id).value || "").trim();
-  if (raw === "") return null;
-  const n = Math.max(1, Math.floor(Number(raw)));
-  return Number.isFinite(n) ? n : null;
-};
-const parseOffsets = (s) =>
-  (s || "")
-    .split(",")
-    .map((x) => x.trim())
-    .filter(Boolean)
-    .map(Number)
-    .filter((n) => Number.isFinite(n));
 const fmtIn = (inches) => `${inches.toFixed(3)} in / ${inchesToMillimeters(inches).toFixed(2)} mm`;
 
 const marginInputSelectors = ["#mTop", "#mRight", "#mBottom", "#mLeft"];
@@ -381,15 +297,6 @@ function currentInputs() {
     autoMargins,
   };
 }
-
-const convertForUnits = (value, units) => (units === "mm" ? (value * MM_PER_INCH).toFixed(2) : value);
-const describePresetValue = (value, units) => (units === "mm" ? (value * MM_PER_INCH).toFixed(2) : value.toString());
-const formatValueForUnits = (value, units) => {
-  if (value == null) return "";
-  if (units === "mm") return (value * MM_PER_INCH).toFixed(2);
-  if (!Number.isFinite(value)) return "";
-  return Number(value.toFixed(4)).toString();
-};
 
 const UNIT_TO_SYSTEM = { in: "imperial", mm: "metric" };
 const presetSelectionMemory = {
@@ -484,28 +391,6 @@ function status(txt) {
   $("#status").textContent = txt;
 }
 
-function fillTable(tbody, rows, type = 'measure') {
-  if (!tbody) return;
-  tbody.innerHTML = rows
-    .map((r, index) => {
-      const id = createMeasurementId(type, index);
-      registerMeasurementId(id);
-      const cells = [
-        `<td>${r.label}</td>`,
-        `<td class="k">${r.inches.toFixed(3)}</td>`,
-        `<td class="k">${r.millimeters.toFixed(2)}</td>`,
-      ];
-      return `<tr class="measurement-row" data-measure-id="${id}" data-measure-type="${type}" data-measure-index="${index}">${cells.join("")}</tr>`;
-    })
-    .join("");
-  tbody.querySelectorAll('tr[data-measure-id]').forEach((row) => {
-    attachMeasurementRowInteractions(row);
-    if (selectedMeasurements.has(row.dataset.measureId)) {
-      row.classList.add('is-selected');
-    }
-  });
-}
-
 // ------------------------------------------------------------
 // 3. Rendering + state updates
 // ------------------------------------------------------------
@@ -543,7 +428,7 @@ function update() {
     $("#mLeft").value = f(leftMargin);
   }
 
-  currentMeasurementIds = new Set();
+  resetMeasurementRegistry();
   const fin = calculateFinishing(layout, {
     scoreHorizontal: inp.scoreH,
     scoreVertical: inp.scoreV,
@@ -630,7 +515,7 @@ function drawSVG(layout, fin) {
       l.dataset.measureId = measureId;
       l.classList.add('measurement-line');
       if (measureType) l.dataset.measureType = measureType;
-      if (selectedMeasurements.has(measureId)) {
+      if (isMeasurementSelected(measureId)) {
         l.classList.add('is-selected');
       }
       l.addEventListener('mouseenter', () => setMeasurementHover(measureId, true));
@@ -748,7 +633,7 @@ activateTab(initiallyActiveTab ? initiallyActiveTab.dataset.tab : DEFAULT_TAB_KE
 $$('.layer-visibility-toggle-input').forEach((input) => {
   const layer = input.dataset.layer;
   if (!layer) return;
-  const initial = layerVisibility[layer] ?? true;
+  const initial = getLayerVisibility(layer);
   input.checked = initial;
   setLayerVisibility(layer, initial);
   input.addEventListener('change', (e) => {
