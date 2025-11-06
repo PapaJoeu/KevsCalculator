@@ -1,7 +1,6 @@
-import { sheetPresets, documentPresets, gutterPresets } from './input-presets.js';
 import { DEFAULT_INPUTS } from './config/defaults.js';
 import { initializeTabRegistry, registerTab } from './tabs/registry.js';
-import inputsTab from './tabs/inputs.js';
+import inputsTab, { isAutoMarginModeEnabled, enableAutoMarginMode } from './tabs/inputs.js';
 import summaryTab from './tabs/summary.js';
 import finishingTab from './tabs/finishing.js';
 import scoresTab from './tabs/scores.js';
@@ -14,17 +13,11 @@ import {
   clampToZero,
   toNumber,
   inchesToMillimeters,
-  convertForUnits,
-  formatValueForUnits,
-  describePresetValue,
 } from './utils/units.js';
 import {
   $,
-  $$,
-  applyLayerVisibility,
   createMeasurementId,
   fillTable,
-  getLayerVisibility,
   isMeasurementSelected,
   parseOffsets,
   readIntOptional,
@@ -32,7 +25,6 @@ import {
   registerMeasurementId,
   resetMeasurementRegistry,
   restoreMeasurementSelections,
-  setLayerVisibility,
   setMeasurementHover,
   toggleMeasurementSelection,
 } from './utils/dom.js';
@@ -259,141 +251,36 @@ function calculateFinishing(layout, options = {}) {
 // ------------------------------------------------------------
 const fmtIn = (inches) => `${inches.toFixed(3)} in / ${inchesToMillimeters(inches).toFixed(2)} mm`;
 
-const marginInputSelectors = ["#mTop", "#mRight", "#mBottom", "#mLeft"];
-let autoMarginMode = true;
-
-function setAutoMarginMode(enabled) {
-  autoMarginMode = Boolean(enabled);
-  marginInputSelectors.forEach((selector) => {
-    const el = $(selector);
-    if (!el) return;
-    if (autoMarginMode) {
-      el.dataset.auto = "true";
-    } else {
-      delete el.dataset.auto;
-    }
-  });
-}
-
 function currentInputs() {
-  const units = $("#units").value;
-  const u = (v) => (units === "mm" ? (Number(v) || 0) / MM_PER_INCH : Number(v) || 0);
-  const autoMargins = autoMarginMode;
+  const units = $('#units').value;
+  const u = (v) => (units === 'mm' ? (Number(v) || 0) / MM_PER_INCH : Number(v) || 0);
+  const autoMargins = isAutoMarginModeEnabled();
   const rawMargins = {
-    top: u(readNumber("#mTop")),
-    right: u(readNumber("#mRight")),
-    bottom: u(readNumber("#mBottom")),
-    left: u(readNumber("#mLeft")),
+    top: u(readNumber('#mTop')),
+    right: u(readNumber('#mRight')),
+    bottom: u(readNumber('#mBottom')),
+    left: u(readNumber('#mLeft')),
   };
   return {
     units,
-    sheet: { width: u(readNumber("#sheetW")), height: u(readNumber("#sheetH")) },
-    document: { width: u(readNumber("#docW")), height: u(readNumber("#docH")) },
-    gutter: { horizontal: u(readNumber("#gutH")), vertical: u(readNumber("#gutV")) },
+    sheet: { width: u(readNumber('#sheetW')), height: u(readNumber('#sheetH')) },
+    document: { width: u(readNumber('#docW')), height: u(readNumber('#docH')) },
+    gutter: { horizontal: u(readNumber('#gutH')), vertical: u(readNumber('#gutV')) },
     margins: autoMargins ? { top: 0, right: 0, bottom: 0, left: 0 } : rawMargins,
     nonPrintable: {
-      top: u(readNumber("#npTop")),
-      right: u(readNumber("#npRight")),
-      bottom: u(readNumber("#npBottom")),
-      left: u(readNumber("#npLeft")),
+      top: u(readNumber('#npTop')),
+      right: u(readNumber('#npRight')),
+      bottom: u(readNumber('#npBottom')),
+      left: u(readNumber('#npLeft')),
     },
-    scoreV: parseOffsets($("#scoresV")?.value || ""),
-    scoreH: parseOffsets($("#scoresH")?.value || ""),
-    perfV: parseOffsets($("#perfV")?.value || ""),
-    perfH: parseOffsets($("#perfH")?.value || ""),
-    forceAcross: readIntOptional("#forceAcross"),
-    forceDown: readIntOptional("#forceDown"),
+    scoreV: parseOffsets($('#scoresV')?.value || ''),
+    scoreH: parseOffsets($('#scoresH')?.value || ''),
+    perfV: parseOffsets($('#perfV')?.value || ''),
+    perfH: parseOffsets($('#perfH')?.value || ''),
+    forceAcross: readIntOptional('#forceAcross'),
+    forceDown: readIntOptional('#forceDown'),
     autoMargins,
   };
-}
-
-const UNIT_TO_SYSTEM = { in: "imperial", mm: "metric" };
-const presetSelectionMemory = {
-  sheet: { imperial: "", metric: "" },
-  document: { imperial: "", metric: "" },
-  gutter: { imperial: "", metric: "" },
-};
-
-const filterPresetsBySystem = (presets, system) => {
-  return presets.filter((preset) => {
-    if (!Array.isArray(preset.systems) || preset.systems.length === 0) return true;
-    return preset.systems.includes(system);
-  });
-};
-
-function populatePresetSelect(selectEl, presets, system, memoryKey) {
-  if (!selectEl) return;
-  const placeholder =
-    selectEl.dataset.placeholder ||
-    selectEl.querySelector('option[value=""]')?.textContent ||
-    "Choose a preset…";
-  const filtered = filterPresetsBySystem(presets, system);
-  selectEl.innerHTML = "";
-  const placeholderOption = document.createElement("option");
-  placeholderOption.value = "";
-  placeholderOption.textContent = placeholder;
-  selectEl.appendChild(placeholderOption);
-  filtered.forEach((preset) => {
-    const option = document.createElement("option");
-    option.value = preset.id;
-    option.textContent = preset.label;
-    option.dataset.width = preset.width;
-    option.dataset.height = preset.height;
-    selectEl.appendChild(option);
-  });
-  selectEl.dataset.placeholder = placeholder;
-  const memory = presetSelectionMemory[memoryKey] || {};
-  const storedValue = memory[system];
-  if (storedValue && filtered.some((preset) => preset.id === storedValue)) {
-    selectEl.value = storedValue;
-  } else {
-    selectEl.value = "";
-  }
-}
-
-function handlePresetSelect(selectEl, memoryKey, applyPreset) {
-  if (!selectEl) return;
-  selectEl.addEventListener("change", (event) => {
-    const option = event.target.selectedOptions?.[0];
-    const units = $("#units").value;
-    const system = UNIT_TO_SYSTEM[units] || "imperial";
-    const memory = presetSelectionMemory[memoryKey];
-    if (memory) {
-      memory[system] = event.target.value || "";
-    }
-    if (!option || !option.value) return;
-    const width = Number(option.dataset.width);
-    const height = Number(option.dataset.height);
-    if (!Number.isFinite(width) || !Number.isFinite(height)) return;
-    applyPreset(width, height);
-  });
-}
-
-function setSheetPreset(w, h) {
-  const units = $("#units").value;
-  const width = convertForUnits(w, units);
-  const height = convertForUnits(h, units);
-  $("#sheetW").value = width;
-  $("#sheetH").value = height;
-  status(`Sheet preset ${describePresetValue(w, units)}×${describePresetValue(h, units)} ${units}`);
-}
-
-function setDocumentPreset(w, h) {
-  const units = $("#units").value;
-  const width = convertForUnits(w, units);
-  const height = convertForUnits(h, units);
-  $("#docW").value = width;
-  $("#docH").value = height;
-  status(`Document preset ${describePresetValue(w, units)}×${describePresetValue(h, units)} ${units}`);
-}
-
-function setGutterPreset(horizontal, vertical) {
-  const units = $("#units").value;
-  const h = convertForUnits(horizontal, units);
-  const v = convertForUnits(vertical, units);
-  $("#gutH").value = h;
-  $("#gutV").value = v;
-  status(`Gutter preset ${describePresetValue(horizontal, units)}×${describePresetValue(vertical, units)} ${units}`);
 }
 
 function status(txt) {
@@ -618,559 +505,34 @@ function drawSVG(layout, fin) {
 // ------------------------------------------------------------
 // 4. Event bindings
 // ------------------------------------------------------------
-registerTab(inputsTab.key, inputsTab);
-registerTab(summaryTab.key, summaryTab);
-registerTab(finishingTab.key, finishingTab);
-registerTab(scoresTab.key, scoresTab);
-registerTab(perforationsTab.key, perforationsTab);
-registerTab(warningsTab.key, warningsTab);
-registerTab(printTab.key, printTab);
-registerTab(presetsTab.key, presetsTab);
-
-initializeTabRegistry();
-
-$$('.layer-visibility-toggle-input').forEach((input) => {
-  const layer = input.dataset.layer;
-  if (!layer) return;
-  const initial = getLayerVisibility(layer);
-  input.checked = initial;
-  setLayerVisibility(layer, initial);
-  input.addEventListener('change', (e) => {
-    setLayerVisibility(layer, e.target.checked);
-  });
-});
-
-const sheetPresetSelect = $('#sheetPresetSelect');
-const documentPresetSelect = $('#documentPresetSelect');
-const gutterPresetSelect = $('#gutterPresetSelect');
-
-const getSystemForUnits = (units) => UNIT_TO_SYSTEM[units] || 'imperial';
-
-const refreshPresetDropdowns = (system) => {
-  populatePresetSelect(sheetPresetSelect, sheetPresets, system, 'sheet');
-  populatePresetSelect(documentPresetSelect, documentPresets, system, 'document');
-  populatePresetSelect(gutterPresetSelect, gutterPresets, system, 'gutter');
-};
-
-handlePresetSelect(sheetPresetSelect, 'sheet', setSheetPreset);
-handlePresetSelect(documentPresetSelect, 'document', setDocumentPreset);
-handlePresetSelect(gutterPresetSelect, 'gutter', setGutterPreset);
-
-$$('[data-layout-preset]').forEach((btn) => {
-  const key = btn.dataset.layoutPreset;
-  if (!key) return;
-  btn.addEventListener('click', () => applyLayoutPreset(key));
-});
-
-const verticalScorePresetButtons = {
-  bifold: $('#scorePresetBifold'),
-  trifold: $('#scorePresetTrifold'),
-  custom: $('#scorePresetCustom'),
-};
-const horizontalScorePresetButtons = {
-  bifold: $('#scorePresetHBifold'),
-  trifold: $('#scorePresetHTrifold'),
-  custom: $('#scorePresetHCustom'),
-};
-const verticalScoreInput = $('#scoresV');
-const horizontalScoreInput = $('#scoresH');
-const SCORE_PRESETS = {
-  bifold: [0.5],
-  trifold: [1 / 3, 2 / 3],
-};
-
-const verticalPerforationPresetButtons = {
-  bifold: $('#perfPresetVBifold'),
-  trifold: $('#perfPresetVTrifold'),
-  custom: $('#perfPresetVCustom'),
-};
-const horizontalPerforationPresetButtons = {
-  bifold: $('#perfPresetHBifold'),
-  trifold: $('#perfPresetHTrifold'),
-  custom: $('#perfPresetHCustom'),
-};
-const verticalPerforationInput = $('#perfV');
-const horizontalPerforationInput = $('#perfH');
-const PERFORATION_PRESETS = {
-  bifold: [0.5],
-  trifold: [1 / 3, 2 / 3],
-};
-
-const formatOffsetValue = (value) => {
-  const fixed = Number(value || 0).toFixed(4);
-  const trimmed = fixed.replace(/0+$/, '').replace(/\.$/, '');
-  return trimmed === '' ? '0' : trimmed;
-};
-
-function setVerticalScoreOffsets(offsets = []) {
-  if (!verticalScoreInput) return;
-  if (!Array.isArray(offsets) || offsets.length === 0) {
-    verticalScoreInput.value = '';
-    return;
-  }
-  verticalScoreInput.value = offsets.map(formatOffsetValue).join(', ');
-}
-
-function lockVerticalScoreInput(lock, presetKey) {
-  if (!verticalScoreInput) return;
-  if (lock) {
-    verticalScoreInput.setAttribute('readonly', 'true');
-    verticalScoreInput.classList.add('is-locked');
-    if (presetKey) verticalScoreInput.dataset.preset = presetKey;
-  } else {
-    verticalScoreInput.removeAttribute('readonly');
-    verticalScoreInput.classList.remove('is-locked');
-    delete verticalScoreInput.dataset.preset;
-  }
-}
-
-function setHorizontalScoreOffsets(offsets = []) {
-  if (!horizontalScoreInput) return;
-  if (!Array.isArray(offsets) || offsets.length === 0) {
-    horizontalScoreInput.value = '';
-    return;
-  }
-  horizontalScoreInput.value = offsets.map(formatOffsetValue).join(', ');
-}
-
-function lockHorizontalScoreInput(lock, presetKey) {
-  if (!horizontalScoreInput) return;
-  if (lock) {
-    horizontalScoreInput.setAttribute('readonly', 'true');
-    horizontalScoreInput.classList.add('is-locked');
-    if (presetKey) horizontalScoreInput.dataset.preset = presetKey;
-  } else {
-    horizontalScoreInput.removeAttribute('readonly');
-    horizontalScoreInput.classList.remove('is-locked');
-    delete horizontalScoreInput.dataset.preset;
-  }
-}
-
-function setScorePresetState(buttons, activeKey) {
-  Object.entries(buttons).forEach(([key, btn]) => {
-    if (!btn) return;
-    const isActive = key === activeKey;
-    btn.classList.toggle('is-active', isActive);
-    btn.setAttribute('aria-pressed', isActive ? 'true' : 'false');
-  });
-}
-
-function setVerticalPerforationOffsets(offsets = []) {
-  if (!verticalPerforationInput) return;
-  if (!Array.isArray(offsets) || offsets.length === 0) {
-    verticalPerforationInput.value = '';
-    return;
-  }
-  verticalPerforationInput.value = offsets.map(formatOffsetValue).join(', ');
-}
-
-function lockVerticalPerforationInput(lock, presetKey) {
-  if (!verticalPerforationInput) return;
-  if (lock) {
-    verticalPerforationInput.setAttribute('readonly', 'true');
-    verticalPerforationInput.classList.add('is-locked');
-    if (presetKey) verticalPerforationInput.dataset.preset = presetKey;
-  } else {
-    verticalPerforationInput.removeAttribute('readonly');
-    verticalPerforationInput.classList.remove('is-locked');
-    delete verticalPerforationInput.dataset.preset;
-  }
-}
-
-function setHorizontalPerforationOffsets(offsets = []) {
-  if (!horizontalPerforationInput) return;
-  if (!Array.isArray(offsets) || offsets.length === 0) {
-    horizontalPerforationInput.value = '';
-    return;
-  }
-  horizontalPerforationInput.value = offsets.map(formatOffsetValue).join(', ');
-}
-
-function lockHorizontalPerforationInput(lock, presetKey) {
-  if (!horizontalPerforationInput) return;
-  if (lock) {
-    horizontalPerforationInput.setAttribute('readonly', 'true');
-    horizontalPerforationInput.classList.add('is-locked');
-    if (presetKey) horizontalPerforationInput.dataset.preset = presetKey;
-  } else {
-    horizontalPerforationInput.removeAttribute('readonly');
-    horizontalPerforationInput.classList.remove('is-locked');
-    delete horizontalPerforationInput.dataset.preset;
-  }
-}
-
-const setVerticalPresetState = (key) => setScorePresetState(verticalScorePresetButtons, key);
-const setHorizontalPresetState = (key) => setScorePresetState(horizontalScorePresetButtons, key);
-const setVerticalPerforationPresetState = (key) =>
-  setScorePresetState(verticalPerforationPresetButtons, key);
-const setHorizontalPerforationPresetState = (key) =>
-  setScorePresetState(horizontalPerforationPresetButtons, key);
-
-function applyLayoutPreset(presetKey) {
-  const presets = window.LAYOUT_PRESETS || {};
-  const preset = presets[presetKey];
-  if (!preset) {
-    status(`Unknown layout preset: ${presetKey}`);
-    return;
-  }
-  setAutoMarginMode(true);
-  marginInputSelectors.forEach((selector) => {
-    const el = $(selector);
-    if (el) el.value = '';
-  });
-
-  const units = $('#units').value;
-  const setValue = (selector, value) => {
-    const el = $(selector);
-    if (!el || !Number.isFinite(Number(value))) return;
-    el.value = formatValueForUnits(Number(value), units);
-  };
-
-  setValue('#sheetW', preset.sheet?.width ?? 0);
-  setValue('#sheetH', preset.sheet?.height ?? 0);
-  setValue('#docW', preset.document?.width ?? 0);
-  setValue('#docH', preset.document?.height ?? 0);
-  setValue('#gutH', preset.gutter?.horizontal ?? 0);
-  setValue('#gutV', preset.gutter?.vertical ?? 0);
-
-  const np = preset.nonPrintable || {};
-  setValue('#npTop', np.top ?? 0);
-  setValue('#npRight', np.right ?? 0);
-  setValue('#npBottom', np.bottom ?? 0);
-  setValue('#npLeft', np.left ?? 0);
-
-  lockVerticalScoreInput(false);
-  lockHorizontalScoreInput(false);
-  setVerticalPresetState('custom');
-  setHorizontalPresetState('custom');
-  setVerticalScoreOffsets(preset.scores?.vertical ?? []);
-  setHorizontalScoreOffsets(preset.scores?.horizontal ?? []);
-  lockVerticalPerforationInput(false);
-  lockHorizontalPerforationInput(false);
-  setVerticalPerforationPresetState('custom');
-  setHorizontalPerforationPresetState('custom');
-  setVerticalPerforationOffsets(preset.perforations?.vertical ?? []);
-  setHorizontalPerforationOffsets(preset.perforations?.horizontal ?? []);
-
-  update();
-  status(`${preset.label} preset applied`);
-}
-
-function swapScoreOffsets() {
-  if (!verticalScoreInput || !horizontalScoreInput) return;
-  const verticalOffsets = parseOffsets(verticalScoreInput.value);
-  const horizontalOffsets = parseOffsets(horizontalScoreInput.value);
-
-  lockVerticalScoreInput(false);
-  lockHorizontalScoreInput(false);
-  setVerticalPresetState('custom');
-  setHorizontalPresetState('custom');
-
-  setVerticalScoreOffsets(horizontalOffsets);
-  setHorizontalScoreOffsets(verticalOffsets);
-
-  update();
-  status('Swapped vertical and horizontal score offsets');
-}
-
-verticalScorePresetButtons.bifold?.addEventListener('click', () => {
-  setVerticalScoreOffsets(SCORE_PRESETS.bifold);
-  lockVerticalScoreInput(true, 'bifold');
-  setVerticalPresetState('bifold');
-  update();
-  status('Vertical bifold score preset applied');
-});
-
-verticalScorePresetButtons.trifold?.addEventListener('click', () => {
-  setVerticalScoreOffsets(SCORE_PRESETS.trifold);
-  lockVerticalScoreInput(true, 'trifold');
-  setVerticalPresetState('trifold');
-  update();
-  status('Vertical trifold score preset applied');
-});
-
-verticalScorePresetButtons.custom?.addEventListener('click', () => {
-  lockVerticalScoreInput(false);
-  setVerticalPresetState('custom');
-  verticalScoreInput?.focus();
-  update();
-  status('Vertical custom score entry enabled');
-});
-
-if (verticalScoreInput) {
-  ['input', 'change'].forEach((evt) =>
-    verticalScoreInput.addEventListener(evt, () => {
-      if (verticalScoreInput.readOnly) return;
-      setVerticalPresetState('custom');
-    })
-  );
-}
-
-horizontalScorePresetButtons.bifold?.addEventListener('click', () => {
-  setHorizontalScoreOffsets(SCORE_PRESETS.bifold);
-  lockHorizontalScoreInput(true, 'bifold');
-  setHorizontalPresetState('bifold');
-  update();
-  status('Horizontal bifold score preset applied');
-});
-
-horizontalScorePresetButtons.trifold?.addEventListener('click', () => {
-  setHorizontalScoreOffsets(SCORE_PRESETS.trifold);
-  lockHorizontalScoreInput(true, 'trifold');
-  setHorizontalPresetState('trifold');
-  update();
-  status('Horizontal trifold score preset applied');
-});
-
-horizontalScorePresetButtons.custom?.addEventListener('click', () => {
-  lockHorizontalScoreInput(false);
-  setHorizontalPresetState('custom');
-  horizontalScoreInput?.focus();
-  update();
-  status('Horizontal custom score entry enabled');
-});
-
-verticalPerforationPresetButtons.bifold?.addEventListener('click', () => {
-  setVerticalPerforationOffsets(PERFORATION_PRESETS.bifold);
-  lockVerticalPerforationInput(true, 'bifold');
-  setVerticalPerforationPresetState('bifold');
-  update();
-  status('Vertical bifold perforation preset applied');
-});
-
-verticalPerforationPresetButtons.trifold?.addEventListener('click', () => {
-  setVerticalPerforationOffsets(PERFORATION_PRESETS.trifold);
-  lockVerticalPerforationInput(true, 'trifold');
-  setVerticalPerforationPresetState('trifold');
-  update();
-  status('Vertical trifold perforation preset applied');
-});
-
-verticalPerforationPresetButtons.custom?.addEventListener('click', () => {
-  lockVerticalPerforationInput(false);
-  setVerticalPerforationPresetState('custom');
-  verticalPerforationInput?.focus();
-  update();
-  status('Vertical custom perforation entry enabled');
-});
-
-if (verticalPerforationInput) {
-  ['input', 'change'].forEach((evt) =>
-    verticalPerforationInput.addEventListener(evt, () => {
-      if (verticalPerforationInput.readOnly) return;
-      setVerticalPerforationPresetState('custom');
-    })
-  );
-}
-
-horizontalPerforationPresetButtons.bifold?.addEventListener('click', () => {
-  setHorizontalPerforationOffsets(PERFORATION_PRESETS.bifold);
-  lockHorizontalPerforationInput(true, 'bifold');
-  setHorizontalPerforationPresetState('bifold');
-  update();
-  status('Horizontal bifold perforation preset applied');
-});
-
-horizontalPerforationPresetButtons.trifold?.addEventListener('click', () => {
-  setHorizontalPerforationOffsets(PERFORATION_PRESETS.trifold);
-  lockHorizontalPerforationInput(true, 'trifold');
-  setHorizontalPerforationPresetState('trifold');
-  update();
-  status('Horizontal trifold perforation preset applied');
-});
-
-horizontalPerforationPresetButtons.custom?.addEventListener('click', () => {
-  lockHorizontalPerforationInput(false);
-  setHorizontalPerforationPresetState('custom');
-  horizontalPerforationInput?.focus();
-  update();
-  status('Horizontal custom perforation entry enabled');
-});
-
-if (horizontalPerforationInput) {
-  ['input', 'change'].forEach((evt) =>
-    horizontalPerforationInput.addEventListener(evt, () => {
-      if (horizontalPerforationInput.readOnly) return;
-      setHorizontalPerforationPresetState('custom');
-    })
-  );
-}
-
-$('#swapScoreOffsets')?.addEventListener('click', swapScoreOffsets);
-
-if (horizontalScoreInput) {
-  ['input', 'change'].forEach((evt) =>
-    horizontalScoreInput.addEventListener(evt, () => {
-      if (horizontalScoreInput.readOnly) return;
-      setHorizontalPresetState('custom');
-    })
-  );
-}
-
-setVerticalPresetState('custom');
-setHorizontalPresetState('custom');
-setVerticalPerforationPresetState('custom');
-setHorizontalPerforationPresetState('custom');
-const UNIT_PRECISION = { in: 3, mm: 2 };
-const trimTrailingZeros = (str) => {
-  if (!str.includes('.')) return str;
-  const stripped = str.replace(/(\.\d*?[1-9])0+$/, '$1').replace(/\.0+$/, '');
-  return stripped === '' ? '0' : stripped;
-};
-const formatUnitValue = (value, precision) => trimTrailingZeros(Number(value || 0).toFixed(precision));
-const numericInputSelectors = [
-  '#sheetW',
-  '#sheetH',
-  '#docW',
-  '#docH',
-  '#gutH',
-  '#gutV',
-  ...marginInputSelectors,
-  '#npTop',
-  '#npRight',
-  '#npBottom',
-  '#npLeft',
+const tabRegistrations = [
+  { module: inputsTab, context: { update, status } },
+  { module: summaryTab, context: {} },
+  { module: finishingTab, context: {} },
+  { module: scoresTab, context: { update, status } },
+  { module: perforationsTab, context: { update, status } },
+  { module: warningsTab, context: {} },
+  { module: printTab, context: {} },
+  {
+    module: presetsTab,
+    context: {
+      update,
+      status,
+      enableAutoMarginMode,
+      scoresApi: scoresTab.api,
+      perforationsApi: perforationsTab.api,
+    },
+  },
 ];
 
-marginInputSelectors.forEach((selector) => {
-  const el = $(selector);
-  if (!el) return;
-  ['input', 'change'].forEach((evt) =>
-    el.addEventListener(evt, () => {
-      if (!autoMarginMode) return;
-      setAutoMarginMode(false);
-    })
-  );
-});
-
-setAutoMarginMode(autoMarginMode);
-
-function applyNumericInputAttributes(el, units) {
-  const targetUnits = units === 'mm' ? 'mm' : 'in';
-  const attributes = [
-    ['step', el.dataset.inchStep],
-    ['min', el.dataset.inchMin],
-    ['max', el.dataset.inchMax],
-  ];
-  attributes.forEach(([attr, baseValue]) => {
-    if (baseValue == null || baseValue === '') {
-      el.removeAttribute(attr);
-      return;
-    }
-    if (targetUnits === 'in') {
-      el.setAttribute(attr, baseValue);
-      return;
-    }
-    const numeric = Number(baseValue);
-    if (!Number.isFinite(numeric)) return;
-    el.setAttribute(attr, formatUnitValue(numeric * MM_PER_INCH, 4));
-  });
-}
-
-function applyNumericInputUnits(units) {
-  numericInputSelectors.forEach((selector) => {
-    const el = $(selector);
-    if (!el) return;
-    applyNumericInputAttributes(el, units);
-  });
-}
-
-function convertInputs(fromUnits, toUnits) {
-  if (!toUnits) return;
-  const precision = UNIT_PRECISION[toUnits] ?? 3;
-  if (fromUnits !== toUnits) {
-    const factor =
-      fromUnits === 'in' && toUnits === 'mm'
-        ? MM_PER_INCH
-        : fromUnits === 'mm' && toUnits === 'in'
-        ? 1 / MM_PER_INCH
-        : null;
-    if (factor) {
-      numericInputSelectors.forEach((selector) => {
-        const el = $(selector);
-        if (!el) return;
-        const raw = el.value;
-        if (raw === '' || raw == null) return;
-        const num = Number(raw);
-        if (!Number.isFinite(num)) return;
-        const converted = num * factor;
-        el.value = formatUnitValue(converted, precision);
-      });
-    }
+tabRegistrations.forEach(({ module, context }) => {
+  registerTab(module.key, module, context);
+  if (typeof module.init === 'function') {
+    module.init(context);
   }
-  applyNumericInputUnits(toUnits);
-}
-
-let currentUnitsSelection = DEFAULT_INPUTS.units;
-
-function applyDefaultInputs() {
-  const { units, sheet, document, gutter, nonPrintable } = DEFAULT_INPUTS;
-  const precision = UNIT_PRECISION[units] ?? 3;
-  const setValue = (selector, value) => {
-    const el = $(selector);
-    if (!el) return;
-    if (value == null || value === '') {
-      el.value = '';
-      return;
-    }
-    el.value = formatUnitValue(value, precision);
-  };
-
-  $('#units').value = units;
-  currentUnitsSelection = units;
-  setAutoMarginMode(true);
-
-  setValue('#sheetW', sheet.width);
-  setValue('#sheetH', sheet.height);
-  setValue('#docW', document.width);
-  setValue('#docH', document.height);
-  setValue('#gutH', gutter.horizontal);
-  setValue('#gutV', gutter.vertical);
-  setValue('#npTop', nonPrintable.top);
-  setValue('#npRight', nonPrintable.right);
-  setValue('#npBottom', nonPrintable.bottom);
-  setValue('#npLeft', nonPrintable.left);
-
-  ['#mTop', '#mRight', '#mBottom', '#mLeft', '#forceAcross', '#forceDown', '#scoresV', '#scoresH', '#perfV', '#perfH'].forEach(
-    (selector) => {
-      const el = $(selector);
-      if (!el) return;
-      el.value = '';
-    }
-  );
-
-  if (sheetPresetSelect) sheetPresetSelect.value = '';
-  if (documentPresetSelect) documentPresetSelect.value = '';
-  if (gutterPresetSelect) gutterPresetSelect.value = '';
-
-  status('');
-  applyNumericInputUnits(units);
-}
-
-applyDefaultInputs();
-refreshPresetDropdowns(getSystemForUnits(currentUnitsSelection));
-
-$('#units').addEventListener('change', (e) => {
-  const nextUnits = e.target.value;
-  convertInputs(currentUnitsSelection, nextUnits);
-  currentUnitsSelection = nextUnits;
-  refreshPresetDropdowns(getSystemForUnits(nextUnits));
-  status('Units changed');
-  update();
-});
-$('#calcBtn').addEventListener('click', update);
-$('#resetBtn').addEventListener('click', () => {
-  applyDefaultInputs();
-  refreshPresetDropdowns(getSystemForUnits(currentUnitsSelection));
-  update();
 });
 
-$('#applyScores').addEventListener('click', update);
-$('#applyPerforations').addEventListener('click', update);
-
-document.addEventListener('keydown', (e) => {
-  if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') update();
-});
+initializeTabRegistry();
 
 // ------------------------------------------------------------
 // 5. Initialization & sanity checks
@@ -1187,23 +549,6 @@ document.addEventListener('keydown', (e) => {
   });
   const layout = calculateLayout(ctx);
   console.assert(layout.counts.across >= 1 && layout.counts.down >= 1, 'Counts should be >=1 with defaults');
-  const initialUnits = currentUnitsSelection;
-  const alternateUnits = initialUnits === 'in' ? 'mm' : 'in';
-  const snapshot = numericInputSelectors
-    .map((selector) => {
-      const el = $(selector);
-      if (!el) return null;
-      return { selector, value: el.value, step: el.getAttribute('step') };
-    })
-    .filter(Boolean);
-  convertInputs(initialUnits, alternateUnits);
-  convertInputs(alternateUnits, initialUnits);
-  const mismatches = snapshot.filter(({ selector, value, step }) => {
-    const el = $(selector);
-    if (!el) return false;
-    return el.value !== value || el.getAttribute('step') !== step;
-  });
-  console.assert(mismatches.length === 0, 'Unit toggles should preserve numeric values and steps');
 })();
 
 update();

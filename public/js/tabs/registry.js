@@ -34,12 +34,12 @@ const resolveTabElements = (preferredKey) => {
   return { key: null, trigger: null, panel: null };
 };
 
-export function registerTab(key, module) {
+export function registerTab(key, module, context = {}) {
   if (!key) return;
   tabModules.set(key, module ?? {});
   const registeredModule = tabModules.get(key);
   if (registeredModule && typeof registeredModule.onRegister === 'function') {
-    registeredModule.onRegister({ key, activateTab });
+    registeredModule.onRegister({ key, activateTab, ...context });
   }
 }
 
