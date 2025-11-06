@@ -25,6 +25,15 @@ import { drawSVG } from '../rendering/svg-preview-renderer.js';
 
 const fmtIn = (inches) => `${inches.toFixed(3)} in / ${inchesToMillimeters(inches).toFixed(2)} mm`;
 
+function updateDocCountField(selector, count) {
+  const el = $(selector);
+  if (!el) return;
+  if (el.dataset.autoActive === 'false') return;
+  el.dataset.autoActive = 'true';
+  el.dataset.autoValue = String(count);
+  el.value = String(count);
+}
+
 function currentInputs() {
   const units = $('#units').value;
   const u = (v) => (units === 'mm' ? (Number(v) || 0) / MM_PER_INCH : Number(v) || 0);
@@ -102,6 +111,9 @@ export function update() {
     perforationVertical: inp.perfV,
   });
   const programSequence = calculateProgramSequence(layout);
+
+  updateDocCountField('#forceAcross', layout.counts.across);
+  updateDocCountField('#forceDown', layout.counts.down);
 
   $('#vAcross').textContent = layout.counts.across;
   $('#vDown').textContent = layout.counts.down;

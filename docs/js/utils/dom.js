@@ -128,6 +128,9 @@ export const readNumber = (selector) => {
 export const readIntOptional = (selector) => {
   const el = $(selector);
   const raw = (el?.value || '').trim();
+  if (el?.dataset?.autoActive === 'true') {
+    return null;
+  }
   if (raw === '') return null;
   const n = Math.max(1, Math.floor(Number(raw)));
   return Number.isFinite(n) ? n : null;

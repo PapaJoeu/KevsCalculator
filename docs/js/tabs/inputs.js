@@ -12,6 +12,7 @@ import { hydrateTabPanel } from './registry.js';
 
 const TAB_KEY = 'inputs';
 const marginInputSelectors = ['#mTop', '#mRight', '#mBottom', '#mLeft'];
+const docCountSelectors = ['#forceAcross', '#forceDown'];
 const numericInputSelectors = [
   '#sheetW',
   '#sheetH',
@@ -184,6 +185,27 @@ function setAutoMarginMode(enabled) {
     } else {
       delete el.dataset.auto;
     }
+  });
+}
+
+function syncDocCountStateFromValue(el) {
+  if (!el) return;
+  const trimmed = (el.value || '').trim();
+  if (trimmed === '') {
+    el.dataset.autoActive = 'true';
+    el.dataset.autoValue = '';
+  } else {
+    el.dataset.autoActive = 'false';
+    delete el.dataset.autoValue;
+  }
+}
+
+function resetDocCountState() {
+  docCountSelectors.forEach((selector) => {
+    const el = $(selector);
+    if (!el) return;
+    el.value = '';
+    syncDocCountStateFromValue(el);
   });
 }
 
@@ -373,13 +395,15 @@ function applyDefaultInputs() {
   setValue('#npBottom', nonPrintable.bottom);
   setValue('#npLeft', nonPrintable.left);
 
-  ['#mTop', '#mRight', '#mBottom', '#mLeft', '#forceAcross', '#forceDown', '#scoresV', '#scoresH', '#perfV', '#perfH'].forEach(
+  ['#mTop', '#mRight', '#mBottom', '#mLeft', '#scoresV', '#scoresH', '#perfV', '#perfH'].forEach(
     (selector) => {
       const el = $(selector);
       if (!el) return;
       el.value = '';
     }
   );
+
+  resetDocCountState();
 
   getStatus()('');
   applyNumericInputUnits(units);
@@ -414,6 +438,18 @@ function attachMarginListeners() {
         setAutoMarginMode(false);
       })
     );
+  });
+}
+
+function attachDocCountListeners() {
+  docCountSelectors.forEach((selector) => {
+    const el = $(selector);
+    if (!el) return;
+    syncDocCountStateFromValue(el);
+    el.addEventListener('input', () => {
+      syncDocCountStateFromValue(el);
+      getUpdate()();
+    });
   });
 }
 
@@ -501,6 +537,7 @@ function init(context = {}) {
   if (initialized) return;
   setAutoMarginMode(autoMarginMode);
   attachMarginListeners();
+  attachDocCountListeners();
   attachUnitChangeListener($('#units'));
   attachPresetDropdownHandlers();
   attachActionButtons();
