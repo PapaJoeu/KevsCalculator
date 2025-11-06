@@ -13,45 +13,61 @@
 -->
 <section class="content-section sheet-preview-visualizer stack">
   <div class="sheet-preview-container stack">
-    <div class="visualizer-visibility-toggles layer-visibility-toolbar print-hidden">
-      <label>
-        <input class="layer-visibility-toggle-input" type="checkbox" data-layer="layout" checked />
-        <span>Layout Area</span>
-      </label>
-      <label>
-        <input class="layer-visibility-toggle-input" type="checkbox" data-layer="docs" checked />
-        <span>Documents</span>
-      </label>
-      <label>
-        <input class="layer-visibility-toggle-input" type="checkbox" data-layer="nonPrintable" checked />
-        <span>Non-Printable Area</span>
-      </label>
-      <label>
-        <input class="layer-visibility-toggle-input" type="checkbox" data-layer="cuts" checked />
-        <span>Cuts</span>
-      </label>
-      <label>
-        <input class="layer-visibility-toggle-input" type="checkbox" data-layer="slits" checked />
-        <span>Slits</span>
-      </label>
-      <label>
-        <input class="layer-visibility-toggle-input" type="checkbox" data-layer="scores" checked />
-        <span>Scores</span>
-      </label>
-      <label>
-        <input class="layer-visibility-toggle-input" type="checkbox" data-layer="perforations" checked />
-        <span>Perforations</span>
-      </label>
-    </div>
-    <div class="sheet-preview-stage"><svg id="svg" width="960" height="600" viewBox="0 0 960 600" aria-label="sheet preview"></svg></div>
-    <div class="sheet-preview-legend print-hidden">
-      <span><i class="legend-color-swatch legend-swatch-layout-area"></i>Layout Area</span>
-      <span><i class="legend-color-swatch legend-swatch-documents"></i>Documents</span>
-      <span><i class="legend-color-swatch legend-swatch-non-printable"></i>Non-Printable Area</span>
-      <span><i class="legend-color-swatch legend-swatch-cuts"></i>Cuts</span>
-      <span><i class="legend-color-swatch legend-swatch-slits"></i>Slits</span>
-      <span><i class="legend-color-swatch legend-swatch-scores"></i>Scores</span>
-      <span><i class="legend-color-swatch legend-swatch-perforations"></i>Perforations</span>
+    <div class="sheet-preview-layout">
+      <div class="sheet-preview-stage"><svg id="svg" width="960" height="600" viewBox="0 0 960 600" aria-label="sheet preview"></svg></div>
+      <aside class="layer-visibility-panel print-hidden" aria-label="Layer visibility">
+        <div class="visualizer-visibility-toggles">
+          <label class="layer-visibility-option" data-layer="layout">
+            <input class="layer-visibility-toggle-input" type="checkbox" data-layer="layout" checked />
+            <span class="layer-visibility-label">
+              <i class="legend-color-swatch legend-swatch-layout-area" aria-hidden="true"></i>
+              <span>Layout Area</span>
+            </span>
+          </label>
+          <label class="layer-visibility-option" data-layer="docs">
+            <input class="layer-visibility-toggle-input" type="checkbox" data-layer="docs" checked />
+            <span class="layer-visibility-label">
+              <i class="legend-color-swatch legend-swatch-documents" aria-hidden="true"></i>
+              <span>Documents</span>
+            </span>
+          </label>
+          <label class="layer-visibility-option" data-layer="nonPrintable">
+            <input class="layer-visibility-toggle-input" type="checkbox" data-layer="nonPrintable" checked />
+            <span class="layer-visibility-label">
+              <i class="legend-color-swatch legend-swatch-non-printable" aria-hidden="true"></i>
+              <span>Non-Printable Area</span>
+            </span>
+          </label>
+          <label class="layer-visibility-option" data-layer="cuts">
+            <input class="layer-visibility-toggle-input" type="checkbox" data-layer="cuts" checked />
+            <span class="layer-visibility-label">
+              <i class="legend-color-swatch legend-swatch-cuts" aria-hidden="true"></i>
+              <span>Cuts</span>
+            </span>
+          </label>
+          <label class="layer-visibility-option" data-layer="slits">
+            <input class="layer-visibility-toggle-input" type="checkbox" data-layer="slits" checked />
+            <span class="layer-visibility-label">
+              <i class="legend-color-swatch legend-swatch-slits" aria-hidden="true"></i>
+              <span>Slits</span>
+            </span>
+          </label>
+          <label class="layer-visibility-option" data-layer="scores">
+            <input class="layer-visibility-toggle-input" type="checkbox" data-layer="scores" checked />
+            <span class="layer-visibility-label">
+              <i class="legend-color-swatch legend-swatch-scores" aria-hidden="true"></i>
+              <span>Scores</span>
+            </span>
+          </label>
+          <label class="layer-visibility-option" data-layer="perforations">
+            <input class="layer-visibility-toggle-input" type="checkbox" data-layer="perforations" checked />
+            <span class="layer-visibility-label">
+              <i class="legend-color-swatch legend-swatch-perforations" aria-hidden="true"></i>
+              <span>Perforations</span>
+            </span>
+          </label>
+        </div>
+      </aside>
     </div>
   </div>
 </section>
