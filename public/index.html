@@ -186,19 +186,20 @@
           <section id="tab-print">
             <div class="row">
               <div class="card">
-                <h3>Print Summary</h3>
-                <p class="muted">Choose a page size. We inject an <code>@page</code> rule, then open print.</p>
-                <div class="toolbar no-print"><button class="btn" id="btnPrintLetter">Print — Letter</button><button class="btn" id="btnPrint1218">Print — 12×18</button></div>
-                <ul>
-                  <li><b>Sheet</b>: <span id="pSheet">—</span></li>
-                  <li><b>Doc</b>: <span id="pDoc">—</span></li>
-                  <li><b>Counts</b>: <span id="pCounts">—</span></li>
-                  <li><b>Gutter</b>: <span id="pGutter">—</span></li>
-                  <li><b>Margins</b>: <span id="pMargins">—</span></li>
-                </ul>
+                <h3>Summary Snapshot</h3>
+                <p class="muted">Review the calculated layout details without opening a print dialog.</p>
+                <div class="summary">
+                  <div>Sheet: <span class="v" id="pSheet">—</span></div>
+                  <div>Doc: <span class="v" id="pDoc">—</span></div>
+                  <div>Counts: <span class="v" id="pCounts">—</span></div>
+                  <div>Gutter: <span class="v" id="pGutter">—</span></div>
+                  <div>Margins: <span class="v" id="pMargins">—</span></div>
+                </div>
               </div>
-              <div class="card"><h3>What prints?</h3>
-                <p class="muted">Summary cards and finishing tables. Inputs/tabs are hidden.</p>
+              <div class="card">
+                <h3>What prints?</h3>
+                <p class="muted">Summary cards and finishing tables remain available for browser printing.</p>
+                <p class="muted">Use this tab as a quick reference for layout specs shared with production.</p>
               </div>
             </div>
             <div class="print-only" id="printTables"></div>

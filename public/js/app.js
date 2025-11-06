@@ -469,25 +469,6 @@ $('#units').addEventListener('change', (e) => {
 $('#calcBtn').addEventListener('click', update);
 $('#resetBtn').addEventListener('click', () => location.reload());
 
-function withPageSize(wIn, hIn) {
-  const id = 'page-size-style';
-  let tag = document.getElementById(id);
-  if (!tag) {
-    tag = document.createElement('style');
-    tag.id = id;
-    document.head.appendChild(tag);
-  }
-  tag.textContent = `@page{ size: ${wIn}in ${hIn}in; margin: 12mm; }`;
-}
-$('#btnPrintLetter').addEventListener('click', () => {
-  withPageSize(8.5, 11);
-  window.print();
-});
-$('#btnPrint1218').addEventListener('click', () => {
-  withPageSize(12, 18);
-  window.print();
-});
-
 $('#applyScores').addEventListener('click', update);
 
 document.addEventListener('keydown', (e) => {
