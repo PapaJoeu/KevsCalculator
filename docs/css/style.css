@@ -335,6 +335,16 @@ h3 {
   .input-unit-controls::after {
     display: none;
   }
+
+  /* Stack the preview controls below the stage on narrow screens. */
+  .sheet-preview-layout {
+    flex-direction: column;
+  }
+
+  .layer-visibility-panel {
+    width: 100%;
+    max-width: none;
+  }
 }
 
 /* =============================================
@@ -433,43 +443,6 @@ select {
   align-items: center;
   flex-wrap: wrap;
   margin: 0;
-}
-
-/* This modifier styles the preview toggle controls with a darker backdrop and padding. */
-.layer-visibility-toolbar {
-  justify-content: flex-start;
-  padding: 8px 10px;
-  background: var(--surface-panel-overlay);
-  border: 1px solid var(--border-overlay);
-  border-radius: 10px;
-}
-
-/* These labels format each individual layer toggle option. */
-.layer-visibility-toolbar label {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 6px 10px;
-  border-radius: 8px;
-  border: 1px solid var(--border-overlay);
-  background: var(--surface-control);
-  color: var(--text-primary);
-  cursor: pointer;
-  font-size: 0.9rem;
-}
-
-/* Hover states highlight the label border to reinforce interactivity. */
-.layer-visibility-toolbar label:hover {
-  border-color: var(--border-highlight);
-  background: var(--surface-control-hover);
-}
-
-/* Checkbox styling aligns with the neon accent of the preview. */
-.layer-visibility-toolbar input[type="checkbox"] {
-  margin: 0;
-  width: 16px;
-  height: 16px;
-  accent-color: var(--accent-primary);
 }
 
 /* =============================================
@@ -705,6 +678,12 @@ select {
  * describing key color codes.
  * ============================================= */
 /* This stage centers the SVG preview and provides a dark surround. */
+.sheet-preview-layout {
+  display: flex;
+  gap: 16px;
+  align-items: stretch;
+}
+
 .sheet-preview-stage {
   background: var(--surface-panel-elevated);
   border: 1px solid var(--border-strong);
@@ -713,6 +692,113 @@ select {
   align-items: center;
   justify-content: center;
   min-height: 360px;
+  flex: 1;
+}
+
+.layer-visibility-panel {
+  background: var(--surface-panel-overlay);
+  border: 1px solid var(--border-overlay);
+  border-radius: 12px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 220px;
+  max-width: 260px;
+  box-shadow: 0 12px 24px var(--shadow-elevated);
+}
+
+.layer-visibility-panel .visualizer-visibility-toggles {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: stretch;
+}
+
+.layer-visibility-option {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 10px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.layer-visibility-option .layer-visibility-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid var(--border-overlay);
+  background: var(--surface-control);
+  color: var(--text-muted);
+  transition: border-color 0.2s ease, background 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.layer-visibility-option .layer-visibility-label .legend-color-swatch {
+  flex-shrink: 0;
+}
+
+.layer-visibility-option:hover .layer-visibility-label {
+  border-color: var(--border-highlight);
+  background: var(--surface-control-hover);
+  color: var(--text-secondary);
+}
+
+.layer-visibility-option input[type="checkbox"] {
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 6px;
+  border: 1px solid var(--border-overlay);
+  background: var(--surface-control);
+  display: grid;
+  place-items: center;
+  transition: background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+  cursor: pointer;
+}
+
+.layer-visibility-option input[type="checkbox"]::after {
+  content: "";
+  width: 8px;
+  height: 12px;
+  border: 2px solid var(--surface-panel);
+  border-top: 0;
+  border-left: 0;
+  transform: rotate(45deg) scale(0);
+  transform-origin: center;
+  transition: transform 0.18s ease;
+}
+
+.layer-visibility-option input[type="checkbox"]:focus-visible {
+  outline: 2px solid var(--accent-primary);
+  outline-offset: 2px;
+}
+
+.layer-visibility-option input[type="checkbox"]:checked {
+  background: var(--accent-primary);
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent-primary) 45%, transparent);
+}
+
+.layer-visibility-option input[type="checkbox"]:checked::after {
+  transform: rotate(45deg) scale(1);
+}
+
+.layer-visibility-option input[type="checkbox"]:checked + .layer-visibility-label {
+  border-color: color-mix(in srgb, var(--accent-primary) 60%, var(--border-overlay));
+  background: color-mix(in srgb, var(--accent-primary) 16%, var(--surface-control));
+  color: var(--text-primary);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent-primary) 35%, transparent);
+}
+
+.layer-visibility-option input[type="checkbox"]:checked + .layer-visibility-label span {
+  color: inherit;
 }
 
 /* This legend lists the preview layer colors and their meanings. */
