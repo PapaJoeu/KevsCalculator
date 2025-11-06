@@ -15,6 +15,8 @@ import {
   clampToZero,
   toNumber,
   inchesToMillimeters,
+  formatMeasurement,
+  formatMeasurementValue,
 } from './utils/units.js';
 import {
   $,
@@ -320,7 +322,7 @@ function update() {
     });
     layout = calculateLayout(ctx);
     layout = applyCountOverrides(layout, inp.forceAcross, inp.forceDown);
-    const f = (inches) => (inp.units === "mm" ? (inches * MM_PER_INCH).toFixed(3) : inches.toFixed(3));
+    const f = (inches) => formatMeasurementValue(inches, inp.units, 3);
     $("#mTop").value = f(topMargin);
     $("#mRight").value = f(rightMargin);
     $("#mBottom").value = f(bottomMargin);
@@ -340,11 +342,13 @@ function update() {
   $("#vAcross").textContent = layout.counts.across;
   $("#vDown").textContent = layout.counts.down;
   $("#vTotal").textContent = layout.counts.across * layout.counts.down;
-  $("#vLayout").textContent = `${layout.layoutArea.width.toFixed(3)} × ${layout.layoutArea.height.toFixed(3)} in`;
-  $("#vOrigin").textContent = `x ${layout.layoutArea.originX.toFixed(3)}, y ${layout.layoutArea.originY.toFixed(3)} in`;
-  $("#vRealMargins").textContent = `L ${layout.realizedMargins.left.toFixed(3)}, T ${layout.realizedMargins.top.toFixed(3)}, R ${layout.realizedMargins.right.toFixed(3)}, B ${layout.realizedMargins.bottom.toFixed(3)} in`;
-  $("#vUsed").textContent = `${layout.usage.horizontal.usedSpan.toFixed(3)} × ${layout.usage.vertical.usedSpan.toFixed(3)} in`;
-  $("#vTrail").textContent = `${layout.usage.horizontal.trailingMargin.toFixed(3)} × ${layout.usage.vertical.trailingMargin.toFixed(3)} in`;
+  const summaryPrecision = inp.units === 'mm' ? 2 : 3;
+  const formatSummary = (value) => formatMeasurement(value, inp.units, summaryPrecision);
+  $("#vLayout").textContent = `${formatSummary(layout.layoutArea.width)} × ${formatSummary(layout.layoutArea.height)}`;
+  $("#vOrigin").textContent = `x ${formatSummary(layout.layoutArea.originX)}, y ${formatSummary(layout.layoutArea.originY)}`;
+  $("#vRealMargins").textContent = `L ${formatSummary(layout.realizedMargins.left)}, T ${formatSummary(layout.realizedMargins.top)}, R ${formatSummary(layout.realizedMargins.right)}, B ${formatSummary(layout.realizedMargins.bottom)}`;
+  $("#vUsed").textContent = `${formatSummary(layout.usage.horizontal.usedSpan)} × ${formatSummary(layout.usage.vertical.usedSpan)}`;
+  $("#vTrail").textContent = `${formatSummary(layout.usage.horizontal.trailingMargin)} × ${formatSummary(layout.usage.vertical.trailingMargin)}`;
 
   fillTable($("#tblCuts tbody"), fin.cuts, 'cut');
   fillTable($("#tblSlits tbody"), fin.slits, 'slit');

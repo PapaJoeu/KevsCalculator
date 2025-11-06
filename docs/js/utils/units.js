@@ -22,3 +22,18 @@ export const formatValueForUnits = (value, units) => {
   if (!Number.isFinite(value)) return '';
   return Number(value.toFixed(4)).toString();
 };
+
+export const getUnitsLabel = (units) => (units === 'mm' ? 'mm' : 'in');
+
+export const formatMeasurementValue = (value, units, precision) => {
+  if (!Number.isFinite(value)) return '';
+  const decimals = Number.isFinite(precision) ? precision : units === 'mm' ? 2 : 3;
+  const converted = units === 'mm' ? value * MM_PER_INCH : value;
+  return converted.toFixed(decimals);
+};
+
+export const formatMeasurement = (value, units, precision) => {
+  const formatted = formatMeasurementValue(value, units, precision);
+  if (formatted === '') return '';
+  return `${formatted} ${getUnitsLabel(units)}`;
+};
