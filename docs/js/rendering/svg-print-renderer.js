@@ -3,6 +3,33 @@ import { applyLayerAttributes } from './svg-layer-attributes.js';
 const SVG_NS = 'http://www.w3.org/2000/svg';
 const DEFAULT_LAYERS = ['sheet', 'nonPrintable', 'layout', 'docs', 'cuts', 'slits', 'scores', 'perforations', 'holes'];
 
+const INLINE_STYLE_MARKER = 'data-print-style';
+const PRINTABLE_SVG_STYLES = `
+  .svg-line { stroke-linecap: round; }
+  .svg-sheet-outline { fill: none; stroke: #334155; stroke-width: 1.5; }
+  .svg-nonprintable-region { fill: rgba(249, 115, 22, 0.28); stroke: none; }
+  .svg-printable-outline { fill: none; stroke: #f97316; stroke-width: 1; }
+  .svg-layout-area { fill: none; stroke: #38bdf8; stroke-width: 1.5; }
+  .svg-document-area { fill: rgba(94, 234, 212, 0.18); stroke: #5eead4; stroke-width: 1; }
+  .svg-cut-line { stroke: #22d3ee; stroke-width: 1; }
+  .svg-slit-line { stroke: #facc15; stroke-width: 1; }
+  .svg-score-line { stroke: #a855f7; stroke-width: 1; }
+  .svg-perforation-line { stroke: #fb7185; stroke-width: 1; stroke-dasharray: 6 4; }
+  .svg-hole { fill: rgba(37, 99, 235, 0.12); stroke: #2563eb; stroke-width: 1; }
+`;
+
+function ensureInlineStyles(svg) {
+  if (!svg) return;
+  const existing = svg.querySelector(`style[${INLINE_STYLE_MARKER}="true"]`);
+  if (existing) return;
+
+  const styleEl = createSvgElement('style');
+  styleEl.setAttribute('type', 'text/css');
+  styleEl.setAttribute(INLINE_STYLE_MARKER, 'true');
+  styleEl.textContent = PRINTABLE_SVG_STYLES.trim();
+  svg.insertBefore(styleEl, svg.firstChild);
+}
+
 function createSvgElement(tag) {
   return document.createElementNS(SVG_NS, tag);
 }
@@ -69,6 +96,8 @@ export function createPrintableSvg(layout, finishing, options = {}) {
   svg.setAttribute('height', `${height}in`);
   svg.setAttribute('aria-label', 'Printable layout visualizer');
   svg.classList.add('print-preview-svg');
+
+  ensureInlineStyles(svg);
 
   const drawRect = (x, y, rectWidth, rectHeight, { layer, classNames } = {}) => {
     const rect = createSvgElement('rect');
