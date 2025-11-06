@@ -1,8 +1,13 @@
 <!--
-  Fragment: App Header
-  Role: Provides the primary title block and introductory copy for the calculator UI shell.
-  Requires: Shared layout styles from css/style.css (layout-app-shell, layout-app-header).
-  Expected container: Replace the header slot within .layout-app-shell.
+  Load timing:
+    - Injected by docs/js/utils/fragment-loader.js during docs/js/bootstrap.js when a
+      [data-partial="app-header"] placeholder is detected (before app.js initializes).
+  Key selectors:
+    - <header class="layout-app-header"> root element styled by layout-app-shell rules.
+    - .text-muted-detail for the supporting tagline copy.
+  JS dependencies:
+    - No direct scripts target this fragment; it simply occupies the shell header space
+      once the fragment loader swaps it in.
 -->
 <header class="layout-app-header">
   <h1>Kevin’s Bitchin’ Print Calculator</h1>

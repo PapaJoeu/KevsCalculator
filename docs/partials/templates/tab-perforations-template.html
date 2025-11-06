@@ -1,19 +1,14 @@
 <!--
-  Tab template: Perforations (docs/js/tabs/perforations.js)
-  Purpose: Mirrors the scoring interface for configuring perforation runs applied to the layout.
-  JS entry points:
-    • Preset buttons (#perfPresetVBifold, #perfPresetVTrifold, #perfPresetVCustom, #perfPresetHBifold, #perfPresetHTrifold, #perfPresetHCustom).
-    • Text fields #perfV and #perfH for CSV offsets.
-    • Action button #applyPerforations submits the offsets.
-    • Tables #tblPerforationsH and #tblPerforationsV display computed positions.
-  Dynamic elements:
-    • Preset controls toggle selected state similar to the scores tab.
-    • Input fields update when presets fire or when offsets are applied.
-    • Result tables are regenerated whenever perforation data changes.
-  Hydration notes:
-    • Hydrated on module registration to ensure controls exist before event listeners attach.
-    • Layout structure parallels tab-scores-template for consistent styling.
+  Load timing:
+    - Cloned into #tab-perforations when docs/js/tabs/registry.hydrateTabPanel('perforations') runs after bootstrap template loading.
+  Key selectors:
+    - Preset buttons (#perfPresetVBifold, #perfPresetVTrifold, #perfPresetVCustom, #perfPresetHBifold, #perfPresetHTrifold, #perfPresetHCustom).
+    - Offset inputs #perfV and #perfH, apply button #applyPerforations, and result tables #tblPerforationsH / #tblPerforationsV.
+  JS dependencies:
+    - docs/js/tabs/perforations.js attaches preset logic, input locking, and apply handlers and triggers layout recalculation.
+    - docs/js/utils/dom.js table helpers consume the tables when perforation measurements are rendered.
 -->
+
 <template id="tab-perforations-template">
   <div class="finishing-score-pane">
     <div class="finishing-score-layout">

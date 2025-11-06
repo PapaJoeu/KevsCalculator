@@ -1,8 +1,15 @@
 <!--
-  Fragment: Sheet Preview Visualizer
-  Role: Contains the live SVG preview, layer visibility toggles, and legend for the sheet layout visualization.
-  Requires: Layout and preview styles from css/style.css and tabs/base.css plus dynamic rendering from js/app.js.
-  Expected container: Replace the <section> reserved for .sheet-preview-visualizer within .layout-app-shell.
+  Load timing:
+    - Injected by docs/js/utils/fragment-loader.js during docs/js/bootstrap.js when a
+      [data-partial="visualizer"] placeholder is resolved ahead of app.js boot.
+  Key selectors:
+    - .sheet-preview-visualizer section housing the live preview UI.
+    - .layer-visibility-toggle-input checkboxes for layer toggles.
+    - .sheet-preview-stage > #svg used as the drawing surface.
+    - .sheet-preview-legend entries styled for layer color references.
+  JS dependencies:
+    - docs/js/tabs/summary.js hydrates visibility toggles via get/setLayerVisibility helpers.
+    - docs/js/app.js and docs/js/utils/dom.js query #svg to render and update the sheet preview.
 -->
 <section class="content-section sheet-preview-visualizer">
   <div class="sheet-preview-container">

@@ -1,14 +1,12 @@
 <!--
-  Tab template: Warnings (docs/js/tabs/warnings.js)
-  Purpose: Placeholder surface for production warnings and manual notes.
-  JS entry points:
-    • Hydrated purely so the module can register the tab; there are no dynamic selectors yet.
-  Dynamic elements:
-    • Copy is static today but the tab script may insert warning items in future revisions.
-  Hydration notes:
-    • Maintained primarily for parity with other tabs—the module simply hydrates to mark the panel as ready.
-    • Container classes align with layout spacing utilities shared across tabs.
+  Load timing:
+    - Cloned into #tab-warnings when docs/js/tabs/registry.hydrateTabPanel('warnings') executes during the tab module bootstrap.
+  Key selectors:
+    - .data-card layout wrapper used for spacing, with no interactive IDs yet.
+  JS dependencies:
+    - docs/js/tabs/warnings.js currently hydrates only to mark readiness; future warning injections should target this card body.
 -->
+
 <template id="tab-warnings-template">
   <div class="data-card layout-stack">
     <h2>Warnings</h2>

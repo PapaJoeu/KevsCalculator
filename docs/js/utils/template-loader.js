@@ -1,3 +1,14 @@
+/**
+ * Lazy template loader supporting tab hydration.
+ *
+ * Adding a new tab/template:
+ *   1. Save the markup under docs/partials/templates/<name>.html with a
+ *      <template id="name"> wrapper and documentation block.
+ *   2. Reference the template from the corresponding tab panel via
+ *      data-tab-template="name" in index.html (or another container).
+ *   3. Ensure the tab module calls hydrateTabPanel('<tab-key>') so the registry
+ *      clones the template before attaching event handlers.
+ */
 const templateUrl = (name) => new URL(`../partials/templates/${name}.html`, import.meta.url);
 
 async function fetchTemplateMarkup(name) {

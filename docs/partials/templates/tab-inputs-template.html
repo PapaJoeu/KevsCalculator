@@ -1,21 +1,17 @@
 <!--
-  Tab template: Inputs (docs/js/tabs/inputs.js)
-  Purpose: Provides all controls for defining sheet, document, gutter, margin, and safety parameters.
-  JS entry points:
-    • <select id="units"> toggled by inputsTab to switch unit systems and reformat values.
-    • Preset selectors (#sheetPresetSelect, #documentPresetSelect, #gutterPresetSelect) populated via preset data.
-    • Numeric inputs (#sheetW, #sheetH, #docW, #docH, #gutH, #gutV, #mTop, #mRight, #mBottom, #mLeft, #npTop, #npRight, #npBottom, #npLeft) read and updated by the inputs module.
-    • Action buttons (#calcBtn, #resetBtn) wired to update/reset handlers.
-    • Status readout (#status) updated with contextual messaging.
-  Dynamic elements:
-    • Placeholder options for preset <select> elements rewritten with available presets and remembered selections.
-    • Margin inputs toggled into "auto" mode and cleared when automatic margin mode is active.
-    • All numeric inputs are rewritten when units change or presets are applied.
-    • The status span is used for transient feedback about applied presets and calculations.
-  Hydration notes:
-    • registry.hydrateTabPanel('inputs') clones this template on-demand when the tab module initializes.
-    • IDs and class names are referenced heavily by inputs.js utilities and must remain stable.
+  Load timing:
+    - Cloned into #tab-inputs by docs/js/tabs/registry.hydrateTabPanel('inputs')
+      after docs/js/bootstrap.js calls loadTemplates for matching [data-tab-template] placeholders.
+  Key selectors:
+    - #units for unit switching and preset selects (#sheetPresetSelect, #documentPresetSelect, #gutterPresetSelect).
+    - Numeric inputs for sheet, document, gutter, margin, and non-printable values (#sheetW, #sheetH, #docW, #docH, #gutH, #gutV,
+      #forceAcross, #forceDown, #mTop, #mRight, #mBottom, #mLeft, #npTop, #npRight, #npBottom, #npLeft).
+    - Action controls #calcBtn, #resetBtn, and status readout #status within .input-action-toolbar.
+  JS dependencies:
+    - docs/js/tabs/inputs.js binds event handlers, populates presets, toggles auto-margin mode, and reads each numeric field.
+    - docs/js/app.js consumes the latest input values via the inputs tab update callback when recalculating layouts.
 -->
+
 <template id="tab-inputs-template">
   <div class="input-layout-panel">
     <div class="input-panel-header">

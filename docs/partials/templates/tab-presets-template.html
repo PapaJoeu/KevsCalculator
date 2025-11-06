@@ -1,15 +1,13 @@
 <!--
-  Tab template: Presets (docs/js/tabs/presets.js)
-  Purpose: Presents curated production presets that pre-fill the inputs tab with a single action.
-  JS entry points:
-    • Buttons marked with data-layout-preset apply preset payloads through presetsTab.
-  Dynamic elements:
-    • The presets tab highlights currently applied preset via runtime interactions (button states managed externally).
-    • Layout preset cards are static markup but button clicks trigger layout computations.
-  Hydration notes:
-    • Hydrated once when the presets module registers so action buttons exist before event binding.
-    • Button dataset values must match keys in docs/js/data/layout-presets.js.
+  Load timing:
+    - Cloned into #tab-presets through docs/js/tabs/registry.hydrateTabPanel('presets') once bootstrap has cached the templates.
+  Key selectors:
+    - .layout-preset-card sections with buttons bearing data-layout-preset identifiers.
+  JS dependencies:
+    - docs/js/tabs/presets.js binds click handlers to each data-layout-preset button and forwards payloads to the inputs tab.
+    - docs/js/data/layout-presets.js supplies the configuration objects keyed by those dataset values.
 -->
+
 <template id="tab-presets-template">
   <div class="layout-preset-pane">
     <div class="data-card layout-stack layout-preset-introduction">
