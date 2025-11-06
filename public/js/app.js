@@ -1129,6 +1129,12 @@ setHorizontalPresetState('custom');
 setVerticalPerforationPresetState('custom');
 setHorizontalPerforationPresetState('custom');
 const UNIT_PRECISION = { in: 3, mm: 2 };
+const trimTrailingZeros = (str) => {
+  if (!str.includes('.')) return str;
+  const stripped = str.replace(/(\.\d*?[1-9])0+$/, '$1').replace(/\.0+$/, '');
+  return stripped === '' ? '0' : stripped;
+};
+const formatUnitValue = (value, precision) => trimTrailingZeros(Number(value || 0).toFixed(precision));
 const numericInputSelectors = [
   '#sheetW',
   '#sheetH',
@@ -1156,29 +1162,69 @@ marginInputSelectors.forEach((selector) => {
 
 setAutoMarginMode(autoMarginMode);
 
-function convertInputs(fromUnits, toUnits) {
-  if (fromUnits === toUnits) return;
-  const factor =
-    fromUnits === 'in' && toUnits === 'mm'
-      ? MM_PER_INCH
-      : fromUnits === 'mm' && toUnits === 'in'
-      ? 1 / MM_PER_INCH
-      : null;
-  if (!factor) return;
-  const precision = UNIT_PRECISION[toUnits] ?? 3;
-  numericInputSelectors.forEach((selector) => {
-    const el = $(selector);
-    if (!el) return;
-    const raw = el.value;
-    if (raw === '' || raw == null) return;
-    const num = Number(raw);
-    if (!Number.isFinite(num)) return;
-    const converted = num * factor;
-    el.value = converted.toFixed(precision);
+function applyNumericInputAttributes(el, units) {
+  const targetUnits = units === 'mm' ? 'mm' : 'in';
+  const attributes = [
+    ['step', el.dataset.inchStep],
+    ['min', el.dataset.inchMin],
+    ['max', el.dataset.inchMax],
+  ];
+  attributes.forEach(([attr, baseValue]) => {
+    if (baseValue == null || baseValue === '') {
+      el.removeAttribute(attr);
+      return;
+    }
+    if (targetUnits === 'in') {
+      el.setAttribute(attr, baseValue);
+      return;
+    }
+    const numeric = Number(baseValue);
+    if (!Number.isFinite(numeric)) return;
+    el.setAttribute(attr, formatUnitValue(numeric * MM_PER_INCH, 4));
   });
 }
 
+function applyNumericInputUnits(units) {
+  numericInputSelectors.forEach((selector) => {
+    const el = $(selector);
+    if (!el) return;
+    applyNumericInputAttributes(el, units);
+  });
+}
+
+function convertInputs(fromUnits, toUnits) {
+  if (!toUnits) return;
+  const precision = UNIT_PRECISION[toUnits] ?? 3;
+  if (fromUnits !== toUnits) {
+    const factor =
+      fromUnits === 'in' && toUnits === 'mm'
+        ? MM_PER_INCH
+        : fromUnits === 'mm' && toUnits === 'in'
+        ? 1 / MM_PER_INCH
+        : null;
+    if (factor) {
+      numericInputSelectors.forEach((selector) => {
+        const el = $(selector);
+        if (!el) return;
+        const raw = el.value;
+        if (raw === '' || raw == null) return;
+        const num = Number(raw);
+        if (!Number.isFinite(num)) return;
+        const converted = num * factor;
+        el.value = formatUnitValue(converted, precision);
+      });
+    }
+  }
+  applyNumericInputUnits(toUnits);
+}
+
 let currentUnitsSelection = $('#units').value;
+if (currentUnitsSelection === 'in') {
+  applyNumericInputUnits(currentUnitsSelection);
+} else {
+  convertInputs('in', currentUnitsSelection);
+}
+
 $('#units').addEventListener('change', (e) => {
   const nextUnits = e.target.value;
   convertInputs(currentUnitsSelection, nextUnits);
@@ -1212,6 +1258,23 @@ document.addEventListener('keydown', (e) => {
   });
   const layout = calculateLayout(ctx);
   console.assert(layout.counts.across >= 1 && layout.counts.down >= 1, 'Counts should be >=1 with defaults');
+  const initialUnits = $('#units').value;
+  const alternateUnits = initialUnits === 'in' ? 'mm' : 'in';
+  const snapshot = numericInputSelectors
+    .map((selector) => {
+      const el = $(selector);
+      if (!el) return null;
+      return { selector, value: el.value, step: el.getAttribute('step') };
+    })
+    .filter(Boolean);
+  convertInputs(initialUnits, alternateUnits);
+  convertInputs(alternateUnits, initialUnits);
+  const mismatches = snapshot.filter(({ selector, value, step }) => {
+    const el = $(selector);
+    if (!el) return false;
+    return el.value !== value || el.getAttribute('step') !== step;
+  });
+  console.assert(mismatches.length === 0, 'Unit toggles should preserve numeric values and steps');
 })();
 
 update();
