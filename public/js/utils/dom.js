@@ -4,8 +4,11 @@ export const $$ = (selector) => Array.from(document.querySelectorAll(selector));
 const layerVisibility = {
   layout: true,
   docs: true,
+  nonPrintable: true,
   cuts: true,
+  slits: true,
   scores: true,
+  perforations: true,
 };
 
 const selectedMeasurements = new Set();

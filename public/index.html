@@ -28,20 +28,35 @@
               <span>Documents</span>
             </label>
             <label>
+              <input class="layer-visibility-toggle-input" type="checkbox" data-layer="nonPrintable" checked />
+              <span>Non-Printable Area</span>
+            </label>
+            <label>
               <input class="layer-visibility-toggle-input" type="checkbox" data-layer="cuts" checked />
-              <span>Cuts / Slits</span>
+              <span>Cuts</span>
+            </label>
+            <label>
+              <input class="layer-visibility-toggle-input" type="checkbox" data-layer="slits" checked />
+              <span>Slits</span>
             </label>
             <label>
               <input class="layer-visibility-toggle-input" type="checkbox" data-layer="scores" checked />
               <span>Scores</span>
+            </label>
+            <label>
+              <input class="layer-visibility-toggle-input" type="checkbox" data-layer="perforations" checked />
+              <span>Perforations</span>
             </label>
           </div>
           <div class="sheet-preview-stage"><svg id="svg" width="960" height="600" viewBox="0 0 960 600" aria-label="sheet preview"></svg></div>
           <div class="sheet-preview-legend print-hidden">
             <span><i class="legend-color-swatch legend-swatch-layout-area"></i>Layout Area</span>
             <span><i class="legend-color-swatch legend-swatch-documents"></i>Documents</span>
-            <span><i class="legend-color-swatch legend-swatch-cuts"></i>Cut/Slit Lines</span>
+            <span><i class="legend-color-swatch legend-swatch-non-printable"></i>Non-Printable Area</span>
+            <span><i class="legend-color-swatch legend-swatch-cuts"></i>Cuts</span>
+            <span><i class="legend-color-swatch legend-swatch-slits"></i>Slits</span>
             <span><i class="legend-color-swatch legend-swatch-scores"></i>Scores</span>
+            <span><i class="legend-color-swatch legend-swatch-perforations"></i>Perforations</span>
           </div>
         </div>
       </section>
