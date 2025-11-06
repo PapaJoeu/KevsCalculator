@@ -1,100 +1,148 @@
 /* =============================================
- * Global Styles & Theme Tokens
+ * Kev's Bitchin' Print Calculator — style.css
  * ---------------------------------------------
- * Defines the color system, typography, and
- * overall layout helpers shared across the UI.
+ * Purpose: A lean, production-focused dark UI
+ * with a simplified, print-accurate measurement
+ * palette and consistent tokens.
+ *
+ * Notes:
+ * - Colors align with common prepress conventions.
+ * - Slits/Perforations share the SCORE channel
+ *   (differentiate via line styles, not color).
+ * - All previously undefined tokens are resolved.
+ * - Includes accessibility and print polish.
+ * ============================================= */
+
+/* =============================================
+ * Root Theme Tokens
+ * ---------------------------------------------
+ * Single source of truth for colors, spacing,
+ * typography, and interaction states.
  * ============================================= */
 :root {
-  /* Surface tokens */
-  --surface-bg: #0f1115;
-  --surface-panel: #171a21;
-  --surface-panel-elevated: #0b0d12;
-  --surface-panel-overlay: #11141b;
-  --surface-control: #0d1117;
-  --surface-control-accent: #112024;
-  --surface-control-strong: #0e1b1b;
-  --surface-card: #0e1219;
-  --surface-inset: #101522;
-  --surface-tab: #111821;
+  /* -------------------------------------------------------
+     SURFACE — condensed hierarchy for dark UI
+     Keep this minimal: background, panel, overlay, control.
+  ------------------------------------------------------- */
+  --surface-bg: #0f1115;            /* main background */
+  --surface-panel: #171a21;         /* panels, cards */
+  --surface-overlay: #11141b;       /* hover/overlay shells */
+  --surface-control: #1a1f2a;       /* inputs and buttons */
 
-  /* Border tokens */
-  --border-default: #222632;
-  --border-subtle: #283041;
-  --border-strong: #1b2030;
-  --border-overlay: #1f2430;
-  --border-muted: #263041;
-  --border-highlight: #334155;
-  --border-accent: #1f8a8a;
-  --border-card: #1c2230;
-  --border-tab: #253043;
-  --border-dashed: #222233;
+  /* Derived/legacy surface aliases (used by components) */
+  --surface-panel-elevated: var(--surface-panel);
+  --surface-panel-overlay: var(--surface-overlay);
+  --surface-card: var(--surface-panel);
+  --surface-inset: color-mix(in srgb, var(--surface-panel) 80%, var(--surface-bg) 20%);
+  --surface-paper: #fff;            /* print background */
 
-  /* Text tokens */
-  --text-primary: #e6e9ef;
-  --text-secondary: #cbd5e1;
-  --text-bright: #e2e8f0;
-  --text-muted: #8892a6;
-  --text-inverse: #000;
+  /* -------------------------------------------------------
+     BORDER — simplified and practical
+     One default, one strong, one accent. Others are aliases.
+  ------------------------------------------------------- */
+  --border-default: #222632;        /* general border */
+  --border-strong: #2c3446;         /* active/selected */
+  --border-accent: #1f8a8a;         /* accent / highlight */
 
-  /* Navigation tokens */
-  --nav-text-muted: #c0c6d4;
-  --nav-text-hover: var(--text-secondary);
+  /* Derived/legacy border aliases (keep old selectors working) */
+  --border-subtle: color-mix(in srgb, var(--border-default) 70%, transparent);
+  --border-muted: var(--border-default);
+  --border-highlight: var(--border-accent);
+  --border-card: var(--border-default);
+  --border-overlay: var(--border-default);
+  --border-dashed: color-mix(in srgb, var(--border-default) 85%, transparent);
+
+  /* -------------------------------------------------------
+     TEXT — clear hierarchy
+  ------------------------------------------------------- */
+  --text-primary: #e6e9ef;          /* main text */
+  --text-secondary: #b8c0cc;        /* secondary text */
+  --text-muted: #8892a6;            /* subdued labels */
+  --text-bright: #e2e8f0;           /* used on selected/hover rows */
+  --text-inverse: #000;             /* light-on-paper */
+
+  /* -------------------------------------------------------
+     NAVIGATION — derived, consistent
+     Use the text/border tokens above.
+  ------------------------------------------------------- */
+  --nav-text-muted: var(--text-secondary);
+  --nav-text-hover: var(--accent-primary);
   --nav-text-active: var(--text-primary);
-  --nav-border: var(--border-overlay);
+  --nav-border: var(--border-default);
   --nav-border-active: var(--accent-primary);
 
-  /* Accent & status tokens */
-  --accent-primary: #5eead4;
-  --status-danger: #ef4444;
-  --status-success: #22c55e;
-  --status-warning: #f59e0b;
+  /* -------------------------------------------------------
+     ACCENT & STATUS — primary feedback colors
+  ------------------------------------------------------- */
+  --accent-primary: #5eead4;        /* highlight / focus */
+  --status-danger: #ef4444;         /* error / delete */
+  --status-success: #22c55e;        /* success */
+  --status-warning: #f59e0b;        /* warning */
 
-  /* Measurement palette */
-  --measure-layout: #38bdf8;
-  --measure-document: #5eead4;
-  --measure-margin: #f97316;
-  --measure-cut: #22d3ee;
-  --measure-slit: #facc15;
-  --measure-score: #a855f7;
-  --measure-perforation: #fb7185;
-  --measure-cut-glow: #67e8f9;
-  --measure-score-glow: #c4b5fd;
-  --measure-cut-bg-hover: color-mix(in srgb, var(--measure-cut) 12%, transparent);
-  --measure-cut-bg-selected: color-mix(in srgb, var(--measure-cut) 22%, transparent);
-  --measure-score-bg-hover: color-mix(in srgb, var(--measure-score) 12%, transparent);
-  --measure-score-bg-selected: color-mix(in srgb, var(--measure-score) 22%, transparent);
+  /* -------------------------------------------------------
+     MEASUREMENT — print-proof standards
+     Reduced to five semantic channels.
+  ------------------------------------------------------- */
+  --measure-layout: #00AEEF;        /* Cyan — sheet outline */
+  --measure-document: #00B050;      /* Green — doc bounds */
+  --measure-margin: #FFA500;        /* Orange — safe area */
+  --measure-cut: #FF0000;           /* Red — trim/die */
+  --measure-score: #800080;         /* Purple — fold/perf/slit (merged) */
+
+  /* Line styles for extra differentiation (esp. grayscale proofs) */
+  --line-cut-style: solid;          /* solid red = cut */
+  --line-score-style: dashed;       /* dashed purple = fold */
+  --line-perf-style: dotted;        /* dotted purple = perforation */
+  --line-margin-style: dashed;      /* dashed orange = margin */
+  --line-layout-style: solid;       /* thin cyan = layout */
+
+  /* Hover/selection fills (tables) */
+  --measure-cut-bg-hover: color-mix(in srgb, var(--measure-cut) 15%, transparent);
+  --measure-cut-bg-selected: color-mix(in srgb, var(--measure-cut) 25%, transparent);
+  --measure-score-bg-hover: color-mix(in srgb, var(--measure-score) 15%, transparent);
+  --measure-score-bg-selected: color-mix(in srgb, var(--measure-score) 25%, transparent);
+
+  /* Line glow colors (preview) */
+  --measure-cut-glow: #ff6666;        /* light red highlight */
+  --measure-score-glow: #c4b5fd;      /* lavender highlight */
   --measure-cut-glow-soft: color-mix(in srgb, var(--measure-cut-glow) 60%, transparent);
   --measure-score-glow-soft: color-mix(in srgb, var(--measure-score-glow) 60%, transparent);
 
-  /* Utility tokens */
-  --surface-control-hover: color-mix(in srgb, var(--surface-control) 85%, var(--text-inverse) 15%);
+  /* -------------------------------------------------------
+     Shadows
+  ------------------------------------------------------- */
   --shadow-elevated: color-mix(in srgb, var(--surface-bg) 65%, transparent);
   --shadow-deep: color-mix(in srgb, var(--text-inverse) 25%, transparent);
-  --surface-paper: #fff;
 
-  /* Layout spacing tokens */
+  /* -------------------------------------------------------
+     Spacing scales
+  ------------------------------------------------------- */
   --stack-gap-default: 12px;
   --stack-gap-tight: 8px;
   --stack-gap-snug: 6px;
   --stack-gap-comfortable: 16px;
   --stack-gap-spacious: 18px;
+
   --grid-gap-default: 12px;
   --grid-gap-tight: 8px;
   --grid-gap-snug: 6px;
   --grid-gap-comfortable: 16px;
   --grid-gap-spacious: 18px;
 
-  /* Compact spacing scale */
   --space-1: 4px;
   --space-2: 8px;
   --space-3: 12px;
   --space-4: 16px;
 
-  /* Type scale helpers */
+  /* -------------------------------------------------------
+     Type scale
+  ------------------------------------------------------- */
   --font-xs: 0.8rem;
   --font-sm: 0.9rem;
 
-  /* Legacy aliases */
+  /* -------------------------------------------------------
+     Legacy aliases (do not remove; keep old code alive)
+  ------------------------------------------------------- */
   --bg: var(--surface-bg);
   --panel: var(--surface-panel);
   --muted: var(--text-muted);
@@ -103,16 +151,19 @@
   --danger: var(--status-danger);
   --ok: var(--status-success);
   --warn: var(--status-warning);
+
+  /* -------------------------------------------------------
+     Control hover color
+  ------------------------------------------------------- */
+  --surface-control-hover: color-mix(in srgb, var(--surface-control) 85%, var(--text-inverse) 15%);
 }
 
-* {
-  box-sizing: border-box;
-}
+/* =============================================
+ * Global Resets & Base Typography
+ * ============================================= */
+* { box-sizing: border-box; }
 
-html,
-body {
-  height: 100%;
-}
+html, body { height: 100%; }
 
 body {
   margin: 0;
@@ -121,91 +172,42 @@ body {
   font: 14px/1.45 system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
 }
 
-h1,
-h2,
-h3 {
-  margin: 0 0 0.5rem;
-}
+h1, h2, h3 { margin: 0 0 0.5rem; }
 
-h1 {
-  font-size: 1.25rem;
-}
-
-h2 {
-  font-size: 1.05rem;
-  color: var(--text-secondary);
-}
-
-h3 {
-  font-size: 0.95rem;
-  color: var(--text-secondary);
-}
+h1 { font-size: 1.25rem; }
+h2 { font-size: 1.05rem; color: var(--text-secondary); }
+h3 { font-size: 0.95rem; color: var(--text-secondary); }
 
 /* =============================================
- * Layout Containers
+ * Layout Utilities
  * ---------------------------------------------
- * Grid helpers and panels that shape the main
- * calculator layout.
+ * Flex stack + grid helpers keep the markup light.
  * ============================================= */
-/* Flex column utility shared by stacked layouts throughout the UI. */
 .stack {
   display: flex;
   flex-direction: column;
   gap: var(--stack-gap, var(--stack-gap-default));
 }
+.stack--compact   { --stack-gap: var(--stack-gap-tight); }
+.stack--snug      { --stack-gap: var(--stack-gap-snug); }
+.stack--roomy     { --stack-gap: var(--stack-gap-comfortable); }
+.stack--spacious  { --stack-gap: var(--stack-gap-spacious); }
 
-/* Gap modifiers tune spacing without redefining structural rules. */
-.stack--compact {
-  --stack-gap: var(--stack-gap-tight);
-}
-
-.stack--snug {
-  --stack-gap: var(--stack-gap-snug);
-}
-
-.stack--roomy {
-  --stack-gap: var(--stack-gap-comfortable);
-}
-
-.stack--spacious {
-  --stack-gap: var(--stack-gap-spacious);
-}
-
-/* Grid utility shared by content groupings that rely on CSS grid layouts. */
 .grid {
   display: grid;
   gap: var(--grid-gap, var(--grid-gap-default));
 }
+.grid--compact    { --grid-gap: var(--grid-gap-tight); }
+.grid--snug       { --grid-gap: var(--grid-gap-snug); }
+.grid--roomy      { --grid-gap: var(--grid-gap-comfortable); }
+.grid--spacious   { --grid-gap: var(--grid-gap-spacious); }
+.grid--auto-fit   { grid-template-columns: repeat(auto-fit, minmax(var(--grid-min, 240px), 1fr)); }
+.grid--auto-fill  { grid-template-columns: repeat(auto-fill, minmax(var(--grid-min, 150px), 1fr)); }
+.grid--columns-2  { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 
-.grid--compact {
-  --grid-gap: var(--grid-gap-tight);
-}
-
-.grid--snug {
-  --grid-gap: var(--grid-gap-snug);
-}
-
-.grid--roomy {
-  --grid-gap: var(--grid-gap-comfortable);
-}
-
-.grid--spacious {
-  --grid-gap: var(--grid-gap-spacious);
-}
-
-.grid--auto-fit {
-  grid-template-columns: repeat(auto-fit, minmax(var(--grid-min, 240px), 1fr));
-}
-
-.grid--auto-fill {
-  grid-template-columns: repeat(auto-fill, minmax(var(--grid-min, 150px), 1fr));
-}
-
-.grid--columns-2 {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-}
-
-/* This class wraps the entire calculator experience, establishing the page centering and stacking rhythm. */
+/* =============================================
+ * App Shell
+ * ============================================= */
 .layout-app-shell {
   max-width: 1280px;
   margin: 0 auto;
@@ -214,25 +216,22 @@ h3 {
   --stack-gap: var(--stack-gap-spacious);
 }
 
-/* This class formats the top header section that introduces the calculator. */
 .layout-app-header {
   padding: 4px 6px 0;
   --stack-gap: 4px;
 }
-
-/* This descendant rule limits header body copy width for readability. */
 .layout-app-header p {
   margin: 0;
   max-width: 640px;
 }
 
-/* This rule removes extra spacing when toolbars render inside stacked cards. */
+/* Remove extra space when toolbars are inside stacks */
 .stack .control-toolbar,
-.stack .visualizer-visibility-toggles {
-  margin: 0;
-}
+.stack .visualizer-visibility-toggles { margin: 0; }
 
-/* This container enables scrolling for the primary input controls while keeping layout flexible. */
+/* =============================================
+ * Inputs Pane (scrollable)
+ * ============================================= */
 .input-scroll-container {
   flex: 1;
   min-height: 0;
@@ -241,7 +240,7 @@ h3 {
   padding-right: 6px;
 }
 
-/* This toolbar anchors the unit selector at the top of the scrollable input area. */
+/* Sticky unit selector at top of scroll */
 .input-unit-controls {
   position: sticky;
   top: 0;
@@ -251,8 +250,7 @@ h3 {
   box-shadow: 0 6px 12px var(--shadow-elevated);
   margin: 0;
 }
-
-/* This pseudo-element draws a separator line beneath the sticky unit selector. */
+/* Separator line under sticky header */
 .input-unit-controls::after {
   content: "";
   position: absolute;
@@ -262,7 +260,7 @@ h3 {
   opacity: 0.6;
 }
 
-/* This class standardizes the chrome around the primary content groupings. */
+/* Content sections (cards) */
 .content-section {
   background: var(--surface-panel);
   border: 1px solid var(--border-default);
@@ -271,52 +269,37 @@ h3 {
   box-shadow: 0 4px 24px var(--shadow-deep);
 }
 
-/* This class structures the visualizer section that houses the preview canvas and legend. */
-.sheet-preview-visualizer {
-  --stack-gap: 12px;
-}
+/* Preview + output sections */
+.sheet-preview-visualizer { --stack-gap: 12px; }
+.output-details-section   { --stack-gap: 0; }
 
-/* This class governs the tabbed analysis section that follows the preview. */
-.output-details-section {
-  --stack-gap: 0;
-}
-
-/* Celebration layers have moved to css/celebration.css so they can load on demand. */
-
-/* This rule ensures tab content stretches to fill available height for scrollable panes. */
 .output-details-section .output-tabpanel-collection {
   flex: 1;
   min-height: 0;
 }
 
-/* This container groups the input cards and supporting descriptions. */
-.input-layout-panel {
-  --stack-gap: 16px;
-}
+.input-layout-panel { --stack-gap: 16px; }
 
-/* This header styling keeps intro copy aligned with the pane layout. */
 .input-panel-header p {
   margin: 0;
   font-size: 0.95rem;
 }
 
-/* Compact two-column grid that replaces the bulky cards in the inputs tab. */
+/* =============================================
+ * Inputs Grid (dense two-column)
+ * ============================================= */
 .input-2col-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: var(--space-4);
   align-items: start;
 }
-
-/* Columns stack their groups with consistent spacing. */
 .input-2col-grid .col-left,
 .input-2col-grid .col-right {
   display: grid;
   gap: var(--space-4);
   align-content: start;
 }
-
-/* Lightweight grouping keeps headings and rows aligned without card chrome. */
 .input-2col-grid .group {
   display: grid;
   grid-template-rows: auto auto;
@@ -325,53 +308,38 @@ h3 {
   border: 0;
   background: transparent;
 }
-
 .input-2col-grid .group > h2 {
   font-size: var(--font-sm);
   font-weight: 600;
   margin: 0 0 var(--space-1);
   opacity: 0.9;
 }
+.input-2col-grid .control-toolbar { margin: 0; }
 
-.input-2col-grid .control-toolbar {
-  margin: 0;
-}
-
-/* This container stacks the preview canvas, its controls, and legend. */
-.sheet-preview-container {
-  --stack-gap: 8px;
-}
-
-/* Input field rows now rely on explicit grid tracks for consistent density. */
+/* Input field rows */
 .input-field-row,
 .input-field-row-quad {
   display: grid;
   gap: var(--space-2);
 }
-
-.input-field-row {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-}
-
+.input-field-row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .input-field-row.with-action {
   grid-template-columns: repeat(2, minmax(0, 1fr)) auto;
   align-items: end;
 }
-
 .input-field-action {
   display: flex;
   align-items: center;
   justify-content: center;
 }
-
 .input-swap-button {
   --swap-size: 32px;
   inline-size: var(--swap-size);
   block-size: var(--swap-size);
   border-radius: 999px;
-  border: 1px solid var(--color-border-subtle);
-  background: var(--color-surface);
-  color: inherit;
+  border: 1px solid var(--border-subtle);
+  background: var(--surface-control);
+  color: var(--text-primary);
   font-size: 1rem;
   display: inline-flex;
   align-items: center;
@@ -379,113 +347,58 @@ h3 {
   cursor: pointer;
   transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
 }
-
 .input-swap-button:hover,
 .input-swap-button:focus {
-  background: var(--color-accent-muted);
-  border-color: var(--color-accent);
-  color: var(--color-text);
+  background: var(--surface-control-hover);
+  border-color: var(--accent-primary);
+  color: var(--text-primary);
   outline: none;
 }
-
 .input-swap-button:focus-visible {
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-accent) 40%, transparent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent-primary) 40%, transparent);
 }
+.input-field-row-quad { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 
-.input-field-row-quad {
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-}
-
-/* This helper distributes form controls evenly based on available width. */
+/* Auto grid helper (breaks to fit) */
 .input-field-row-auto {
   --grid-gap: var(--grid-gap-snug);
   --grid-min: 150px;
 }
 
+/* =============================================
+ * Responsive tweaks
+ * ============================================= */
 @media (max-width: 1024px) {
-  .input-2col-grid {
-    grid-template-columns: 1fr;
-  }
-
+  .input-2col-grid { grid-template-columns: 1fr; }
   .input-2col-grid .col-left,
-  .input-2col-grid .col-right {
-    gap: var(--space-3);
-  }
-
-  .input-field-row-quad {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
+  .input-2col-grid .col-right { gap: var(--space-3); }
+  .input-field-row-quad { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
-
 @media (max-width: 600px) {
-  .input-field-row {
-    grid-template-columns: 1fr 1fr;
-  }
-
-  .input-field-row-quad {
-    grid-template-columns: 1fr 1fr;
-  }
-
-  .input-field-row.with-action {
-    grid-template-columns: 1fr 1fr;
-  }
-
+  .input-field-row { grid-template-columns: 1fr 1fr; }
+  .input-field-row-quad { grid-template-columns: 1fr 1fr; }
+  .input-field-row.with-action { grid-template-columns: 1fr 1fr; }
   .input-field-row.with-action .input-field-action {
     grid-column: 1 / -1;
     justify-content: flex-end;
   }
 }
-
 @media (max-width: 900px) {
-  /* This adjustment relaxes scrolling on smaller screens for the input pane. */
-  .input-scroll-container {
-    overflow: visible;
-    padding-right: 0;
-  }
-
-  /* This removes the sticky behavior on narrow devices where it might obscure inputs. */
-  .input-unit-controls {
-    position: static;
-    box-shadow: none;
-  }
-
-  /* The separator is hidden when sticky behavior is removed. */
-  .input-unit-controls::after {
-    display: none;
-  }
-
-  /* Stack the preview controls below the stage on narrow screens. */
-  .sheet-preview-layout {
-    flex-direction: column;
-  }
-
-  .layer-visibility-panel {
-    width: 100%;
-    max-width: none;
-  }
+  .input-scroll-container { overflow: visible; padding-right: 0; }
+  .input-unit-controls { position: static; box-shadow: none; }
+  .input-unit-controls::after { display: none; }
+  .sheet-preview-layout { flex-direction: column; }
+  .layer-visibility-panel { width: 100%; max-width: none; }
 }
 
 /* =============================================
  * Typography Helpers
- * ---------------------------------------------
- * Text utility classes for muted and numeric
- * treatments shared across the UI.
  * ============================================= */
-/* This utility softens copy for supporting descriptions and helper text. */
-.text-muted-detail {
-  color: var(--text-muted);
-}
-
-/* This utility aligns inline values to a fixed numeric width for quick comparisons. */
-.text-metric-readout {
-  font-variant-numeric: tabular-nums;
-}
+.text-muted-detail { color: var(--text-muted); }
+.text-metric-readout { font-variant-numeric: tabular-nums; }
 
 /* =============================================
  * Form Elements
- * ---------------------------------------------
- * Input, select, and button styling to maintain
- * consistent controls across all panels.
  * ============================================= */
 label {
   display: flex;
@@ -497,23 +410,20 @@ label {
   border: 1px solid var(--border-subtle);
   border-radius: 8px;
 }
-
 label span {
   color: var(--text-muted);
   font-size: 0.9rem;
 }
-
 label input {
   all: unset;
   background: var(--surface-panel-elevated);
   border: 1px solid var(--border-strong);
   padding: 6px 8px;
   border-radius: 8px;
-  width: 80px;
+  width: 96px;
   color: var(--text-primary);
   text-align: right;
 }
-
 select {
   background: var(--surface-panel-elevated);
   border: 1px solid var(--border-strong);
@@ -523,7 +433,7 @@ select {
   width: 100%;
 }
 
-/* Input grid overrides tighten spacing and typography for dense layout. */
+/* Dense layout tune-up for labels/inputs */
 .input-2col-grid label {
   flex-direction: column;
   align-items: stretch;
@@ -531,13 +441,11 @@ select {
   gap: var(--space-1);
   padding: var(--space-1) var(--space-2);
 }
-
 .input-2col-grid label > span {
   font-size: var(--font-xs);
   opacity: 0.85;
   color: var(--text-muted);
 }
-
 .input-2col-grid input,
 .input-2col-grid select {
   height: 2rem;
@@ -546,10 +454,7 @@ select {
   line-height: 2rem;
   width: 100%;
 }
-
-.input-2col-grid input {
-  text-align: right;
-}
+.input-2col-grid input { text-align: right; }
 
 .input-2col-grid input.is-invalid,
 .input-2col-grid select.is-invalid {
@@ -557,7 +462,9 @@ select {
   background: color-mix(in srgb, var(--status-danger) 12%, transparent);
 }
 
-/* This base class standardizes horizontal control group layouts across the app. */
+/* =============================================
+ * Control Toolbars
+ * ============================================= */
 .control-toolbar {
   display: flex;
   gap: var(--space-2);
@@ -565,30 +472,13 @@ select {
   flex-wrap: wrap;
   margin: 0.5rem 0 0;
 }
-
-/* This rule removes extra spacing when toolbars appear directly inside cards. */
-.data-card > .control-toolbar {
-  margin: 0 0 6px;
-}
-
-/* This toolbar pins preset dropdowns within card headers for quick access. */
-.preset-selector-toolbar {
-  justify-content: flex-start;
-}
-
-/* This toolbar coordinates the primary action buttons for the input controls. */
-.input-action-toolbar {
-  justify-content: space-between;
-  gap: 12px;
-}
+.data-card > .control-toolbar { margin: 0 0 6px; }
+.preset-selector-toolbar { justify-content: flex-start; }
+.input-action-toolbar { justify-content: space-between; gap: 12px; }
 
 /* =============================================
- * Preview Controls
- * ---------------------------------------------
- * Specific tooling for toggling layer visibility
- * and presenting the preview canvas.
+ * Preview Controls (layer visibility)
  * ============================================= */
-/* This toolbar hosts the layer visibility checkboxes directly above the preview. */
 .visualizer-visibility-toggles {
   display: flex;
   gap: 8px;
@@ -599,11 +489,7 @@ select {
 
 /* =============================================
  * Buttons
- * ---------------------------------------------
- * Shared button styling for actions and toolbar
- * affordances throughout the UI.
  * ============================================= */
-/* This base button class unifies shape, padding, and neutral chroma across actions. */
 .action-button {
   appearance: none;
   border: 1px solid var(--border-muted);
@@ -613,38 +499,28 @@ select {
   border-radius: 10px;
   cursor: pointer;
 }
-
-/* Hover states slightly brighten the border for feedback. */
 .action-button:hover {
   border-color: var(--border-highlight);
   background: var(--surface-inset);
 }
-
-/* This modifier emphasizes primary actions with teal accents. */
 .action-button-primary {
   border-color: var(--border-accent);
-  background: var(--surface-control-strong);
+  background: var(--surface-control);
 }
-
-/* This variant keeps the button transparent for subtle inline actions. */
-.action-button-ghost {
-  background: transparent;
-}
-
-/* This state class highlights the active button in toggle groups. */
+.action-button-ghost { background: transparent; }
 .action-button.is-active {
   border-color: var(--accent-primary);
-  background: var(--surface-control-accent);
+  background: color-mix(in srgb, var(--accent-primary) 16%, var(--surface-control));
   color: var(--accent-primary);
+}
+.action-button:focus-visible {
+  outline: 2px solid var(--accent-primary);
+  outline-offset: 2px;
 }
 
 /* =============================================
- * Navigation Controls
- * ---------------------------------------------
- * Shared primitives for navigation groups and
- * trigger styling (tabs, segmented controls, etc.).
+ * Navigation (tabs/segmented)
  * ============================================= */
-/* Navigation bars align triggers on a shared horizontal axis. */
 .nav-bar {
   display: flex;
   align-items: stretch;
@@ -652,16 +528,12 @@ select {
   padding: var(--nav-padding, 0);
   border-bottom: var(--nav-border-size, 0px) solid var(--nav-border-color, transparent);
 }
-
-/* Tab navigation tightens spacing and mirrors card padding offsets. */
 .nav-bar--tabs {
   --nav-gap: 6px;
   --nav-padding: 0 10px;
   --nav-border-size: 1px;
   --nav-border-color: var(--nav-border);
 }
-
-/* Navigation triggers adopt button-like affordances with bottom borders. */
 .nav-trigger {
   appearance: none;
   background: none;
@@ -678,164 +550,131 @@ select {
   padding: var(--nav-trigger-padding, 8px 12px);
   transition: color 0.18s ease, border-color 0.18s ease;
 }
-
-/* Tab triggers inherit spacing tuned for the output navigation row. */
 .nav-trigger--tab {
   --nav-trigger-padding: 10px 12px;
   --nav-trigger-border-width: 2px;
 }
-
-/* Hover and focus states brighten the label to indicate interactivity. */
-.nav-trigger:hover {
-  color: var(--nav-text-hover);
-}
-
+.nav-trigger:hover { color: var(--nav-text-hover); }
 .nav-trigger:focus-visible {
   outline: 2px solid var(--border-highlight);
   outline-offset: 2px;
 }
-
-/* Active triggers reinforce selection through accent colors. */
 .nav-trigger.is-active {
   color: var(--nav-text-active);
   border-bottom-color: var(--nav-border-active);
 }
 
 /* =============================================
- * Tabs & Cards
- * ---------------------------------------------
- * Styles for the output area, including tabs,
- * summary cards, and supporting tables.
+ * Tabs & Cards (output area)
  * ============================================= */
+.output-tab-navigation { margin: 0 -14px 10px; }
+.output-tabpanel-collection > section { display: none; }
+.output-tabpanel-collection > section.is-active { display: block; }
 
-/* The output navigation reuses the nav primitives while exposing print controls. */
-.output-tab-navigation {
-  margin: 0 -14px 10px;
-}
-
-/* Tab panels stay hidden until their associated trigger is activated. */
-.output-tabpanel-collection > section {
-  display: none;
-}
-
-.output-tabpanel-collection > section.is-active {
-  display: block;
-}
-
-/* This grid displays key metrics in three columns. */
 .summary-metrics-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 10px;
 }
 
-/* Cards provide a consistent surface for presenting grouped content. */
 .data-card {
   background: var(--surface-card);
   border: 1px solid var(--border-card);
   border-radius: 12px;
   padding: 12px;
 }
-
-/* Summary values use a bold tabular treatment for quick scanning. */
 .data-card .summary-metric-value {
   font-variant-numeric: tabular-nums;
   font-weight: 600;
 }
 
-/* Data tables share a consistent column spacing and divider treatment. */
-.data-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-/* Table cell padding creates airy spacing for tabular data. */
+.data-table { width: 100%; border-collapse: collapse; }
 .data-table th, .data-table td {
   padding: 8px 10px;
   border-bottom: 1px dashed var(--border-dashed);
 }
-
-/* Table headers use a brighter tone to stand out from data rows. */
 .data-table th {
   text-align: left;
   color: var(--text-secondary);
 }
 
-/* Interactive measurement rows change background on hover/selection to mirror preview cues. */
+/* =============================================
+ * Measurements (table ↔ preview linkage)
+ * ============================================= */
 .measurement-row {
   cursor: pointer;
   transition: background 0.18s ease, color 0.18s ease;
 }
-
-/* Focus outlines assist keyboard navigation within the tables. */
 .measurement-row:focus {
   outline: 1px solid var(--accent-primary);
   outline-offset: -2px;
 }
+.measurement-row.is-hovered,
+.measurement-row.is-selected { color: var(--text-bright); }
 
-/* Hover and selected states brighten the text color for readability. */
-.measurement-row.is-hovered, .measurement-row.is-selected {
-  color: var(--text-bright);
-}
-
-/* Cut and slit rows adopt aqua tones to match the preview overlay. */
-.measurement-row[data-measure-type="cut"].is-hovered, .measurement-row[data-measure-type="slit"].is-hovered {
+/* Cut (and slit, if you decide to split later) */
+.measurement-row[data-measure-type="cut"].is-hovered,
+.measurement-row[data-measure-type="cut"].is-selected {
   background: var(--measure-cut-bg-hover);
 }
-
-/* Selected cut and slit rows deepen the aqua fill. */
-.measurement-row[data-measure-type="cut"].is-selected, .measurement-row[data-measure-type="slit"].is-selected {
+.measurement-row[data-measure-type="cut"].is-selected {
   background: var(--measure-cut-bg-selected);
 }
 
-/* Hover states for score rows use lavender to mirror their overlay color. */
-.measurement-row[data-measure-type="score-horizontal"].is-hovered, .measurement-row[data-measure-type="score-vertical"].is-hovered {
+/* Score + slit + perforation share SCORE channel */
+.measurement-row[data-measure-type="score-horizontal"].is-hovered,
+.measurement-row[data-measure-type="score-vertical"].is-hovered,
+.measurement-row[data-measure-type="perforation"].is-hovered,
+.measurement-row[data-measure-type="slit"].is-hovered {
   background: var(--measure-score-bg-hover);
 }
-
-/* Selected score rows intensify the lavender shading. */
-.measurement-row[data-measure-type="score-horizontal"].is-selected, .measurement-row[data-measure-type="score-vertical"].is-selected {
+.measurement-row[data-measure-type="score-horizontal"].is-selected,
+.measurement-row[data-measure-type="score-vertical"].is-selected,
+.measurement-row[data-measure-type="perforation"].is-selected,
+.measurement-row[data-measure-type="slit"].is-selected {
   background: var(--measure-score-bg-selected);
 }
 
-/* Preview measurement lines transition smoothly when interacted with from the tables. */
+/* Preview lines */
 .measurement-line {
   pointer-events: auto;
   transition: stroke 0.2s ease, stroke-width 0.2s ease, opacity 0.2s ease;
   opacity: 0.9;
 }
-
-/* Hovered and selected lines thicken to confirm linkage with the table rows. */
-.measurement-line.is-hovered, .measurement-line.is-selected {
+.measurement-line.is-hovered,
+.measurement-line.is-selected {
   stroke-width: 3;
   opacity: 1;
 }
 
-/* Cut and slit lines glow aqua when highlighted. */
-.measurement-line[data-measure-type="cut"].is-hovered, .measurement-line[data-measure-type="cut"].is-selected, .measurement-line[data-measure-type="slit"].is-hovered, .measurement-line[data-measure-type="slit"].is-selected {
+/* Cut highlight (red glow) */
+.measurement-line[data-measure-type="cut"].is-hovered,
+.measurement-line[data-measure-type="cut"].is-selected {
   stroke: var(--measure-cut-glow);
   filter: drop-shadow(0 0 4px var(--measure-cut-glow-soft));
 }
 
-/* Score lines glow lavender to mirror the measurement legend. */
-.measurement-line[data-measure-type="score-horizontal"].is-hovered, .measurement-line[data-measure-type="score-horizontal"].is-selected, .measurement-line[data-measure-type="score-vertical"].is-hovered, .measurement-line[data-measure-type="score-vertical"].is-selected {
+/* Score/slit/perf highlight (purple glow) */
+.measurement-line[data-measure-type="score-horizontal"].is-hovered,
+.measurement-line[data-measure-type="score-horizontal"].is-selected,
+.measurement-line[data-measure-type="score-vertical"].is-hovered,
+.measurement-line[data-measure-type="score-vertical"].is-selected,
+.measurement-line[data-measure-type="slit"].is-hovered,
+.measurement-line[data-measure-type="slit"].is-selected,
+.measurement-line[data-measure-type="perforation"].is-hovered,
+.measurement-line[data-measure-type="perforation"].is-selected {
   stroke: var(--measure-score-glow);
   filter: drop-shadow(0 0 4px var(--measure-score-glow-soft));
 }
 
 /* =============================================
- * Preview & Legend
- * ---------------------------------------------
- * Visual display for the SVG preview and legend
- * describing key color codes.
+ * Preview Stage & Legend
  * ============================================= */
-/* This stage centers the SVG preview and provides a dark surround. */
 .sheet-preview-layout {
   display: flex;
   gap: 16px;
   align-items: stretch;
 }
-
 .sheet-preview-stage {
   background: var(--surface-panel-elevated);
   border: 1px solid var(--border-strong);
@@ -846,6 +685,7 @@ select {
   min-height: 360px;
   flex: 1;
 }
+.sheet-preview-container { --stack-gap: 8px; }
 
 .layer-visibility-panel {
   background: var(--surface-panel-overlay);
@@ -859,14 +699,12 @@ select {
   max-width: 260px;
   box-shadow: 0 12px 24px var(--shadow-elevated);
 }
-
 .layer-visibility-panel .visualizer-visibility-toggles {
   display: flex;
   flex-direction: column;
   gap: 10px;
   align-items: stretch;
 }
-
 .layer-visibility-option {
   display: flex;
   align-items: center;
@@ -878,7 +716,6 @@ select {
   border-radius: 10px;
   cursor: pointer;
 }
-
 .layer-visibility-option .layer-visibility-label {
   display: flex;
   align-items: center;
@@ -891,17 +728,12 @@ select {
   color: var(--text-muted);
   transition: border-color 0.2s ease, background 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
 }
-
-.layer-visibility-option .layer-visibility-label .legend-color-swatch {
-  flex-shrink: 0;
-}
-
+.layer-visibility-option .layer-visibility-label .legend-color-swatch { flex-shrink: 0; }
 .layer-visibility-option:hover .layer-visibility-label {
   border-color: var(--border-highlight);
   background: var(--surface-control-hover);
   color: var(--text-secondary);
 }
-
 .layer-visibility-option input[type="checkbox"] {
   appearance: none;
   width: 18px;
@@ -914,7 +746,6 @@ select {
   transition: background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
   cursor: pointer;
 }
-
 .layer-visibility-option input[type="checkbox"]::after {
   content: "";
   width: 8px;
@@ -926,34 +757,25 @@ select {
   transform-origin: center;
   transition: transform 0.18s ease;
 }
-
 .layer-visibility-option input[type="checkbox"]:focus-visible {
   outline: 2px solid var(--accent-primary);
   outline-offset: 2px;
 }
-
 .layer-visibility-option input[type="checkbox"]:checked {
   background: var(--accent-primary);
   border-color: var(--accent-primary);
   box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent-primary) 45%, transparent);
 }
-
-.layer-visibility-option input[type="checkbox"]:checked::after {
-  transform: rotate(45deg) scale(1);
-}
-
+.layer-visibility-option input[type="checkbox"]:checked::after { transform: rotate(45deg) scale(1); }
 .layer-visibility-option input[type="checkbox"]:checked + .layer-visibility-label {
   border-color: color-mix(in srgb, var(--accent-primary) 60%, var(--border-overlay));
   background: color-mix(in srgb, var(--accent-primary) 16%, var(--surface-control));
   color: var(--text-primary);
   box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent-primary) 35%, transparent);
 }
+.layer-visibility-option input[type="checkbox"]:checked + .layer-visibility-label span { color: inherit; }
 
-.layer-visibility-option input[type="checkbox"]:checked + .layer-visibility-label span {
-  color: inherit;
-}
-
-/* This legend lists the preview layer colors and their meanings. */
+/* Legend */
 .sheet-preview-legend {
   display: flex;
   gap: 10px;
@@ -962,8 +784,6 @@ select {
   margin-top: 8px;
   color: var(--text-secondary);
 }
-
-/* Each swatch displays the color associated with a preview layer. */
 .legend-color-swatch {
   display: inline-block;
   width: 12px;
@@ -971,77 +791,40 @@ select {
   border-radius: 3px;
   margin-right: 6px;
 }
-
-/* Swatch color for the layout grid boundary. */
-.legend-swatch-layout-area {
-  background: var(--measure-layout);
-}
-
-/* Swatch color for document outlines. */
-.legend-swatch-documents {
-  background: var(--measure-document);
-}
-
-/* Swatch color for non-printable margins. */
-.legend-swatch-non-printable {
-  background: var(--measure-margin);
-}
-
-/* Swatch color for cut indications. */
-.legend-swatch-cuts {
-  background: var(--measure-cut);
-}
-
-/* Swatch color for slit indications. */
-.legend-swatch-slits {
-  background: var(--measure-slit);
-}
-
-/* Swatch color for score overlays. */
-.legend-swatch-scores {
-  background: var(--measure-score);
-}
-
-/* Swatch color for perforation overlays. */
-.legend-swatch-perforations {
-  background: var(--measure-perforation);
-}
+.legend-swatch-layout-area     { background: var(--measure-layout); }
+.legend-swatch-documents       { background: var(--measure-document); }
+.legend-swatch-non-printable   { background: var(--measure-margin); }
+.legend-swatch-cuts            { background: var(--measure-cut); }
+/* Slits and perforations use SCORE channel (simplified system) */
+.legend-swatch-slits,
+.legend-swatch-perforations    { background: var(--measure-score); }
+.legend-swatch-scores          { background: var(--measure-score); }
 
 /* =============================================
  * Print Styles
  * ---------------------------------------------
- * Hide non-print content and relax layout rules
- * when the document is printed.
+ * Hide interactive-only UI. Relax chrome.
  * ============================================= */
 @media print {
-  body {
-    background: var(--surface-paper);
-    color: var(--text-inverse);
-  }
-
-  /* Elements with this class disappear from printed output. */
-  .print-hidden {
-    display: none !important;
-  }
-
-  /* Elements with this class are forced visible only during print. */
-  .print-only-content {
-    display: block !important;
-  }
-
-  /* Panels shed their borders when printed for a cleaner page. */
-  .content-section {
-    border: none;
-    box-shadow: none;
-  }
-
-  /* The page width restriction is lifted to use the full sheet. */
-  .layout-app-shell {
-    max-width: none;
-  }
+  body { background: var(--surface-paper); color: var(--text-inverse); }
+  .print-hidden { display: none !important; }
+  .print-only-content { display: block !important; }
+  .content-section { border: none; box-shadow: none; }
+  .layout-app-shell { max-width: none; }
 }
+/* Keep print-only containers hidden on screen */
+.print-only-content { display: none; }
 
-/* Print-only containers remain hidden during on-screen use. */
-.print-only-content {
-  display: none;
+/* =============================================
+ * Motion Preferences
+ * ---------------------------------------------
+ * Respect reduced-motion users.
+ * ============================================= */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
 }
