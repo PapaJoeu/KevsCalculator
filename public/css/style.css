@@ -366,11 +366,39 @@ select {
 }
 
 .scores-pane {
-  --stack-gap: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.score-layout {
+  display: grid;
+  gap: 18px;
+  grid-template-columns: minmax(0, 420px) minmax(0, 1fr);
+  align-items: start;
+}
+
+.score-column {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.score-card-intro {
+  --stack-gap: 8px;
+}
+
+.score-results {
+  gap: 16px;
 }
 
 .score-card {
   --stack-gap: 16px;
+}
+
+.score-card-vertical .score-card-title p,
+.score-card-horizontal .score-card-title p {
+  max-width: none;
 }
 
 .score-card-header {
@@ -400,35 +428,10 @@ select {
   text-align: center;
 }
 
-.score-inputs {
-  display: grid;
-  gap: 12px;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-}
-
 .score-field {
   display: flex;
   flex-direction: column;
   gap: 6px;
-}
-
-.score-field-controls {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: stretch;
-  gap: 8px;
-}
-
-.score-field-controls .score-label {
-  flex: 1 1 220px;
-}
-
-.score-presets-inline {
-  justify-content: flex-end;
-}
-
-.score-field-controls .score-presets-inline {
-  flex: 1 1 180px;
 }
 
 .score-field label {
@@ -466,12 +469,16 @@ select {
   justify-content: space-between;
 }
 
-.score-actions .muted {
-  font-size: 0.85rem;
+.score-actions-card {
+  padding: 0;
 }
 
-.score-table-grid {
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+.score-actions-card .score-actions {
+  padding: 12px;
+}
+
+.score-actions .muted {
+  font-size: 0.85rem;
 }
 
 .score-table-card {
@@ -481,6 +488,18 @@ select {
 .score-table-card p {
   margin: 0;
   font-size: 0.85rem;
+}
+
+.score-results-grid {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+}
+
+@media (max-width: 960px) {
+  .score-layout {
+    grid-template-columns: 1fr;
+  }
 }
 
 @media (max-width: 680px) {
