@@ -178,6 +178,67 @@ const layerVisibility = {
   scores: true,
 };
 
+const selectedMeasurements = new Set();
+let currentMeasurementIds = new Set();
+
+const createMeasurementId = (type, index) => `${type}-${index}`;
+
+function registerMeasurementId(id) {
+  if (!id) return;
+  currentMeasurementIds.add(id);
+}
+
+const measurementElements = (id) => $$(`[data-measure-id="${id}"]`);
+
+function setMeasurementHover(id, hovered) {
+  measurementElements(id).forEach((el) => el.classList.toggle('is-hovered', hovered));
+}
+
+function setMeasurementSelectionClass(id, selected) {
+  measurementElements(id).forEach((el) => el.classList.toggle('is-selected', selected));
+}
+
+function toggleMeasurementSelection(id) {
+  if (!id) return;
+  const willSelect = !selectedMeasurements.has(id);
+  if (willSelect) {
+    selectedMeasurements.add(id);
+  } else {
+    selectedMeasurements.delete(id);
+  }
+  setMeasurementSelectionClass(id, willSelect);
+}
+
+function attachMeasurementRowInteractions(row) {
+  if (!row) return;
+  const id = row.dataset.measureId;
+  if (!id) return;
+  row.setAttribute('tabindex', '0');
+  row.addEventListener('mouseenter', () => setMeasurementHover(id, true));
+  row.addEventListener('mouseleave', () => setMeasurementHover(id, false));
+  row.addEventListener('click', () => toggleMeasurementSelection(id));
+  row.addEventListener('focus', () => setMeasurementHover(id, true));
+  row.addEventListener('blur', () => setMeasurementHover(id, false));
+  row.addEventListener('keydown', (evt) => {
+    if (evt.key === 'Enter' || evt.key === ' ') {
+      evt.preventDefault();
+      toggleMeasurementSelection(id);
+    }
+  });
+}
+
+function restoreMeasurementSelections() {
+  const stale = [];
+  selectedMeasurements.forEach((id) => {
+    if (!currentMeasurementIds.has(id)) {
+      stale.push(id);
+      return;
+    }
+    setMeasurementSelectionClass(id, true);
+  });
+  stale.forEach((id) => selectedMeasurements.delete(id));
+}
+
 function applyLayerVisibility() {
   const svg = $("#svg");
   if (!svg) return;
@@ -293,10 +354,21 @@ function status(txt) {
   $("#status").textContent = txt;
 }
 
-function fillTable(tbody, rows) {
+function fillTable(tbody, rows, type = 'measure') {
+  if (!tbody) return;
   tbody.innerHTML = rows
-    .map((r) => `<tr><td>${r.label}</td><td class="k">${r.inches.toFixed(3)}</td><td class="k">${r.millimeters.toFixed(2)}</td></tr>`)
+    .map((r, index) => {
+      const id = createMeasurementId(type, index);
+      registerMeasurementId(id);
+      return `<tr class="measurement-row" data-measure-id="${id}" data-measure-type="${type}" data-measure-index="${index}"><td>${r.label}</td><td class="k">${r.inches.toFixed(3)}</td><td class="k">${r.millimeters.toFixed(2)}</td></tr>`;
+    })
     .join("");
+  tbody.querySelectorAll('tr[data-measure-id]').forEach((row) => {
+    attachMeasurementRowInteractions(row);
+    if (selectedMeasurements.has(row.dataset.measureId)) {
+      row.classList.add('is-selected');
+    }
+  });
 }
 
 // ------------------------------------------------------------
@@ -332,6 +404,7 @@ function update() {
     $("#mLeft").value = f(leftRight);
   }
 
+  currentMeasurementIds = new Set();
   const fin = calculateFinishing(layout, { horizontalOffsets: inp.scoreH, verticalOffsets: inp.scoreV });
 
   // Summary
@@ -344,10 +417,10 @@ function update() {
   $("#vUsed").textContent = `${layout.usage.horizontal.usedSpan.toFixed(3)} × ${layout.usage.vertical.usedSpan.toFixed(3)} in`;
   $("#vTrail").textContent = `${layout.usage.horizontal.trailingMargin.toFixed(3)} × ${layout.usage.vertical.trailingMargin.toFixed(3)} in`;
 
-  fillTable($("#tblCuts tbody"), fin.cuts);
-  fillTable($("#tblSlits tbody"), fin.slits);
-  fillTable($("#tblScoresH tbody"), fin.scores.horizontal);
-  fillTable($("#tblScoresV tbody"), fin.scores.vertical);
+  fillTable($("#tblCuts tbody"), fin.cuts, 'cut');
+  fillTable($("#tblSlits tbody"), fin.slits, 'slit');
+  fillTable($("#tblScoresH tbody"), fin.scores.horizontal, 'score-horizontal');
+  fillTable($("#tblScoresV tbody"), fin.scores.vertical, 'score-vertical');
 
   $("#pSheet").textContent = fmtIn(ctx.sheet.rawWidth) + " × " + fmtIn(ctx.sheet.rawHeight);
   $("#pDoc").textContent = fmtIn(ctx.document.width) + " × " + fmtIn(ctx.document.height);
@@ -387,7 +460,7 @@ function drawSVG(layout, fin) {
     applyLayerAttributes(r, layer);
     svg.appendChild(r);
   };
-  const L = (x1, y1, x2, y2, { stroke = "#22d3ee", width = 1.5, layer } = {}) => {
+  const L = (x1, y1, x2, y2, { stroke = "#22d3ee", width = 1.5, layer, measureId, measureType } = {}) => {
     const l = document.createElementNS("http://www.w3.org/2000/svg", "line");
     l.setAttribute("x1", offX + x1 * s);
     l.setAttribute("y1", offY + y1 * s);
@@ -395,7 +468,20 @@ function drawSVG(layout, fin) {
     l.setAttribute("y2", offY + y2 * s);
     l.setAttribute("stroke", stroke);
     l.setAttribute("stroke-width", width);
+    l.setAttribute("stroke-linecap", "round");
     applyLayerAttributes(l, layer);
+    if (measureId) {
+      registerMeasurementId(measureId);
+      l.dataset.measureId = measureId;
+      l.classList.add('measurement-line');
+      if (measureType) l.dataset.measureType = measureType;
+      if (selectedMeasurements.has(measureId)) {
+        l.classList.add('is-selected');
+      }
+      l.addEventListener('mouseenter', () => setMeasurementHover(measureId, true));
+      l.addEventListener('mouseleave', () => setMeasurementHover(measureId, false));
+      l.addEventListener('click', () => toggleMeasurementSelection(measureId));
+    }
     svg.appendChild(l);
   };
   R(0, 0, layout.sheet.rawWidth, layout.sheet.rawHeight, { stroke: "#334155", layer: "layout" });
@@ -416,35 +502,44 @@ function drawSVG(layout, fin) {
       });
     }
   }
-  fin.cuts.forEach((c) =>
+  fin.cuts.forEach((c, index) =>
     L(layout.layoutArea.originX, c.inches, layout.layoutArea.originX + layout.layoutArea.width, c.inches, {
       stroke: "#22d3ee",
       width: 1,
       layer: "cuts",
+      measureId: createMeasurementId('cut', index),
+      measureType: 'cut',
     })
   );
-  fin.slits.forEach((s) =>
+  fin.slits.forEach((s, index) =>
     L(s.inches, layout.layoutArea.originY, s.inches, layout.layoutArea.originY + layout.layoutArea.height, {
       stroke: "#22d3ee",
       width: 1,
       layer: "cuts",
+      measureId: createMeasurementId('slit', index),
+      measureType: 'slit',
     })
   );
-  fin.scores.horizontal.forEach((sc) =>
+  fin.scores.horizontal.forEach((sc, index) =>
     L(layout.layoutArea.originX, sc.inches, layout.layoutArea.originX + layout.layoutArea.width, sc.inches, {
       stroke: "#a78bfa",
       width: 1,
       layer: "scores",
+      measureId: createMeasurementId('score-horizontal', index),
+      measureType: 'score-horizontal',
     })
   );
-  fin.scores.vertical.forEach((sc) =>
+  fin.scores.vertical.forEach((sc, index) =>
     L(sc.inches, layout.layoutArea.originY, sc.inches, layout.layoutArea.originY + layout.layoutArea.height, {
       stroke: "#a78bfa",
       width: 1,
       layer: "scores",
+      measureId: createMeasurementId('score-vertical', index),
+      measureType: 'score-vertical',
     })
   );
   applyLayerVisibility();
+  restoreMeasurementSelections();
 }
 
 // ------------------------------------------------------------
