@@ -6,8 +6,8 @@ A printable layout calculator prototype organized into a minimal static web proj
 
 ```
 .
-├── public/
-│   ├── index.html        # UI markup that links to bundled assets in /public
+├── docs/
+│   ├── index.html        # UI markup that links to bundled assets in /docs
 │   ├── css/
 │   │   └── style.css     # Layout and presentation styles for the calculator
 │   └── js/
@@ -15,4 +15,16 @@ A printable layout calculator prototype organized into a minimal static web proj
 └── README.md             # Project overview
 ```
 
-Open `public/index.html` in a browser to run the calculator.
+Open `docs/index.html` in a browser to run the calculator.
+
+## Deployment
+
+GitHub Pages automatically serves content from the `docs/` directory, so
+publishing the project only requires pushing the repository to GitHub with
+Pages enabled for the repository. The `index.html` file remains at the root of
+`docs/`, allowing all of the relative CSS and JavaScript asset paths to resolve
+without modification.
+
+For local previews, you can open `docs/index.html` directly in your browser or
+serve the folder via any static file server (for example,
+`npx serve docs`).
