@@ -15,6 +15,7 @@ import {
   readNumber,
   resetMeasurementRegistry,
 } from '../utils/dom.js';
+import { updateSummaryCalculators } from './summary-calculators.js';
 import {
   MM_PER_INCH,
   clampToZero,
@@ -145,6 +146,8 @@ export function update() {
 
   updateDocCountField('#forceAcross', layout.counts.across);
   updateDocCountField('#forceDown', layout.counts.down);
+
+  updateSummaryCalculators(layout);
 
   $('#vAcross').textContent = layout.counts.across;
   $('#vDown').textContent = layout.counts.down;
