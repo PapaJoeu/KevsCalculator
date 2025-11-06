@@ -1,0 +1,23 @@
+<!--
+  Tab template: Finishing (docs/js/tabs/finishing.js)
+  Purpose: Reports calculated cut and slit positions for guillotine and slit systems.
+  JS entry points:
+    • Tables #tblCuts and #tblSlits populated through utils/dom.fillTable.
+  Dynamic elements:
+    • Table <tbody> elements are emptied and refilled with measurement rows on each calculation.
+    • Headers remain static but values reflect the latest layout geometry.
+  Hydration notes:
+    • The finishing module hydrates once so the tables exist before data binding.
+    • Table IDs map to measurement registry keys for hover/selection synchronization.
+-->
+<template id="tab-finishing-template">
+  <h3 style="margin-bottom:6px">Cut &amp; Slit Systems</h3>
+  <div class="layout-grid-group" style="grid-template-columns:1fr 1fr">
+    <div class="data-card"><h3>Cuts (Y edges)</h3>
+      <table class="data-table" id="tblCuts"><thead><tr><th>Label</th><th>in</th><th>mm</th></tr></thead><tbody></tbody></table>
+    </div>
+    <div class="data-card"><h3>Slits (X edges)</h3>
+      <table class="data-table" id="tblSlits"><thead><tr><th>Label</th><th>in</th><th>mm</th></tr></thead><tbody></tbody></table>
+    </div>
+  </div>
+</template>

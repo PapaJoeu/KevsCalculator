@@ -1,0 +1,75 @@
+<!--
+  Tab template: Presets (docs/js/tabs/presets.js)
+  Purpose: Presents curated production presets that pre-fill the inputs tab with a single action.
+  JS entry points:
+    • Buttons marked with data-layout-preset apply preset payloads through presetsTab.
+  Dynamic elements:
+    • The presets tab highlights currently applied preset via runtime interactions (button states managed externally).
+    • Layout preset cards are static markup but button clicks trigger layout computations.
+  Hydration notes:
+    • Hydrated once when the presets module registers so action buttons exist before event binding.
+    • Button dataset values must match keys in docs/js/data/layout-presets.js.
+-->
+<template id="tab-presets-template">
+  <div class="layout-preset-pane">
+    <div class="data-card layout-stack layout-preset-introduction">
+      <h2>Preset Layouts</h2>
+      <p class="text-muted-detail">
+        Jump-start common production setups with one click. Each preset configures sheet, document, gutters, safety areas, and finishing marks to match the listed specification.
+      </p>
+    </div>
+    <div class="layout-preset-grid layout-grid-group">
+      <div class="data-card layout-stack layout-preset-card">
+        <div class="layout-preset-card-header">
+          <h3>Folded Business Card</h3>
+          <p class="text-muted-detail">12×18 sheet, 3.5×5 document, ⅛″ gutters, non-printable margin 1⁄16″.</p>
+        </div>
+        <ul>
+          <li>Auto margins enabled</li>
+          <li>Horizontal bifold score at 0.5</li>
+        </ul>
+        <button class="action-button action-button-primary" data-layout-preset="folded-business-card">Apply preset</button>
+      </div>
+      <div class="data-card layout-stack layout-preset-card">
+        <div class="layout-preset-card-header">
+          <h3>Tri-fold Brochure</h3>
+          <p class="text-muted-detail">12×18 sheet, 11×8.5 document, 0.25″ gutters, 0.125″ non-printable area.</p>
+        </div>
+        <ul>
+          <li>Vertical scores at ⅓ and ⅔</li>
+        </ul>
+        <button class="action-button action-button-primary" data-layout-preset="trifold-brochure">Apply preset</button>
+      </div>
+      <div class="data-card layout-stack layout-preset-card">
+        <div class="layout-preset-card-header">
+          <h3>Postcard Gang Run</h3>
+          <p class="text-muted-detail">13×19 sheet, 4×6 document, ⅛″ gutters, 0.1″ non-printable area.</p>
+        </div>
+        <ul>
+          <li>No scores or perforations</li>
+        </ul>
+        <button class="action-button action-button-primary" data-layout-preset="postcard-gang-run">Apply preset</button>
+      </div>
+      <div class="data-card layout-stack layout-preset-card">
+        <div class="layout-preset-card-header">
+          <h3>Event Tickets</h3>
+          <p class="text-muted-detail">12×18 sheet, 2×5.5 document, 0.125″ H / 0.25″ V gutters, 1⁄16″ non-printable.</p>
+        </div>
+        <ul>
+          <li>Vertical perforation at 0.5</li>
+        </ul>
+        <button class="action-button action-button-primary" data-layout-preset="event-tickets">Apply preset</button>
+      </div>
+      <div class="data-card layout-stack layout-preset-card">
+        <div class="layout-preset-card-header">
+          <h3>Table Tents</h3>
+          <p class="text-muted-detail">13×19 sheet, 5×7 document, 0.25″ gutters, 0.125″ non-printable area.</p>
+        </div>
+        <ul>
+          <li>Horizontal scores at 0.33 and 0.66</li>
+        </ul>
+        <button class="action-button action-button-primary" data-layout-preset="table-tents">Apply preset</button>
+      </div>
+    </div>
+  </div>
+</template>

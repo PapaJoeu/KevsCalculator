@@ -1,0 +1,94 @@
+<!--
+  Tab template: Perforations (docs/js/tabs/perforations.js)
+  Purpose: Mirrors the scoring interface for configuring perforation runs applied to the layout.
+  JS entry points:
+    • Preset buttons (#perfPresetVBifold, #perfPresetVTrifold, #perfPresetVCustom, #perfPresetHBifold, #perfPresetHTrifold, #perfPresetHCustom).
+    • Text fields #perfV and #perfH for CSV offsets.
+    • Action button #applyPerforations submits the offsets.
+    • Tables #tblPerforationsH and #tblPerforationsV display computed positions.
+  Dynamic elements:
+    • Preset controls toggle selected state similar to the scores tab.
+    • Input fields update when presets fire or when offsets are applied.
+    • Result tables are regenerated whenever perforation data changes.
+  Hydration notes:
+    • Hydrated on module registration to ensure controls exist before event listeners attach.
+    • Layout structure parallels tab-scores-template for consistent styling.
+-->
+<template id="tab-perforations-template">
+  <div class="finishing-score-pane">
+    <div class="finishing-score-layout">
+      <div class="finishing-score-column">
+        <div class="data-card layout-stack finishing-score-card-intro">
+          <div class="finishing-score-card-title">
+            <h3>Perforation Planning</h3>
+            <p class="text-muted-detail">Configure tear-off runs relative to each document before applying them to the layout.</p>
+          </div>
+        </div>
+        <div class="data-card layout-stack finishing-score-card finishing-score-card-vertical">
+          <div class="finishing-score-card-header">
+            <div class="finishing-score-card-title">
+              <h3>Vertical Perforations</h3>
+              <p class="text-muted-detail">Lines running top-to-bottom relative to the document width.</p>
+            </div>
+            <div class="finishing-score-preset-group print-hidden" role="group" aria-label="Vertical perforation presets">
+              <button class="action-button" id="perfPresetVBifold" type="button">Bifold</button>
+              <button class="action-button" id="perfPresetVTrifold" type="button">Trifold</button>
+              <button class="action-button" id="perfPresetVCustom" type="button">Custom</button>
+            </div>
+          </div>
+          <div class="finishing-score-field layout-stack-compact">
+            <label class="finishing-score-label" for="perfV" title="CSV, 0–1 (e.g., 0.5 or 0.33,0.66)">
+              <span>Vertical perforations</span>
+              <input id="perfV" type="text" placeholder="e.g., 0.5" />
+            </label>
+            <p class="text-muted-detail finishing-score-hint">Values are relative to the document width.</p>
+          </div>
+        </div>
+        <div class="data-card layout-stack finishing-score-card finishing-score-card-horizontal">
+          <div class="finishing-score-card-header">
+            <div class="finishing-score-card-title">
+              <h3>Horizontal Perforations</h3>
+              <p class="text-muted-detail">Lines running left-to-right relative to the document height.</p>
+            </div>
+            <div class="finishing-score-preset-group print-hidden" role="group" aria-label="Horizontal perforation presets">
+              <button class="action-button" id="perfPresetHBifold" type="button">Bifold</button>
+              <button class="action-button" id="perfPresetHTrifold" type="button">Trifold</button>
+              <button class="action-button" id="perfPresetHCustom" type="button">Custom</button>
+            </div>
+          </div>
+          <div class="finishing-score-field layout-stack-compact">
+            <label class="finishing-score-label" for="perfH" title="CSV, 0–1">
+              <span>Horizontal perforations</span>
+              <input id="perfH" type="text" placeholder="e.g., 0.5" />
+            </label>
+            <p class="text-muted-detail finishing-score-hint">Values are relative to the document height.</p>
+          </div>
+        </div>
+        <div class="data-card finishing-action-card">
+          <div class="control-toolbar finishing-action-toolbar print-hidden">
+            <button class="action-button action-button-primary" id="applyPerforations" type="button">Apply Perforations</button>
+            <span class="text-muted-detail">Leave fields blank to omit perforations.</span>
+          </div>
+        </div>
+      </div>
+      <div class="finishing-score-column finishing-score-results">
+        <div class="finishing-score-results-grid">
+          <div class="data-card layout-stack finishing-score-table-card">
+            <div>
+              <h3>Perforations (Y)</h3>
+              <p class="text-muted-detail">Horizontal perforation runs positioned along the sheet height.</p>
+            </div>
+            <table class="data-table" id="tblPerforationsH"><thead><tr><th>Label</th><th>in</th><th>mm</th></tr></thead><tbody></tbody></table>
+          </div>
+          <div class="data-card layout-stack finishing-score-table-card">
+            <div>
+              <h3>Perforations (X)</h3>
+              <p class="text-muted-detail">Vertical perforation runs positioned along the sheet width.</p>
+            </div>
+            <table class="data-table" id="tblPerforationsV"><thead><tr><th>Label</th><th>in</th><th>mm</th></tr></thead><tbody></tbody></table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
