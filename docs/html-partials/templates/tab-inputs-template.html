@@ -40,9 +40,20 @@
                 </select>
               </label>
             </div>
-            <div class="input-field-row">
+            <div class="input-field-row with-action">
               <label><span>Width</span><input id="sheetW" type="number" step="0.25" data-inch-step="0.25"></label>
               <label><span>Height</span><input id="sheetH" type="number" step="0.25" data-inch-step="0.25"></label>
+              <div class="input-field-action">
+                <button
+                  type="button"
+                  class="input-swap-button"
+                  data-swap-targets="#sheetW,#sheetH"
+                  data-swap-message="Swapped sheet width and height"
+                  aria-label="Swap sheet width and height"
+                >
+                  <span aria-hidden="true">↔︎</span>
+                </button>
+              </div>
             </div>
           </section>
 
@@ -56,9 +67,20 @@
                 </select>
               </label>
             </div>
-            <div class="input-field-row">
+            <div class="input-field-row with-action">
               <label><span>Width</span><input id="docW" type="number" step="0.125" data-inch-step="0.125"></label>
               <label><span>Height</span><input id="docH" type="number" step="0.125" data-inch-step="0.125"></label>
+              <div class="input-field-action">
+                <button
+                  type="button"
+                  class="input-swap-button"
+                  data-swap-targets="#docW,#docH"
+                  data-swap-message="Swapped document width and height"
+                  aria-label="Swap document width and height"
+                >
+                  <span aria-hidden="true">↔︎</span>
+                </button>
+              </div>
             </div>
           </section>
 
@@ -72,9 +94,20 @@
                 </select>
               </label>
             </div>
-            <div class="input-field-row">
+            <div class="input-field-row with-action">
               <label><span>Horizontal</span><input id="gutH" type="number" step="0.0625" data-inch-step="0.0625"></label>
               <label><span>Vertical</span><input id="gutV" type="number" step="0.0625" data-inch-step="0.0625"></label>
+              <div class="input-field-action">
+                <button
+                  type="button"
+                  class="input-swap-button"
+                  data-swap-targets="#gutH,#gutV"
+                  data-swap-message="Swapped gutter horizontal and vertical"
+                  aria-label="Swap gutter horizontal and vertical"
+                >
+                  <span aria-hidden="true">↔︎</span>
+                </button>
+              </div>
             </div>
           </section>
 
