@@ -119,8 +119,3 @@ export function initializeTabRegistry(options = {}) {
   activateTab(initialKey);
 }
 
-export function getActiveTabKey() {
-  return activeTabKey;
-}
-
-export { DEFAULT_TAB_KEY };
