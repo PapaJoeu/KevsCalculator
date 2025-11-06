@@ -47,9 +47,11 @@
       <main class="panel tab-panel">
         <nav class="tabbar no-print output-tabs">
           <div class="tab active" data-tab="layout">Layout</div>
+          <div class="tab" data-tab="presets">Preset Layouts</div>
           <div class="tab" data-tab="summary">Summary</div>
           <div class="tab" data-tab="finishing">Cuts / Slits</div>
           <div class="tab" data-tab="scores">Scores</div>
+          <div class="tab" data-tab="warnings">Warnings</div>
           <div class="tab" data-tab="print">Print</div>
         </nav>
 
@@ -144,6 +146,71 @@
                   <button class="btn primary" id="calcBtn">Update Preview</button>
                   <button class="btn" id="resetBtn">Reset</button>
                   <span class="k" id="status"></span>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section id="tab-presets">
+            <div class="presets-pane">
+              <div class="card stack preset-intro">
+                <h2>Preset Layouts</h2>
+                <p class="muted">
+                  Jump-start common production setups with one click. Each preset configures sheet, document, gutters, safety
+                  areas, and finishing marks to match the listed specification.
+                </p>
+              </div>
+              <div class="preset-grid grid">
+                <div class="card stack preset-card">
+                  <div class="preset-card-header">
+                    <h3>Folded Business Card</h3>
+                    <p class="muted">12×18 sheet, 3.5×5 document, ⅛″ gutters, non-printable margin 1⁄16″.</p>
+                  </div>
+                  <ul>
+                    <li>Auto margins enabled</li>
+                    <li>Horizontal bifold score at 0.5</li>
+                  </ul>
+                  <button class="btn primary" data-layout-preset="folded-business-card">Apply preset</button>
+                </div>
+                <div class="card stack preset-card">
+                  <div class="preset-card-header">
+                    <h3>Tri-fold Brochure</h3>
+                    <p class="muted">12×18 sheet, 11×8.5 document, 0.25″ gutters, 0.125″ non-printable area.</p>
+                  </div>
+                  <ul>
+                    <li>Vertical scores at ⅓ and ⅔</li>
+                  </ul>
+                  <button class="btn primary" data-layout-preset="trifold-brochure">Apply preset</button>
+                </div>
+                <div class="card stack preset-card">
+                  <div class="preset-card-header">
+                    <h3>Postcard Gang Run</h3>
+                    <p class="muted">13×19 sheet, 4×6 document, ⅛″ gutters, 0.1″ non-printable area.</p>
+                  </div>
+                  <ul>
+                    <li>No scores or perforations</li>
+                  </ul>
+                  <button class="btn primary" data-layout-preset="postcard-gang-run">Apply preset</button>
+                </div>
+                <div class="card stack preset-card">
+                  <div class="preset-card-header">
+                    <h3>Event Tickets</h3>
+                    <p class="muted">12×18 sheet, 2×5.5 document, 0.125″ H / 0.25″ V gutters, 1⁄16″ non-printable.</p>
+                  </div>
+                  <ul>
+                    <li>Vertical perforation at 0.5</li>
+                  </ul>
+                  <button class="btn primary" data-layout-preset="event-tickets">Apply preset</button>
+                </div>
+                <div class="card stack preset-card">
+                  <div class="preset-card-header">
+                    <h3>Table Tents</h3>
+                    <p class="muted">13×19 sheet, 5×7 document, 0.25″ gutters, 0.125″ non-printable area.</p>
+                  </div>
+                  <ul>
+                    <li>Horizontal scores at 0.33 and 0.66</li>
+                  </ul>
+                  <button class="btn primary" data-layout-preset="table-tents">Apply preset</button>
                 </div>
               </div>
             </div>
@@ -260,6 +327,15 @@
             </div>
           </section>
 
+          <section id="tab-warnings">
+            <div class="card stack">
+              <h2>Warnings</h2>
+              <p class="muted">Production notes and layout warnings will appear here in a future update.</p>
+              <p class="muted">For now, use this space to track manual adjustments or finishing considerations that fall outside the
+                presets.</p>
+            </div>
+          </section>
+
           <section id="tab-print">
             <div class="row">
               <div class="card">
@@ -285,6 +361,7 @@
       </main>
     </div>
 
+    <script src="./js/layout-presets.js"></script>
     <script src="./js/app.js"></script>
   </body>
 </html>
