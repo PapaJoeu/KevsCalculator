@@ -45,9 +45,6 @@
 
               <div class="inputs-scroll">
                 <div class="toolbar no-print inputs-toolbar">
-                  <button class="btn" id="preset-letter">Letter 8.5×11</button>
-                  <button class="btn" id="preset-1218">12×18</button>
-                  <button class="btn ghost" id="swap-wh">Swap W/H</button>
                   <span>Units:</span>
                   <select id="units">
                     <option value="in">inches</option>
@@ -58,6 +55,10 @@
                 <div class="layout-grid">
                   <div class="card">
                     <h2>Sheet</h2>
+                    <div class="toolbar no-print">
+                      <button class="btn" id="sheet-1218">12×18</button>
+                      <button class="btn" id="sheet-1319">13×19</button>
+                    </div>
                     <div class="row">
                       <label><span>Width</span><input id="sheetW" type="number" step="0.001" value="12"></label>
                       <label><span>Height</span><input id="sheetH" type="number" step="0.001" value="18"></label>
@@ -66,6 +67,12 @@
 
                   <div class="card">
                     <h2>Document</h2>
+                    <div class="toolbar no-print">
+                      <button class="btn" id="doc-35x2">3.5×2</button>
+                      <button class="btn" id="doc-8511">8.5×11</button>
+                      <button class="btn" id="doc-55x85">5.5×8.5</button>
+                      <button class="btn" id="doc-35x4">3.5×4</button>
+                    </div>
                     <div class="row">
                       <label><span>Width</span><input id="docW" type="number" step="0.001" value="3.5"></label>
                       <label><span>Height</span><input id="docH" type="number" step="0.001" value="2"></label>
@@ -74,6 +81,12 @@
 
                   <div class="card">
                     <h2>Gutter</h2>
+                    <div class="toolbar no-print">
+                      <button class="btn" id="gut-none">No gutters</button>
+                      <button class="btn" id="gut-eighth">1/8″</button>
+                      <button class="btn" id="gut-3125x67">0.3125×0.67</button>
+                      <button class="btn" id="gut-1inch">1″</button>
+                    </div>
                     <div class="row">
                       <label><span>Horizontal</span><input id="gutH" type="number" step="0.001" value="0.125"></label>
                       <label><span>Vertical</span><input id="gutV" type="number" step="0.001" value="0.125"></label>

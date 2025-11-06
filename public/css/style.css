@@ -177,13 +177,13 @@ h3 {
 
 .row {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
   gap: 8px;
 }
 
 .row4 {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
   gap: 8px;
 }
 
@@ -241,7 +241,7 @@ label input {
   border: 1px solid #1b2030;
   padding: 6px 8px;
   border-radius: 8px;
-  width: 100px;
+  width: 80px;
   color: var(--text);
   text-align: right;
 }
@@ -265,6 +265,10 @@ select {
   align-items: center;
   flex-wrap: wrap;
   margin: 0.5rem 0 0;
+}
+
+.card > .toolbar {
+  margin: 0 0 6px;
 }
 
 .btn {

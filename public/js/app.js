@@ -236,15 +236,34 @@ function currentInputs() {
   };
 }
 
-function setPreset(w, h) {
+const convertForUnits = (value, units) => (units === "mm" ? (value * MM_PER_INCH).toFixed(2) : value);
+const describePresetValue = (value, units) => (units === "mm" ? (value * MM_PER_INCH).toFixed(2) : value.toString());
+
+function setSheetPreset(w, h) {
   const units = $("#units").value;
-  if (units === "mm") {
-    w = (w * MM_PER_INCH).toFixed(2);
-    h = (h * MM_PER_INCH).toFixed(2);
-  }
-  $("#sheetW").value = w;
-  $("#sheetH").value = h;
-  status(`Preset ${w}×${h} ${units}`);
+  const width = convertForUnits(w, units);
+  const height = convertForUnits(h, units);
+  $("#sheetW").value = width;
+  $("#sheetH").value = height;
+  status(`Sheet preset ${describePresetValue(w, units)}×${describePresetValue(h, units)} ${units}`);
+}
+
+function setDocumentPreset(w, h) {
+  const units = $("#units").value;
+  const width = convertForUnits(w, units);
+  const height = convertForUnits(h, units);
+  $("#docW").value = width;
+  $("#docH").value = height;
+  status(`Document preset ${describePresetValue(w, units)}×${describePresetValue(h, units)} ${units}`);
+}
+
+function setGutterPreset(horizontal, vertical) {
+  const units = $("#units").value;
+  const h = convertForUnits(horizontal, units);
+  const v = convertForUnits(vertical, units);
+  $("#gutH").value = h;
+  $("#gutV").value = v;
+  status(`Gutter preset ${describePresetValue(horizontal, units)}×${describePresetValue(vertical, units)} ${units}`);
 }
 
 function status(txt) {
@@ -379,15 +398,16 @@ $$('.tab').forEach((t) =>
   })
 );
 
-$('#preset-letter').addEventListener('click', () => setPreset(8.5, 11));
-$('#preset-1218').addEventListener('click', () => setPreset(12, 18));
-$('#swap-wh').addEventListener('click', () => {
-  const w = $('#docW').value,
-    h = $('#docH').value;
-  $('#docW').value = h;
-  $('#docH').value = w;
-  update();
-});
+$('#sheet-1218').addEventListener('click', () => setSheetPreset(12, 18));
+$('#sheet-1319').addEventListener('click', () => setSheetPreset(13, 19));
+$('#doc-35x2').addEventListener('click', () => setDocumentPreset(3.5, 2));
+$('#doc-8511').addEventListener('click', () => setDocumentPreset(8.5, 11));
+$('#doc-55x85').addEventListener('click', () => setDocumentPreset(5.5, 8.5));
+$('#doc-35x4').addEventListener('click', () => setDocumentPreset(3.5, 4));
+$('#gut-none').addEventListener('click', () => setGutterPreset(0, 0));
+$('#gut-eighth').addEventListener('click', () => setGutterPreset(0.125, 0.125));
+$('#gut-3125x67').addEventListener('click', () => setGutterPreset(0.3125, 0.67));
+$('#gut-1inch').addEventListener('click', () => setGutterPreset(1, 1));
 const UNIT_PRECISION = { in: 3, mm: 2 };
 const numericInputSelectors = [
   '#sheetW',
