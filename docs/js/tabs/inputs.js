@@ -1,4 +1,4 @@
-import { sheetPresets, documentPresets, gutterPresets } from '../input-presets.js';
+import { sheetPresets, documentPresets, gutterPresets } from '../data/input-presets.js';
 import { DEFAULT_INPUTS } from '../config/defaults.js';
 import { $ } from '../utils/dom.js';
 import { MM_PER_INCH, convertForUnits, describePresetValue } from '../utils/units.js';

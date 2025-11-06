@@ -1,3 +1,4 @@
+import { layoutPresets } from '../data/layout-presets.js';
 import { $, $$ } from '../utils/dom.js';
 import { formatValueForUnits } from '../utils/units.js';
 import { hydrateTabPanel } from './registry.js';
@@ -6,6 +7,7 @@ const TAB_KEY = 'presets';
 const marginInputSelectors = ['#mTop', '#mRight', '#mBottom', '#mLeft'];
 
 let initialized = false;
+let presetMap = layoutPresets;
 let storedContext = {
   update: () => {},
   status: () => {},
@@ -35,8 +37,7 @@ function setValueForUnits(selector, value, units) {
 }
 
 function applyLayoutPreset(presetKey) {
-  const presets = window.LAYOUT_PRESETS || {};
-  const preset = presets[presetKey];
+  const preset = presetMap[presetKey];
   if (!preset) {
     getStatus()(`Unknown layout preset: ${presetKey}`);
     return;
@@ -93,6 +94,11 @@ function attachPresetButtons() {
 function init(context = {}) {
   hydrateTabPanel(TAB_KEY);
   storedContext = { ...storedContext, ...context };
+  if (context.layoutPresets && typeof context.layoutPresets === 'object') {
+    presetMap = context.layoutPresets;
+  } else {
+    presetMap = layoutPresets;
+  }
   if (initialized) {
     return;
   }
