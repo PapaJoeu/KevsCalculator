@@ -38,7 +38,18 @@ export function createCalculationContext({ sheet, document, gutter, margins = {}
 export function calculateDocumentCount(avail, span, gut) {
   if (avail <= 0 || span <= 0) return 0;
   const g = clampToZero(gut);
-  return clampToZero(Math.floor((avail + g) / (span + g)));
+  const step = span + g;
+  if (step <= 0) return 0;
+  const raw = (avail + g) / step;
+  // Floating point arithmetic routinely nudges ratios that should be exact
+  // integers just below the whole number (e.g. 2.9999999999999996). Those
+  // cases would incorrectly floor to one fewer document, which is exactly what
+  // happens when the metric defaults are centered via auto margins. We add a
+  // tiny, scale-aware tolerance so values that are *only* off due to rounding
+  // still resolve to the correct integer, while ratios that are legitimately
+  // short of the next whole number remain unchanged.
+  const tolerance = Number.EPSILON * Math.max(1, Math.abs(raw));
+  return clampToZero(Math.floor(raw + tolerance));
 }
 
 export function calculateAxisUsage(avail, span, gut, count) {
