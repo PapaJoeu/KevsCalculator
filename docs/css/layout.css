@@ -52,7 +52,18 @@ th { color: var(--color-text-secondary); font-weight: 500; letter-spacing: 0.02e
   gap: var(--space-5);
 }
 
-.layout-header { max-width: 720px; margin: 0 auto; }
+.layout-header {
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+.layout-header h1 {
+  text-align: left;
+}
+
+.layout-header .text-muted {
+  max-width: 38ch;
+}
 
 
 .layout-panel {

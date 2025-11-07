@@ -5,7 +5,7 @@ import {
   createCalculationContext,
 } from '../calculations/layout-calculations.js';
 import { calculateProgramSequence } from '../utils/program-sequence.js';
-import { isAutoMarginModeEnabled } from '../tabs/inputs.js';
+import { getCurrentUnits, isAutoMarginModeEnabled } from '../tabs/inputs.js';
 import {
   $,
   fillTable,
@@ -36,7 +36,7 @@ function updateDocCountField(selector, count) {
 }
 
 function currentInputs() {
-  const units = $('#units').value;
+  const units = getCurrentUnits();
   const u = (v) => (units === 'mm' ? (Number(v) || 0) / MM_PER_INCH : Number(v) || 0);
   const autoMargins = isAutoMarginModeEnabled();
   const rawMargins = {
