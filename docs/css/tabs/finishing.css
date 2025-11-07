@@ -1,158 +1,82 @@
 /* =============================================
- * Finishing & Score Layouts
+ * Finishing Planner
  * ---------------------------------------------
- * Layout helpers that organize finishing, score,
- * and perforation content inside their tabs.
+ * Shared layouts for score, perforation, and
+ * drilling planning panels.
  * ============================================= */
+.finishing-pane { display: grid; gap: var(--space-5); }
 
-/* This container stacks score planning panels and supplemental results. */
-.finishing-score-pane { --gap: var(--gap-spacious); }
-
-/* This layout splits inputs and results into columns for large screens. */
-.finishing-score-layout {
-  --gap: var(--gap-spacious);
+.finishing-layout {
+  display: grid;
+  gap: var(--space-5);
   grid-template-columns: minmax(0, 420px) minmax(0, 1fr);
   align-items: start;
 }
 
-/* Each column stacks cards in the scoring and perforation tabs. */
-.finishing-score-column { --gap: var(--gap-spacious); }
+.finishing-column { display: grid; gap: var(--space-5); }
 
-/* This card introduces the scoring/perforation section with contextual copy. */
-.finishing-score-card-intro { --gap: var(--gap-snug); }
+.finishing-card { display: grid; gap: var(--space-3); }
+.finishing-card--intro { gap: var(--space-2); }
 
-/* This modifier adds breathing room between result cards. */
-.finishing-score-results { --gap: var(--gap-roomy); }
-
-/* This base card adds vertical rhythm for score configuration forms. */
-.finishing-score-card { --gap: var(--gap-roomy); }
-
-/* Horizontal score cards allow wider headlines to wrap cleanly. */
-.finishing-score-card-horizontal .finishing-score-card-title p,
-.finishing-score-card-vertical .finishing-score-card-title p {
-  max-width: none;
-}
-
-/* This header aligns titles and preset buttons for score cards. */
-.finishing-score-card-header {
+.finishing-card__header {
   display: flex;
   flex-wrap: wrap;
   align-items: flex-start;
   justify-content: space-between;
-  gap: 16px;
-  padding-bottom: 12px;
-  border-bottom: 1px solid var(--border-overlay);
+  gap: var(--space-3);
+  padding-bottom: var(--space-3);
+  border-bottom: 1px solid var(--color-border-muted);
 }
 
-/* This container limits explanatory copy to a comfortable width. */
-.finishing-score-card-title p {
-  margin: 0;
-  max-width: 460px;
-}
+.finishing-card__title p { margin: 0; max-width: 460px; }
 
-/* This group arranges preset buttons adjacent to score headings. */
-.finishing-score-preset-group {
+.finishing-preset-group {
   display: flex;
   flex-wrap: wrap;
   justify-content: flex-end;
-  gap: 8px;
+  gap: var(--space-2);
 }
 
-/* Preset buttons maintain a minimum width to keep labels legible. */
-.finishing-score-preset-group .action-button {
-  min-width: 90px;
-  text-align: center;
-}
+.finishing-preset-group .btn { min-width: 90px; text-align: center; }
 
-/* This container stacks score input labels and helper copy. */
-.finishing-score-field { --gap: var(--gap-snug); }
+.finishing-field { display: grid; gap: var(--space-2); }
 
-/* Score labels switch to a column layout for multi-line instructions. */
-.finishing-score-field label {
+.finishing-field .form-label {
   flex-direction: column;
   align-items: stretch;
   justify-content: flex-start;
-  gap: 8px;
+  gap: var(--space-2);
 }
 
-/* Score labels inherit a smaller caption style for descriptors. */
-.finishing-score-field label span {
-  font-size: 0.85rem;
-  color: var(--text-secondary);
-}
+.finishing-field .form-label span { font-size: var(--font-sm); color: var(--color-text-secondary); }
 
-/* Inputs span the full width when editing score values. */
-.finishing-score-field label input {
-  width: 100%;
-  text-align: left;
-}
+.finishing-field .form-control { text-align: left; }
 
-/* Locked score inputs adopt a disabled palette to indicate read-only state. */
-.finishing-score-field label input.is-locked {
-  background: var(--surface-control);
-  border-color: var(--border-muted);
-  color: var(--text-secondary);
+.finishing-field .form-control.is-locked {
+  background: var(--color-surface-2);
+  border: 1px solid var(--color-border-muted);
+  color: var(--color-text-secondary);
   cursor: not-allowed;
   opacity: 0.85;
 }
 
-/* Helper text reinforces how values are interpreted. */
-.finishing-score-hint {
-  margin: 0;
-  font-size: 0.85rem;
+.finishing-hint { margin: 0; font-size: var(--font-sm); color: var(--color-text-muted); }
+
+.finishing-action-bar { justify-content: space-between; }
+
+.finishing-action-card { padding: 0; }
+.finishing-action-card .finishing-action-bar { padding: var(--space-3); }
+
+.finishing-results { display: grid; gap: var(--space-3); }
+.finishing-results p { margin: 0; font-size: var(--font-sm); }
+
+.finishing-table-grid { display: grid; gap: var(--space-4); grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
+
+@media (max-width: 960px) {
+  .finishing-layout { grid-template-columns: 1fr; }
 }
 
-/* Action toolbars for score/perforation tabs span available width for buttons and copy. */
-.finishing-action-toolbar {
-  justify-content: space-between;
-}
-
-/* This card removes default padding so the toolbar can hug the edges. */
-.finishing-action-card {
-  padding: 0;
-}
-
-/* Padding is reintroduced within the toolbar for comfortable spacing. */
-.finishing-action-card .finishing-action-toolbar {
-  padding: 12px;
-}
-
-/* Inline helper text inside action toolbars uses the muted tone. */
-.finishing-action-toolbar .text-muted-detail {
-  font-size: 0.85rem;
-}
-
-/* Result cards tighten spacing for summary tables and descriptions. */
-.finishing-score-table-card { --gap: var(--gap-default); }
-
-/* Copy inside result cards uses a smaller type scale. */
-.finishing-score-table-card p {
-  margin: 0;
-  font-size: 0.85rem;
-}
-
-/* Result grids arrange tables responsively based on available width. */
-.finishing-score-results-grid {
-  --gap: var(--gap-roomy);
-  --grid-min: 260px;
-}
-
-@media (--bp-medium) {
-  /* Score layouts collapse to a single column on mid-sized screens. */
-  .finishing-score-layout {
-    grid-template-columns: 1fr;
-  }
-}
-
-@media (--bp-compact) {
-  /* Score headers stack elements vertically on narrow devices. */
-  .finishing-score-card-header {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  /* Preset buttons left-align when stacked vertically. */
-  .finishing-score-preset-group {
-    justify-content: flex-start;
-  }
+@media (max-width: 720px) {
+  .finishing-card__header { flex-direction: column; align-items: stretch; }
+  .finishing-preset-group { justify-content: flex-start; }
 }

@@ -9,7 +9,7 @@ function init() {
   hydrateTabPanel(TAB_KEY);
   initializeSummaryCalculators();
   if (initialized) return;
-  $$('.layer-visibility-toggle-input').forEach((input) => {
+  $$('.viz-layer-input').forEach((input) => {
     const layer = input.dataset.layer;
     if (!layer) return;
     const initial = getLayerVisibility(layer);

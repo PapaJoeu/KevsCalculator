@@ -2,15 +2,15 @@
   Load timing:
     - Cloned into #tab-warnings when docs/js/tabs/registry.hydrateTabPanel('warnings') executes during the tab module bootstrap.
   Key selectors:
-    - .data-card layout wrapper used for spacing, with no interactive IDs yet.
+    - Layout card wrapper used for spacing, with no interactive IDs yet.
   JS dependencies:
     - docs/js/tabs/warnings.js currently hydrates only to mark readiness; future warning injections should target this card body.
 -->
 
 <template id="tab-warnings-template">
-  <div class="data-card stack">
+  <div class="layout-card layout-stack" data-gap="snug">
     <h2>Warnings</h2>
-    <p class="text-muted-detail">Production notes and layout warnings will appear here in a future update.</p>
-    <p class="text-muted-detail">For now, use this space to track manual adjustments or finishing considerations that fall outside the presets.</p>
+    <p class="text-muted">Production notes and layout warnings will appear here in a future update.</p>
+    <p class="text-muted">For now, use this space to track manual adjustments or finishing considerations that fall outside the presets.</p>
   </div>
 </template>

@@ -1,120 +1,85 @@
 /* =============================================
- * Theme Tokens
+ * Design Tokens
  * ---------------------------------------------
- * Consolidated custom properties for surfaces,
- * borders, typography, accents, spacing, and
- * responsive thresholds.
+ * Single source of truth for Kev's calculator
+ * colors, typography, spacing, radii, motion,
+ * and visualizer accents.
  * ============================================= */
-@custom-media --bp-mobile (max-width: 600px);
-@custom-media --bp-tablet (max-width: 900px);
-@custom-media --bp-narrow (max-width: 720px);
-@custom-media --bp-compact (max-width: 680px);
-@custom-media --bp-medium (max-width: 960px);
-@custom-media --bp-laptop (max-width: 1024px);
-@custom-media --bp-desktop (min-width: 960px);
-
 :root {
-  /* -----------------------------
-     SURFACE
-  ----------------------------- */
-  --surface-bg: #0f1115;
-  --surface-panel: #171a21;
-  --surface-overlay: #11141b;
-  --surface-control: #1a1f2a;
-  --surface-control-hover: color-mix(in srgb, var(--surface-control) 85%, var(--text-inverse) 15%);
-  --surface-panel-elevated: var(--surface-panel);
-  --surface-panel-overlay: var(--surface-overlay);
-  --surface-card: var(--surface-panel);
-  --surface-inset: color-mix(in srgb, var(--surface-panel) 80%, var(--surface-bg) 20%);
-  --surface-paper: #fff;
+  color-scheme: dark;
 
-  /* -----------------------------
-     BORDER
-  ----------------------------- */
-  --border-default: #222632;
-  --border-strong: #2c3446;
-  --border-accent: #1f8a8a;
-  --border-subtle: color-mix(in srgb, var(--border-default) 70%, transparent);
-  --border-muted: var(--border-default);
-  --border-overlay: var(--border-default);
-  --border-dashed: color-mix(in srgb, var(--border-default) 85%, transparent);
+  /* ---- Color palette ---- */
+  --color-surface-0: #0f1115;
+  --color-surface-1: #171a21;
+  --color-surface-2: #1a1f2a;
+  --color-surface-3: #11141b;
+  --color-border: #222632;
+  --color-border-strong: #2c3446;
+  --color-border-muted: color-mix(in srgb, var(--color-border) 70%, transparent);
+  --color-border-accent: #1f8a8a;
+  --color-accent: #5eead4;
+  --color-accent-soft: color-mix(in srgb, var(--color-accent) 16%, var(--color-surface-2));
+  --color-accent-glow: color-mix(in srgb, var(--color-accent) 35%, transparent);
+  --color-text-primary: #e6e9ef;
+  --color-text-secondary: #b8c0cc;
+  --color-text-muted: #8892a6;
+  --color-text-inverse: #000000;
+  --color-text-bright: #f8fafc;
+  --color-success: #22c55e;
+  --color-warning: #f59e0b;
+  --color-danger: #ef4444;
+  --color-paper: #ffffff;
 
-  /* -----------------------------
-     TEXT
-  ----------------------------- */
-  --text-primary: #e6e9ef;
-  --text-secondary: #b8c0cc;
-  --text-tertiary: #9aa4b8;
-  --text-muted: #8892a6;
-  --text-bright: #e2e8f0;
-  --text-inverse: #000;
+  /* ---- Typography ---- */
+  --font-family-sans: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  --font-xs: 0.8rem;
+  --font-sm: 0.9rem;
+  --font-md: 1rem;
+  --font-lg: 1.25rem;
+  --font-xl: 1.5rem;
+  --line-height-base: 1.45;
 
-  /* -----------------------------
-     ACCENT
-  ----------------------------- */
-  --accent-primary: #5eead4;
-  --accent-focus-ring: color-mix(in srgb, var(--accent-primary) 45%, transparent);
-  --accent-surface-tint: color-mix(in srgb, var(--accent-primary) 16%, var(--surface-control));
-  --accent-surface-veil: color-mix(in srgb, var(--accent-primary) 35%, transparent);
-  --status-danger: #ef4444;
-  --status-success: #22c55e;
-  --status-warning: #f59e0b;
-
-  /* Measurement accents */
-  --measure-layout: #00aeef;
-  --measure-document: #00b050;
-  --measure-margin: #ffa500;
-  --measure-cut: #ff0000;
-  --measure-score: #800080;
-  --measure-hole: #2563eb;
-  --measure-cut-bg-hover: color-mix(in srgb, var(--measure-cut) 15%, transparent);
-  --measure-cut-bg-selected: color-mix(in srgb, var(--measure-cut) 25%, transparent);
-  --measure-score-bg-hover: color-mix(in srgb, var(--measure-score) 15%, transparent);
-  --measure-score-bg-selected: color-mix(in srgb, var(--measure-score) 25%, transparent);
-  --measure-hole-bg-hover: color-mix(in srgb, var(--measure-hole) 15%, transparent);
-  --measure-hole-bg-selected: color-mix(in srgb, var(--measure-hole) 25%, transparent);
-  --measure-cut-glow: #ff6666;
-  --measure-score-glow: #c4b5fd;
-  --measure-hole-glow: #93c5fd;
-  --measure-cut-glow-soft: color-mix(in srgb, var(--measure-cut-glow) 60%, transparent);
-  --measure-score-glow-soft: color-mix(in srgb, var(--measure-score-glow) 60%, transparent);
-  --measure-hole-glow-soft: color-mix(in srgb, var(--measure-hole-glow) 60%, transparent);
-  --measure-line-outline: #334155;
-  --measure-line-layout: #38bdf8;
-  --measure-line-printable: #f97316;
-  --measure-line-cut: #22d3ee;
-  --measure-line-slit: #facc15;
-  --measure-line-score: #a855f7;
-  --measure-line-perf: #fb7185;
-
-  /* Shadows */
-  --shadow-elevated: color-mix(in srgb, var(--surface-bg) 65%, transparent);
-  --shadow-deep: color-mix(in srgb, var(--text-inverse) 25%, transparent);
-
-  /* Spacing */
-  --gap-tight: 6px;
-  --gap-snug: 8px;
-  --gap-default: 12px;
-  --gap-roomy: 16px;
-  --gap-spacious: 18px;
+  /* ---- Spacing scale ---- */
   --space-1: 4px;
   --space-2: 8px;
   --space-3: 12px;
   --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
 
-  /* Typography */
-  --font-xs: 0.8rem;
-  --font-sm: 0.9rem;
-}
+  /* ---- Radii & elevation ---- */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 12px 24px rgba(0, 0, 0, 0.4);
 
-/* Legacy alias bridge */
-.legacy {
-  --bg: var(--surface-bg);
-  --panel: var(--surface-panel);
-  --muted: var(--text-muted);
-  --text: var(--text-primary);
-  --accent: var(--accent-primary);
-  --danger: var(--status-danger);
-  --ok: var(--status-success);
-  --warn: var(--status-warning);
+  /* ---- Motion ---- */
+  --motion-fast: 150ms;
+  --motion-slow: 300ms;
+
+  /* ---- Layout tokens ---- */
+  --layout-max-width: 1280px;
+  --layout-panel-width: min(1280px, 100%);
+
+  /* ---- Visualizer tokens ---- */
+  --viz-stage-bg: var(--color-surface-2);
+  --viz-layer-panel-bg: #1b2230;
+  --viz-stage-border: var(--color-border-strong);
+  --viz-layer-border: var(--color-border);
+  --viz-layer-hover: color-mix(in srgb, var(--color-accent) 12%, transparent);
+  --viz-layer-selected: color-mix(in srgb, var(--color-accent) 22%, transparent);
+  --viz-line-outline: #334155;
+  --viz-line-layout: #38bdf8;
+  --viz-line-printable: #f97316;
+  --viz-line-cut: #22d3ee;
+  --viz-line-score: #a855f7;
+  --viz-line-slit: #facc15;
+  --viz-line-perf: #fb7185;
+  --viz-line-hole: #2563eb;
+  --viz-fill-margin: rgba(249, 115, 22, 0.28);
+  --viz-fill-document: rgba(94, 234, 212, 0.18);
+  --viz-glow-cut: #ff6666;
+  --viz-glow-score: #c4b5fd;
+  --viz-glow-hole: #93c5fd;
 }

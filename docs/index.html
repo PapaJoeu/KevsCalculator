@@ -10,18 +10,18 @@
     <link rel="stylesheet" href="./css/style.css" />
   </head>
   <body>
-    <div class="layout-app-shell stack">
+    <div class="layout-shell layout-stack" data-gap="spacious">
       <!-- Fragment placeholder: App header -->
       <div data-partial="app-header"></div>
 
       <!-- Fragment placeholder: Sheet preview visualizer -->
       <div data-partial="visualizer"></div>
 
-      <main class="content-section output-details-section stack">
+      <main class="layout-panel layout-stack summary-shell" data-gap="cozy">
         <!-- Fragment placeholder: Output tab navigation -->
         <div data-partial="tab-nav"></div>
 
-        <div class="output-tabpanel-collection">
+        <div class="tabs-panels" data-role="tabs-panels">
           <section id="tab-inputs" class="is-active" data-tab-template="tab-inputs-template"></section>
           <section id="tab-presets" data-tab-template="tab-presets-template"></section>
           <section id="tab-summary" data-tab-template="tab-summary-template"></section>

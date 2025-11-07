@@ -10,77 +10,77 @@
 -->
 
 <template id="tab-perforations-template">
-  <div class="finishing-score-pane stack">
-    <div class="finishing-score-layout grid">
-      <div class="finishing-score-column stack">
-        <div class="data-card stack finishing-score-card-intro">
-          <div class="finishing-score-card-title">
+  <div class="finishing-pane layout-stack" data-gap="spacious">
+    <div class="finishing-layout">
+      <div class="finishing-column">
+        <div class="layout-card finishing-card finishing-card--intro">
+          <div class="finishing-card__title layout-stack" data-gap="snug">
             <h3>Perforation Planning</h3>
-            <p class="text-muted-detail">Configure tear-off runs relative to each document before applying them to the layout.</p>
+            <p class="text-muted">Configure tear-off runs relative to each document before applying them to the layout.</p>
           </div>
         </div>
-        <div class="data-card stack finishing-score-card finishing-score-card-vertical">
-          <div class="finishing-score-card-header">
-            <div class="finishing-score-card-title">
+        <div class="layout-card finishing-card">
+          <div class="finishing-card__header">
+            <div class="finishing-card__title layout-stack" data-gap="snug">
               <h3>Vertical Perforations</h3>
-              <p class="text-muted-detail">Lines running top-to-bottom relative to the document width.</p>
+              <p class="text-muted">Lines running top-to-bottom relative to the document width.</p>
             </div>
-            <div class="finishing-score-preset-group print-hidden" role="group" aria-label="Vertical perforation presets">
-              <button class="action-button" id="perfPresetVBifold" type="button">Bifold</button>
-              <button class="action-button" id="perfPresetVTrifold" type="button">Trifold</button>
-              <button class="action-button" id="perfPresetVCustom" type="button">Custom</button>
+            <div class="finishing-preset-group print-hidden" role="group" aria-label="Vertical perforation presets">
+              <button class="btn" id="perfPresetVBifold" type="button">Bifold</button>
+              <button class="btn" id="perfPresetVTrifold" type="button">Trifold</button>
+              <button class="btn" id="perfPresetVCustom" type="button">Custom</button>
             </div>
           </div>
-          <div class="finishing-score-field stack stack--snug">
-            <label class="finishing-score-label" for="perfV" title="CSV, 0–1 (e.g., 0.5 or 0.33,0.66)">
+          <div class="finishing-field">
+            <label class="form-label" for="perfV" title="CSV, 0–1 (e.g., 0.5 or 0.33,0.66)">
               <span>Vertical perforations</span>
-              <input id="perfV" type="text" placeholder="e.g., 0.5" />
+              <input id="perfV" class="form-control" type="text" placeholder="e.g., 0.5" />
             </label>
-            <p class="text-muted-detail finishing-score-hint">Values are relative to the document width.</p>
+            <p class="text-muted finishing-hint">Values are relative to the document width.</p>
           </div>
         </div>
-        <div class="data-card stack finishing-score-card finishing-score-card-horizontal">
-          <div class="finishing-score-card-header">
-            <div class="finishing-score-card-title">
+        <div class="layout-card finishing-card">
+          <div class="finishing-card__header">
+            <div class="finishing-card__title layout-stack" data-gap="snug">
               <h3>Horizontal Perforations</h3>
-              <p class="text-muted-detail">Lines running left-to-right relative to the document height.</p>
+              <p class="text-muted">Lines running left-to-right relative to the document height.</p>
             </div>
-            <div class="finishing-score-preset-group print-hidden" role="group" aria-label="Horizontal perforation presets">
-              <button class="action-button" id="perfPresetHBifold" type="button">Bifold</button>
-              <button class="action-button" id="perfPresetHTrifold" type="button">Trifold</button>
-              <button class="action-button" id="perfPresetHCustom" type="button">Custom</button>
+            <div class="finishing-preset-group print-hidden" role="group" aria-label="Horizontal perforation presets">
+              <button class="btn" id="perfPresetHBifold" type="button">Bifold</button>
+              <button class="btn" id="perfPresetHTrifold" type="button">Trifold</button>
+              <button class="btn" id="perfPresetHCustom" type="button">Custom</button>
             </div>
           </div>
-          <div class="finishing-score-field stack stack--snug">
-            <label class="finishing-score-label" for="perfH" title="CSV, 0–1">
+          <div class="finishing-field">
+            <label class="form-label" for="perfH" title="CSV, 0–1">
               <span>Horizontal perforations</span>
-              <input id="perfH" type="text" placeholder="e.g., 0.5" />
+              <input id="perfH" class="form-control" type="text" placeholder="e.g., 0.5" />
             </label>
-            <p class="text-muted-detail finishing-score-hint">Values are relative to the document height.</p>
+            <p class="text-muted finishing-hint">Values are relative to the document height.</p>
           </div>
         </div>
-        <div class="data-card finishing-action-card">
-          <div class="control-toolbar finishing-action-toolbar print-hidden">
-            <button class="action-button action-button-primary" id="applyPerforations" type="button">Apply Perforations</button>
-            <span class="text-muted-detail">Leave fields blank to omit perforations.</span>
+        <div class="layout-card finishing-action-card">
+          <div class="form-toolbar layout-cluster finishing-action-bar print-hidden" data-gap="snug" data-align="between">
+            <button class="btn btn-primary" id="applyPerforations" type="button">Apply Perforations</button>
+            <span class="text-muted">Leave fields blank to omit perforations.</span>
           </div>
         </div>
       </div>
-      <div class="finishing-score-column stack finishing-score-results">
-        <div class="finishing-score-results-grid grid grid--auto-fit">
-          <div class="data-card stack finishing-score-table-card">
-            <div>
+      <div class="finishing-column finishing-results">
+        <div class="finishing-table-grid">
+          <div class="layout-card finishing-results">
+            <div class="layout-stack" data-gap="snug">
               <h3>Perforations (Y)</h3>
-              <p class="text-muted-detail">Horizontal perforation runs positioned along the sheet height.</p>
+              <p class="text-muted">Horizontal perforation runs positioned along the sheet height.</p>
             </div>
-            <table class="data-table" id="tblPerforationsH"><thead><tr><th>Label</th><th>in</th><th>mm</th></tr></thead><tbody></tbody></table>
+            <table class="summary-table" id="tblPerforationsH"><thead><tr><th>Label</th><th>in</th><th>mm</th></tr></thead><tbody></tbody></table>
           </div>
-          <div class="data-card stack finishing-score-table-card">
-            <div>
+          <div class="layout-card finishing-results">
+            <div class="layout-stack" data-gap="snug">
               <h3>Perforations (X)</h3>
-              <p class="text-muted-detail">Vertical perforation runs positioned along the sheet width.</p>
+              <p class="text-muted">Vertical perforation runs positioned along the sheet width.</p>
             </div>
-            <table class="data-table" id="tblPerforationsV"><thead><tr><th>Label</th><th>in</th><th>mm</th></tr></thead><tbody></tbody></table>
+            <table class="summary-table" id="tblPerforationsV"><thead><tr><th>Label</th><th>in</th><th>mm</th></tr></thead><tbody></tbody></table>
           </div>
         </div>
       </div>

@@ -1,220 +1,163 @@
-# Kev’s Bitchin’ Print Calculator  
-### Brand Guidelines
+# Kev’s Bitchin’ Print Calculator
 
-<!--
-Context:
-This document defines the visual language and token system for Kev’s Bitchin’ Print Calculator.
-It standardizes colors, spacing, typography, and component naming so Codex or contributors can maintain visual consistency.
-The palette is inspired by print-production logic — clear contrast, legible metrics, and cyan/magenta/black cues familiar in prepress environments.
--->
+## Brand Guidelines
+
+These notes describe the unified UI system now in use across the calculator. Reference them when introducing new components or updating existing templates.
 
 ---
 
-## 🎨 1. Color System
+## 🎨 Color Palette
 
-<!--
-Purpose:
-Colors are designed for readability in dark environments (like print shops) and to reflect prepress conventions:
-- Cyan = layout guides
-- Magenta/Purple = score/perf lines
-- Red = cut/trim
-- Orange = safety zones
--->
+| Token | Intent | Hex |
+|-------|--------|-----|
+| `--color-surface-0` | App background | `#0f1115` |
+| `--color-surface-1` | Panels & cards | `#171a21` |
+| `--color-surface-2` | Elevated controls | `#1a1f2a` |
+| `--color-surface-3` | Overlays / stage chrome | `#11141b` |
+| `--color-border` | Default border | `#222632` |
+| `--color-border-strong` | Structural dividers | `#2c3446` |
+| `--color-border-accent` | Focus & hover outline | `#1f8a8a` |
+| `--color-accent` | Interactive accent | `#5eead4` |
+| `--color-text-primary` | Primary text | `#e6e9ef` |
+| `--color-text-secondary` | Secondary copy | `#b8c0cc` |
+| `--color-text-muted` | Helper copy | `#8892a6` |
+| `--color-success` | Positive state | `#22c55e` |
+| `--color-warning` | Warning tone | `#f59e0b` |
+| `--color-danger` | Destructive state | `#ef4444` |
+| `--color-paper` | Print background | `#ffffff` |
 
-| Token | Role | Description | Hex | Notes |
-|-------|------|--------------|------|-------|
-| `--color-surface-0` | Background | Deep neutral background | `#0f1115` | Almost black, easy on eyes in dim rooms |
-| `--color-surface-1` | Panel / Card | Slightly lighter than background | `#171a21` | Creates depth for cards and panels |
-| `--color-surface-2` | Overlay / Elevated | Used for toolbars and modals | `#1a1f2a` | Subtle contrast from panels |
-| `--color-border` | Neutral divider | For outlines, frames, and separators | `#222632` | Matches print-trim line tone |
-| `--color-accent` | Accent / Focus | Used for highlights and hover | `#5eead4` | Teal/cyan, evokes press calibration blues |
-| `--color-text-primary` | Main text | Default body color | `#e6e9ef` | Off-white, avoids harsh contrast |
-| `--color-text-secondary` | Secondary text | Labels, helper text | `#b8c0cc` | Mid-gray for hierarchy |
-| `--color-success` | Positive | Success or OK status | `#22c55e` | Vivid green, proof approval cue |
-| `--color-warning` | Warning | Alerts, cautions | `#f59e0b` | Warm amber for visual pop |
-| `--color-danger` | Error | Destructive or invalid state | `#ef4444` | Bright red for failures or deletions |
-
-**Usage Guidelines**
-- Dark mode by default — use `--color-surface-0` and `--color-surface-1` for depth.
-- For print previews, invert text to black on white (`--color-paper: #ffffff;`).
-- Avoid hex codes in components. Always reference tokens.
+Visualizer accents reuse dedicated tokens such as `--viz-line-cut`, `--viz-line-score`, and `--viz-layer-selected` so SVG rendering stays consistent with the UI theme.
 
 ---
 
-## 🧱 2. Spacing Scale
+## ✍️ Typography
 
-<!--
-Purpose:
-Spacing maintains a rhythm across components.
-The 4px base unit mirrors print design grid precision.
--->
+* Font stack: `system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif`
+* Base size / line height: `var(--font-md)` / `var(--line-height-base)`
+* Scale tokens: `--font-xs` (0.8rem), `--font-sm` (0.9rem), `--font-md` (1rem), `--font-lg` (1.25rem), `--font-xl` (1.5rem)
+* Heading weight: 600+; body copy 400.
 
-| Token | Value | Use Case |
-|--------|--------|----------|
-| `--space-1` | 4px | Hairline spacing, icon gaps |
-| `--space-2` | 8px | Compact padding (buttons, labels) |
-| `--space-3` | 12px | Default grid gap |
-| `--space-4` | 16px | Card padding, stack gaps |
-| `--space-5` | 24px | Section padding |
-| `--space-6` | 32px | Page margins, full layout spacing |
-
-**Rules**
-- Use `.gap-sm`, `.gap-md`, `.gap-lg` utilities built from these tokens.
-- Avoid hard-coded margins; rely on standardized space tokens.
+Use `.text-muted`, `.text-secondary`, and `.text-metric` utilities to express hierarchy, captions, and tabular numerics.
 
 ---
 
-## ✍️ 3. Typography
+## 📏 Spatial System
 
-<!--
-Purpose:
-The typography mirrors production documentation — clear, readable, system-native fonts.
-No branding flourishes, no webfonts, just functional, universally available families.
--->
+* Spacing tokens: `--space-1` (4px) through `--space-6` (32px)
+* Radii: `--radius-sm` (6px), `--radius-md` (10px), `--radius-lg` (14px)
+* Shadows: `--shadow-sm` and `--shadow-lg`
+* Motion: `--motion-fast` (150ms), `--motion-slow` (300ms)
 
-| Token | Size | Weight | Role |
-|--------|------|--------|------|
-| `--font-xs` | 0.8rem | 400 | Footnotes, metadata |
-| `--font-sm` | 0.9rem | 400 | Labels, secondary info |
-| `--font-md` | 1rem | 400 | Default body text |
-| `--font-lg` | 1.25rem | 600 | Section headings |
-| `--font-xl` | 1.5rem | 700 | App titles |
+### Utilities
 
-**Font Family**
-```
-system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif
-```
-- Matches platform defaults for native clarity.
-- Resembles UI text seen in production software (Adobe, RIP utilities).
-- Line height: `1.45` for legibility in dense panels.
+* `.layout-stack` + `data-gap="tight|snug|cozy|relaxed|spacious"`
+* `.layout-grid` + `data-cols` / `data-min` for responsive grids
+* `.layout-cluster` for inline groupings with optional `data-align`
+* `.pad-*`, `.gap-*`, `.radius-*`, `.shadow-*` for quick tweaks
+* `.layout-panel` and `.layout-card` standardize chrome across the app.
 
 ---
 
-## 🧩 4. Radius, Shadow & Motion
+## 🧩 Components
 
-<!--
-Purpose:
-Subtle shadows and radii emulate layered paper stacks — tactile but restrained.
--->
+### Buttons
 
-| Token | Value | Use |
-|--------|--------|-----|
-| `--radius-sm` | 6px | Inputs, small buttons |
-| `--radius-md` | 10px | Cards, modals |
-| `--radius-lg` | 14px | Panels, containers |
-| `--shadow-sm` | `0 2px 4px rgba(0,0,0,0.3)` | Subtle inset depth |
-| `--shadow-lg` | `0 12px 24px rgba(0,0,0,0.4)` | Elevated overlays |
-| `--motion-fast` | 150ms | Hover or tap transitions |
-| `--motion-slow` | 300ms | Panel expansion, modals |
-
----
-
-## 🧱 5. Component Naming System
-
-<!--
-Purpose:
-Classes should describe what something *is*, not how it’s laid out.
-Prefixes group components by domain: layout, form, button, visualizer, etc.
--->
-
-| Component | Old Class | New Class | Purpose |
-|------------|------------|-----------|----------|
-| App Shell | `.layout-app-shell` | `.layout-shell` | Main wrapper container |
-| Header | `.layout-app-header` | `.layout-header` | Title area |
-| Input Grid | `.input-2col-grid` | `.form-grid--dual` | Two-column form group |
-| Swap Button | `.input-swap-button` | `.btn-swap` | Swap control button |
-| Action Button | `.action-button-primary` | `.btn-primary` | Main action |
-| Sheet Preview | `.sheet-preview-stage` | `.viz-stage` | Layout visualizer |
-| Visibility Panel | `.layer-visibility-panel` | `.viz-layers` | Layer toggles |
-| Summary Section | `.summary-calculator-section` | `.summary-section` | Output summary panel |
-
-**Prefix Convention**
-- `layout-` = structure  
-- `form-` = inputs and controls  
-- `btn-` = button styles  
-- `viz-` = visualization elements  
-- `summary-` = output and reporting  
-
----
-
-## 🧮 6. Utility Classes
-
-<!--
-Purpose:
-Lightweight utilities replace one-off declarations, making markup easier to compose.
--->
-
-| Utility | Function |
-|----------|-----------|
-| `.layout-stack[data-gap="snug"]` | Vertical flex stack with adjustable spacing |
-| `.layout-grid[data-cols="2"]` | Responsive grid with 2 columns |
-| `.pad-sm`, `.pad-md`, `.pad-lg` | Padding utilities (use space tokens) |
-| `.gap-sm`, `.gap-md`, `.gap-lg` | Gap utilities |
-| `.text-muted`, `.text-secondary` | Text hierarchy helpers |
-| `.radius-md`, `.shadow-lg` | Border radius and elevation helpers |
-
----
-
-## 🖨️ 7. Print Mode
-
-<!--
-Purpose:
-When printing a layout summary or measurement sheet, UI chrome should be hidden.
-Maintain color and spacing but switch to light theme.
--->
-
-**Rules**
-- Background → `--color-paper: #ffffff`
-- Text → `--color-text-inverse: #000000`
-- Hide `.is-interactive`, `.print-hidden`
-- Remove shadows and borders for accurate print dimensions.
-
----
-
-## 📘 8. Example Component Usage
-
-#### Button
 ```html
-<button class="btn-primary">Calculate Layout</button>
+<button class="btn">Default</button>
+<button class="btn btn-primary">Primary</button>
+<button class="btn btn-ghost">Ghost</button>
+<button class="btn btn-swap" aria-label="Swap">↔︎</button>
 ```
 
-#### Form Input
+### Form Controls
+
 ```html
 <label class="form-label">
-  Sheet Width
-  <input class="form-control" type="number" value="12">
+  <span>Label</span>
+  <input class="form-control" type="number" />
+</label>
+
+<select class="form-select">
+  <option>Option</option>
+</select>
+
+<label class="form-choice">
+  <input class="form-choice__control" type="checkbox" checked />
+  <span class="form-choice__label">Printable layer</span>
 </label>
 ```
 
-#### Visualizer
+`form-grid--dual`, `form-row[data-cols]`, `form-toolbar`, and `.form-choice` cover the majority of calculator inputs without bespoke CSS.
+
+### Visualizer
+
 ```html
-<section class="viz-stage">
-  <svg class="viz-canvas"></svg>
+<section class="layout-panel viz-shell layout-stack" data-gap="cozy">
+  <div class="viz-layout">
+    <div class="viz-stage viz-theme"><svg id="svg"></svg></div>
+    <aside class="viz-layers">
+      <label class="viz-layer-toggle">
+        <input class="viz-layer-input" type="checkbox" data-layer="layout" checked />
+        <span class="viz-layer-label">
+          <i class="viz-legend-swatch" data-layer="layout"></i>
+          Layout Area
+        </span>
+      </label>
+    </aside>
+  </div>
 </section>
+```
+
+### Summary Cards
+
+```html
+<article class="layout-card summary-card">
+  <h3>Counts</h3>
+  <dl class="summary-metrics">
+    <div><dt>Across</dt><dd class="text-metric">12</dd></div>
+    <div><dt>Down</dt><dd class="text-metric">18</dd></div>
+  </dl>
+</article>
 ```
 
 ---
 
-## ⚙️ 9. Migration Map
+## 🔄 Migration Map
 
-<!--
-Purpose:
-Links old class names to the new semantic system for easy find-and-replace.
--->
-
-| Old Class | New Class |
-|------------|-----------|
+| Old Class | New Class / Pattern |
+|-----------|---------------------|
+| `.layout-app-shell` | `.layout-shell` |
+| `.layout-app-header` | `.layout-header` |
+| `.content-section` | `.layout-panel` |
+| `.data-card` | `.layout-card` |
+| `.stack` | `.layout-stack` + `data-gap` |
+| `.grid`, `.grid--columns-2`, `.grid--auto-fit` | `.layout-grid` + `data-cols` / `data-min` |
+| `.control-toolbar` | `.form-toolbar layout-cluster` |
 | `.input-2col-grid` | `.form-grid--dual` |
+| `.input-field-row(-quad)` | `.form-row` (+ `data-cols="4"` where needed) |
+| `.input-field-action` | `.form-row-actions` |
 | `.action-button` | `.btn` |
-| `.action-button-primary` | `.btn-primary` |
-| `.sheet-preview-visualizer` | `.viz-container` |
-| `.layer-visibility-option` | `.viz-layer-item` |
-| `.summary-calculator-section` | `.summary-section` |
+| `.action-button-primary` | `.btn btn-primary` |
+| `.action-button-ghost` | `.btn btn-ghost` |
+| `.input-swap-button` | `.btn btn-swap` |
+| `.sheet-preview-stage` | `.viz-stage` |
+| `.layer-visibility-panel` | `.viz-layers` |
+| `.layer-visibility-option` | `.viz-layer-toggle` |
+| `.layer-visibility-toggle-input` | `.viz-layer-input` |
+| `.sheet-preview-visualizer` | `.viz-shell` |
+| `.measurement-row` | `.viz-measure-row` |
+| `.output-tab-navigation` | `.tabs-nav` |
+| `.output-tab-trigger` | `.tabs-trigger` |
+| `.output-tabpanel-collection` | `.tabs-panels` |
+| `.print-layer-panel` | `fieldset.layout-card.layout-stack` |
+| `.print-layer-option` | `.form-choice` + `.print-layer-toggle` |
+
+When migrating markup, prefer the utility-first structure shown above and remove obsolete modifiers (e.g., `stack--snug`).
 
 ---
 
-<!--
-End Notes:
-This brand system keeps the dark, production-ready feel of the current app but cuts redundancy.
-All future UI additions (e.g., hole drilling, scoring tabs) should extend from these tokens and naming patterns.
--->
+## 🧾 Notes
+
+* All color, spacing, and typography values are centralized in `docs/css/tokens.css`.
+* Responsive adjustments lean on fluid grids and gap utilities; avoid bespoke media queries unless a layout truly requires them.
+* The print experience uses `.print-stage` with `.form-choice` toggles—visibility still respects `.print-hidden` / `.print-only` helpers.

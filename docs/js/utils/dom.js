@@ -110,7 +110,7 @@ export const fillTable = (tbody, rows, type = 'measure') => {
         `<td class="k">${row.inches.toFixed(3)}</td>`,
         `<td class="k">${row.millimeters.toFixed(2)}</td>`,
       ];
-      return `<tr class="measurement-row" data-measure-id="${id}" data-measure-type="${type}" data-measure-index="${index}">${cells.join('')}</tr>`;
+      return `<tr class="viz-measure-row" data-measure-id="${id}" data-measure-type="${type}" data-measure-index="${index}">${cells.join('')}</tr>`;
     })
     .join('');
   tbody.querySelectorAll('tr[data-measure-id]').forEach((row) => {
@@ -141,7 +141,7 @@ export const fillHoleTable = (tbody, holes = []) => {
         `<td class="k">${inchesToMillimeters(y).toFixed(2)}</td>`,
         `<td class="k">${inchesToMillimeters(diameter).toFixed(2)}</td>`,
       ];
-      return `<tr class="measurement-row" data-measure-id="${id}" data-measure-type="hole" data-measure-index="${index}">${cells.join('')}</tr>`;
+      return `<tr class="viz-measure-row" data-measure-id="${id}" data-measure-type="hole" data-measure-index="${index}">${cells.join('')}</tr>`;
     })
     .join('');
   tbody.querySelectorAll('tr[data-measure-id]').forEach((row) => {

@@ -122,7 +122,7 @@ const updateAlignOptions = (select, edge, selected) => {
 
 const createFieldLabel = (text) => {
   const label = document.createElement('label');
-  label.className = 'finishing-score-label';
+  label.className = 'form-label';
   const span = document.createElement('span');
   span.textContent = text;
   label.appendChild(span);
@@ -131,7 +131,7 @@ const createFieldLabel = (text) => {
 
 const createHint = (text) => {
   const hint = document.createElement('p');
-  hint.className = 'text-muted-detail';
+  hint.className = 'text-muted';
   hint.textContent = text;
   return hint;
 };
@@ -167,6 +167,7 @@ const createLocationRow = (entry) => {
 
   const edgeLabel = createFieldLabel('Edge');
   const edgeSelect = document.createElement('select');
+  edgeSelect.className = 'form-select';
   edgeSelect.dataset.role = 'edge';
   EDGE_OPTIONS.forEach((opt) => {
     const option = createOption(opt.value, opt.label);
@@ -178,18 +179,21 @@ const createLocationRow = (entry) => {
 
   const alignLabel = createFieldLabel('Alignment');
   const alignSelect = document.createElement('select');
+  alignSelect.className = 'form-select';
   alignSelect.dataset.role = 'align';
   updateAlignOptions(alignSelect, entry.edge, entry.align);
   alignLabel.appendChild(alignSelect);
   row.appendChild(alignLabel);
 
   const axisWrapper = document.createElement('div');
-  axisWrapper.className = 'stack stack--snug';
+  axisWrapper.className = 'layout-stack';
+  axisWrapper.dataset.gap = 'snug';
   const axisLabel = createFieldLabel('Along-edge offset (in)');
   const axisInput = document.createElement('input');
   axisInput.type = 'number';
   axisInput.step = '0.01';
   axisInput.value = String(entry.axisOffset ?? 0);
+  axisInput.className = 'form-control';
   axisInput.dataset.role = 'axis-offset';
   axisLabel.appendChild(axisInput);
   axisWrapper.appendChild(axisLabel);
@@ -197,13 +201,15 @@ const createLocationRow = (entry) => {
   row.appendChild(axisWrapper);
 
   const offsetWrapper = document.createElement('div');
-  offsetWrapper.className = 'stack stack--snug';
+  offsetWrapper.className = 'layout-stack';
+  offsetWrapper.dataset.gap = 'snug';
   const offsetLabel = createFieldLabel('Edge offset (in)');
   const offsetInput = document.createElement('input');
   offsetInput.type = 'number';
   offsetInput.step = '0.01';
   offsetInput.min = '0';
   offsetInput.value = String(entry.offset ?? 0);
+  offsetInput.className = 'form-control';
   offsetInput.dataset.role = 'offset';
   offsetLabel.appendChild(offsetInput);
   offsetWrapper.appendChild(offsetLabel);
@@ -212,7 +218,7 @@ const createLocationRow = (entry) => {
 
   const removeButton = document.createElement('button');
   removeButton.type = 'button';
-  removeButton.className = 'action-button action-button-ghost drilling-remove-location';
+  removeButton.className = 'btn btn-ghost drilling-remove-location';
   removeButton.dataset.role = 'remove';
   removeButton.textContent = 'Remove';
   row.appendChild(removeButton);
