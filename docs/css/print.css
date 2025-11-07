@@ -1,0 +1,24 @@
+/* =============================================
+ * Print & Accessibility Media
+ * ---------------------------------------------
+ * Print-mode adjustments, screen-only toggles,
+ * and reduced-motion preferences.
+ * ============================================= */
+@media print {
+  body { background: var(--surface-paper); color: var(--text-inverse); }
+  .print-hidden { display: none !important; }
+  .print-only-content { display: block !important; }
+  .content-section { border: none; box-shadow: none; }
+  .layout-app-shell { max-width: none; }
+}
+
+.print-only-content { display: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
