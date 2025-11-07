@@ -5,23 +5,20 @@ import {
   createCalculationContext,
 } from '../calculations/layout-calculations.js';
 import { calculateProgramSequence } from '../utils/program-sequence.js';
-import { getCurrentUnits, isAutoMarginModeEnabled } from '../tabs/inputs.js';
+import { getCurrentUnits, isAutoMarginModeEnabled, setMeasurementInput } from '../tabs/inputs.js';
 import {
   $,
   fillTable,
   fillHoleTable,
   parseOffsets,
   readIntOptional,
-  readNumber,
   resetMeasurementRegistry,
 } from '../utils/dom.js';
 import { updateSummaryCalculators } from './summary-calculators.js';
 import {
-  MM_PER_INCH,
   clampToZero,
-  formatInchesForUnits,
   formatMeasurement,
-  inchesToMillimeters,
+  MM_PER_INCH,
 } from '../utils/units.js';
 import { drawSVG } from '../rendering/svg-preview-renderer.js';
 import { updatePrintableVisualizer } from '../tabs/print.js';
@@ -37,25 +34,35 @@ function updateDocCountField(selector, count) {
 
 function currentInputs() {
   const units = getCurrentUnits();
-  const u = (v) => (units === 'mm' ? (Number(v) || 0) / MM_PER_INCH : Number(v) || 0);
+  const readInches = (selector) => {
+    // Prefer the canonical inch cache that the inputs tab maintains. This keeps
+    // the math layer stable even if the on-screen value is rounded for display.
+    const el = $(selector);
+    if (!el) return 0;
+    const stored = Number(el.dataset?.inches);
+    if (Number.isFinite(stored)) return stored;
+    const raw = Number(el.value);
+    if (!Number.isFinite(raw)) return 0;
+    return units === 'mm' ? raw / MM_PER_INCH : raw;
+  };
   const autoMargins = isAutoMarginModeEnabled();
   const rawMargins = {
-    top: u(readNumber('#mTop')),
-    right: u(readNumber('#mRight')),
-    bottom: u(readNumber('#mBottom')),
-    left: u(readNumber('#mLeft')),
+    top: readInches('#mTop'),
+    right: readInches('#mRight'),
+    bottom: readInches('#mBottom'),
+    left: readInches('#mLeft'),
   };
   return {
     units,
-    sheet: { width: u(readNumber('#sheetW')), height: u(readNumber('#sheetH')) },
-    document: { width: u(readNumber('#docW')), height: u(readNumber('#docH')) },
-    gutter: { horizontal: u(readNumber('#gutH')), vertical: u(readNumber('#gutV')) },
+    sheet: { width: readInches('#sheetW'), height: readInches('#sheetH') },
+    document: { width: readInches('#docW'), height: readInches('#docH') },
+    gutter: { horizontal: readInches('#gutH'), vertical: readInches('#gutV') },
     margins: autoMargins ? { top: 0, right: 0, bottom: 0, left: 0 } : rawMargins,
     nonPrintable: {
-      top: u(readNumber('#npTop')),
-      right: u(readNumber('#npRight')),
-      bottom: u(readNumber('#npBottom')),
-      left: u(readNumber('#npLeft')),
+      top: readInches('#npTop'),
+      right: readInches('#npRight'),
+      bottom: readInches('#npBottom'),
+      left: readInches('#npLeft'),
     },
     scoreV: parseOffsets($('#scoresV')?.value || ''),
     scoreH: parseOffsets($('#scoresH')?.value || ''),
@@ -126,11 +133,12 @@ export function update() {
     });
     layout = calculateLayout(ctx);
     layout = applyCountOverrides(layout, inp.forceAcross, inp.forceDown);
-    const formatMargin = (inches) => formatInchesForUnits(inches, inp.units);
-    $('#mTop').value = formatMargin(topMargin);
-    $('#mRight').value = formatMargin(rightMargin);
-    $('#mBottom').value = formatMargin(bottomMargin);
-    $('#mLeft').value = formatMargin(leftMargin);
+    // Feed the derived margins through the shared helper so the canonical inch
+    // cache and display stay synchronized for subsequent calculations.
+    setMeasurementInput('#mTop', topMargin, inp.units);
+    setMeasurementInput('#mRight', rightMargin, inp.units);
+    setMeasurementInput('#mBottom', bottomMargin, inp.units);
+    setMeasurementInput('#mLeft', leftMargin, inp.units);
   }
 
   resetMeasurementRegistry();

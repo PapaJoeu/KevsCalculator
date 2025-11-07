@@ -3,7 +3,6 @@ import { DEFAULT_INPUTS } from '../config/defaults.js';
 import { $ } from '../utils/dom.js';
 import {
   MM_PER_INCH,
-  convertForUnits,
   describePresetValue,
   formatUnitsValue,
   getUnitsPrecision,
@@ -26,6 +25,117 @@ const numericInputSelectors = [
   '#npBottom',
   '#npLeft',
 ];
+
+const CANONICAL_INCHES_ATTR = 'inches';
+
+/**
+ * Normalizes arbitrary unit identifiers down to the two measurement systems the
+ * calculator supports. Any unexpected value is treated as inches so the math
+ * layer always has a deterministic fallback.
+ */
+const normalizeUnits = (units) => (units === 'mm' ? 'mm' : 'in');
+
+/**
+ * Persists the canonical inch measurement for a numeric input so the layout
+ * engine never has to reconstruct inches from whatever string happens to be in
+ * the text box. The value is removed entirely when it is not finite so callers
+ * can clear out stale measurements by passing `NaN`/`undefined`/`null`.
+ */
+function storeCanonicalInches(el, inches) {
+  if (!el) return;
+  if (Number.isFinite(inches)) {
+    el.dataset[CANONICAL_INCHES_ATTR] = String(inches);
+  } else {
+    delete el.dataset[CANONICAL_INCHES_ATTR];
+  }
+}
+
+/**
+ * Converts a user-facing numeric value into inches based on the units that are
+ * currently displayed next to the input. A blank or non-numeric entry returns
+ * `null` so the caller can decide whether to fall back or clear the field.
+ */
+function coerceToInches(value, units) {
+  if (value == null || value === '') return null;
+  const numeric = Number(value);
+  if (!Number.isFinite(numeric)) return null;
+  return normalizeUnits(units) === 'mm' ? numeric / MM_PER_INCH : numeric;
+}
+
+/**
+ * Reads the most precise inch measurement available for an input. It prefers
+ * the cached canonical value but will gracefully fall back to converting the
+ * current string if the cache is missing (for example on the very first render
+ * before initialization wires up the dataset attribute).
+ */
+function readCanonicalInches(el, fallbackUnits = currentUnitsSelection) {
+  if (!el) return null;
+  const stored = Number(el.dataset?.[CANONICAL_INCHES_ATTR]);
+  if (Number.isFinite(stored)) return stored;
+  return coerceToInches(el.value, fallbackUnits);
+}
+
+/**
+ * Writes a formatted value to an input *and* updates its cached inch
+ * measurement. Downstream code always works with this canonical value so unit
+ * toggles merely re-render the text instead of compounding rounding errors.
+ */
+function writeMeasurementElement(el, inches, units = currentUnitsSelection) {
+  if (!el) return;
+  if (!Number.isFinite(inches)) {
+    el.value = '';
+    storeCanonicalInches(el, Number.NaN);
+    return;
+  }
+  const targetUnits = normalizeUnits(units);
+  storeCanonicalInches(el, inches);
+  const converted = targetUnits === 'mm' ? inches * MM_PER_INCH : inches;
+  const precision = getUnitsPrecision(targetUnits);
+  el.value = formatUnitsValue(converted, targetUnits, precision);
+}
+
+/**
+ * Synchronizes the canonical inch cache with the current text in the input.
+ * This is used by user-driven events so manual edits are reflected without
+ * waiting for the next calculation pass.
+ */
+function syncCanonicalFromDisplay(el, units = currentUnitsSelection) {
+  if (!el) return;
+  const inches = coerceToInches(el.value, units);
+  storeCanonicalInches(el, inches);
+}
+
+/**
+ * Renders every numeric input in the requested units using the stored inch
+ * value as the source of truth. If an input has never recorded a canonical
+ * value we attempt to translate the existing display string so the caller does
+ * not lose partially-entered data during initialization.
+ */
+function refreshNumericInputDisplays(targetUnits, fallbackUnits = targetUnits) {
+  const desiredUnits = normalizeUnits(targetUnits);
+  const assumedUnits = normalizeUnits(fallbackUnits);
+  numericInputSelectors.forEach((selector) => {
+    const el = $(selector);
+    if (!el) return;
+    const inches = readCanonicalInches(el, assumedUnits);
+    if (!Number.isFinite(inches)) {
+      writeMeasurementElement(el, Number.NaN, desiredUnits);
+      return;
+    }
+    writeMeasurementElement(el, inches, desiredUnits);
+  });
+}
+
+/**
+ * Convenience wrapper used by the rest of the module (and a few external
+ * callers) to update both the visible value and canonical inch cache for a
+ * specific input.
+ */
+function setMeasurementInput(selector, inches, units = currentUnitsSelection) {
+  const el = $(selector);
+  if (!el) return;
+  writeMeasurementElement(el, inches, units);
+}
 
 const UNIT_TO_SYSTEM = { in: 'imperial', mm: 'metric' };
 const presetSelectionMemory = {
@@ -275,7 +385,10 @@ function setAutoMarginMode(enabled) {
     if (!el) return;
     if (autoMarginMode) {
       el.dataset.auto = 'true';
-      el.value = '';
+      // Auto mode starts from a blank slate so downstream calculations can
+      // repopulate the margin inputs with derived values. Clearing via the
+      // shared helper also removes any stale canonical inches cache.
+      writeMeasurementElement(el, Number.NaN, currentUnitsSelection);
     } else {
       delete el.dataset.auto;
     }
@@ -365,28 +478,22 @@ function handlePresetSelect(selectEl, memoryKey, applyPreset) {
 
 function setSheetPreset(w, h) {
   const units = currentUnitsSelection;
-  const width = convertForUnits(w, units);
-  const height = convertForUnits(h, units);
-  $('#sheetW').value = width;
-  $('#sheetH').value = height;
+  setMeasurementInput('#sheetW', Number(w), units);
+  setMeasurementInput('#sheetH', Number(h), units);
   getStatus()(`Sheet preset ${describePresetValue(w, units)}×${describePresetValue(h, units)} ${units}`);
 }
 
 function setDocumentPreset(w, h) {
   const units = currentUnitsSelection;
-  const width = convertForUnits(w, units);
-  const height = convertForUnits(h, units);
-  $('#docW').value = width;
-  $('#docH').value = height;
+  setMeasurementInput('#docW', Number(w), units);
+  setMeasurementInput('#docH', Number(h), units);
   getStatus()(`Document preset ${describePresetValue(w, units)}×${describePresetValue(h, units)} ${units}`);
 }
 
 function setGutterPreset(horizontal, vertical) {
   const units = currentUnitsSelection;
-  const h = convertForUnits(horizontal, units);
-  const v = convertForUnits(vertical, units);
-  $('#gutH').value = h;
-  $('#gutV').value = v;
+  setMeasurementInput('#gutH', Number(horizontal), units);
+  setMeasurementInput('#gutV', Number(vertical), units);
   getStatus()(`Gutter preset ${describePresetValue(horizontal, units)}×${describePresetValue(vertical, units)} ${units}`);
 }
 
@@ -422,28 +529,12 @@ function applyNumericInputUnits(units) {
 
 function convertInputs(fromUnits, toUnits) {
   if (!toUnits) return;
-  const precision = getUnitsPrecision(toUnits);
-  if (fromUnits !== toUnits) {
-    const factor =
-      fromUnits === 'in' && toUnits === 'mm'
-        ? MM_PER_INCH
-        : fromUnits === 'mm' && toUnits === 'in'
-        ? 1 / MM_PER_INCH
-        : null;
-    if (factor) {
-      numericInputSelectors.forEach((selector) => {
-        const el = $(selector);
-        if (!el) return;
-        const raw = el.value;
-        if (raw === '' || raw == null) return;
-        const num = Number(raw);
-        if (!Number.isFinite(num)) return;
-        const converted = num * factor;
-        el.value = formatUnitsValue(converted, toUnits, precision);
-      });
-    }
-  }
-  applyNumericInputUnits(toUnits);
+  // Always render from the canonical inch cache so we do not accumulate
+  // rounding error when users flip back and forth between metric/imperial.
+  const safeTo = normalizeUnits(toUnits);
+  const safeFrom = fromUnits ? normalizeUnits(fromUnits) : safeTo;
+  refreshNumericInputDisplays(safeTo, safeFrom);
+  applyNumericInputUnits(safeTo);
 }
 
 function setUnits(nextUnits, options = {}) {
@@ -484,30 +575,19 @@ function handleUnitCelebration(units) {
 
 function applyDefaultInputs() {
   const { units, sheet, document, gutter, nonPrintable } = DEFAULT_INPUTS;
-  const precision = getUnitsPrecision(units);
-  const setValue = (selector, value) => {
-    const el = $(selector);
-    if (!el) return;
-    if (value == null || value === '') {
-      el.value = '';
-      return;
-    }
-    el.value = formatUnitsValue(value, units, precision);
-  };
-
   setUnits(units, { skipConversion: true, silent: true });
   setAutoMarginMode(true);
 
-  setValue('#sheetW', sheet.width);
-  setValue('#sheetH', sheet.height);
-  setValue('#docW', document.width);
-  setValue('#docH', document.height);
-  setValue('#gutH', gutter.horizontal);
-  setValue('#gutV', gutter.vertical);
-  setValue('#npTop', nonPrintable.top);
-  setValue('#npRight', nonPrintable.right);
-  setValue('#npBottom', nonPrintable.bottom);
-  setValue('#npLeft', nonPrintable.left);
+  setMeasurementInput('#sheetW', sheet.width, units);
+  setMeasurementInput('#sheetH', sheet.height, units);
+  setMeasurementInput('#docW', document.width, units);
+  setMeasurementInput('#docH', document.height, units);
+  setMeasurementInput('#gutH', gutter.horizontal, units);
+  setMeasurementInput('#gutV', gutter.vertical, units);
+  setMeasurementInput('#npTop', nonPrintable.top, units);
+  setMeasurementInput('#npRight', nonPrintable.right, units);
+  setMeasurementInput('#npBottom', nonPrintable.bottom, units);
+  setMeasurementInput('#npLeft', nonPrintable.left, units);
 
   ['#mTop', '#mRight', '#mBottom', '#mLeft', '#scoresV', '#scoresH', '#perfV', '#perfH'].forEach(
     (selector) => {
@@ -553,6 +633,19 @@ function attachDocCountListeners() {
   });
 }
 
+function attachCanonicalMeasurementListeners() {
+  numericInputSelectors.forEach((selector) => {
+    const el = $(selector);
+    if (!el || el.dataset.canonicalBound === 'true') return;
+    const sync = () => syncCanonicalFromDisplay(el);
+    ['input', 'change', 'blur'].forEach((evt) => el.addEventListener(evt, sync));
+    el.dataset.canonicalBound = 'true';
+    // Capture any server-rendered defaults before we start manipulating the
+    // value programmatically so the canonical cache is always populated.
+    sync();
+  });
+}
+
 function attachPresetDropdownHandlers() {
   handlePresetSelect($('#sheetPresetSelect'), 'sheet', setSheetPreset);
   handlePresetSelect($('#documentPresetSelect'), 'document', setDocumentPreset);
@@ -576,9 +669,11 @@ function swapInputValues(selectorA, selectorB) {
   const elA = $(selectorA);
   const elB = $(selectorB);
   if (!elA || !elB) return false;
-  const temp = elA.value;
-  elA.value = elB.value;
-  elB.value = temp;
+  const units = currentUnitsSelection;
+  const inchesA = readCanonicalInches(elA, units);
+  const inchesB = readCanonicalInches(elB, units);
+  writeMeasurementElement(elA, Number.isFinite(inchesB) ? inchesB : Number.NaN, units);
+  writeMeasurementElement(elB, Number.isFinite(inchesA) ? inchesA : Number.NaN, units);
   return true;
 }
 
@@ -638,6 +733,7 @@ function init(context = {}) {
   setAutoMarginMode(autoMarginMode);
   attachMarginListeners();
   attachDocCountListeners();
+  attachCanonicalMeasurementListeners();
   attachPresetDropdownHandlers();
   attachActionButtons();
   attachSwapButtons();
@@ -671,5 +767,7 @@ export function enableAutoMarginMode(enabled) {
 export function getCurrentUnits() {
   return currentUnitsSelection;
 }
+
+export { setMeasurementInput };
 
 export default inputsTab;
