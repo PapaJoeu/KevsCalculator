@@ -1,8 +1,7 @@
 import { layoutPresets } from '../data/layout-presets.js';
 import { $, $$ } from '../utils/dom.js';
-import { formatValueForUnits } from '../utils/units.js';
 import { hydrateTabPanel } from './registry.js';
-import { getCurrentUnits } from './inputs.js';
+import { getCurrentUnits, setMeasurementInput } from './inputs.js';
 
 const TAB_KEY = 'presets';
 const marginInputSelectors = ['#mTop', '#mRight', '#mBottom', '#mLeft'];
@@ -22,19 +21,16 @@ const getUpdate = () => storedContext.update ?? (() => {});
 
 function clearMarginInputs() {
   marginInputSelectors.forEach((selector) => {
-    const el = $(selector);
-    if (el) el.value = '';
+    setMeasurementInput(selector, Number.NaN);
   });
 }
 
 function setValueForUnits(selector, value, units) {
-  const el = $(selector);
-  if (!el) return;
   if (!Number.isFinite(Number(value))) {
-    el.value = '';
+    setMeasurementInput(selector, Number.NaN, units);
     return;
   }
-  el.value = formatValueForUnits(Number(value), units);
+  setMeasurementInput(selector, Number(value), units);
 }
 
 function applyLayoutPreset(presetKey) {
