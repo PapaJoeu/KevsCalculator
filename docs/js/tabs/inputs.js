@@ -1,5 +1,5 @@
 import { sheetPresets, documentPresets, gutterPresets } from '../data/input-presets.js';
-import { DEFAULT_INPUTS } from '../config/defaults.js';
+import { DEFAULT_INPUTS, getDefaultInputsForUnits } from '../config/defaults.js';
 import { $ } from '../utils/dom.js';
 import {
   MM_PER_INCH,
@@ -140,11 +140,71 @@ function setMeasurementInput(selector, inches, units = currentUnitsSelection) {
   writeMeasurementElement(el, inches, units);
 }
 
+function applyDefaultsToInputs(defaults) {
+  if (!defaults) return;
+  const { sheet, document, gutter, nonPrintable } = defaults;
+  setMeasurementInput('#sheetW', sheet?.width);
+  setMeasurementInput('#sheetH', sheet?.height);
+  setMeasurementInput('#docW', document?.width);
+  setMeasurementInput('#docH', document?.height);
+  setMeasurementInput('#gutH', gutter?.horizontal);
+  setMeasurementInput('#gutV', gutter?.vertical);
+  setMeasurementInput('#npTop', nonPrintable?.top);
+  setMeasurementInput('#npRight', nonPrintable?.right);
+  setMeasurementInput('#npBottom', nonPrintable?.bottom);
+  setMeasurementInput('#npLeft', nonPrintable?.left);
+}
+
+function clearOptionalInputs() {
+  ['#scoresV', '#scoresH', '#perfV', '#perfH'].forEach((selector) => {
+    const el = $(selector);
+    if (!el) return;
+    el.value = '';
+  });
+}
+
+function rememberSystemPresetDefaults(system) {
+  const defaults = SYSTEM_DEFAULT_PRESET_IDS[system];
+  if (!defaults) return;
+  if (presetSelectionMemory.sheet) {
+    presetSelectionMemory.sheet[system] = defaults.sheet;
+  }
+  if (presetSelectionMemory.document) {
+    presetSelectionMemory.document[system] = defaults.document;
+  }
+  if (presetSelectionMemory.gutter) {
+    presetSelectionMemory.gutter[system] = defaults.gutter;
+  }
+}
+
+function applySystemDefaultInputs(system) {
+  const units = system === 'metric' ? 'mm' : 'in';
+  const defaults = getDefaultInputsForUnits(units);
+  setAutoMarginMode(true);
+  applyDefaultsToInputs(defaults);
+  clearOptionalInputs();
+  resetDocCountState();
+  rememberSystemPresetDefaults(system);
+}
+
 const UNIT_TO_SYSTEM = { in: 'imperial', mm: 'metric' };
 const presetSelectionMemory = {
   sheet: { imperial: '', metric: '' },
   document: { imperial: '', metric: '' },
   gutter: { imperial: '', metric: '' },
+};
+
+const SYSTEM_DEFAULT_PRESET_IDS = {
+  imperial: {
+    sheet: 'sheet-1218',
+    document: 'doc-35x2',
+    gutter: 'gut-eighth',
+  },
+  metric: {
+    sheet: 'sheet-a3',
+    document: 'doc-85x55',
+    gutter: 'gut-3mm',
+  },
 };
 
 let initialized = false;
@@ -157,6 +217,9 @@ const EAGLE_IMAGE_SRC = 'media/eagle.svg';
 const EAGLE_AUDIO_SRC = 'media/eagle.wav';
 const EAGLE_CLASS = 'freedom-eagle';
 const ALERT_CLASS = 'freedom-alert';
+const ALERT_HEADLINE_CLASS = 'freedom-alert__headline';
+const ALERT_DETAIL_CLASS = 'freedom-alert__detail';
+const METRIC_ALERT_DURATION_MS = 5000;
 const CELEBRATION_STYLESHEET_URL = './css/celebration.css';
 const CELEBRATION_STYLESHEET_ATTR = 'data-optional-celebration';
 const CONFETTI_CLASS = 'freedom-confetti';
@@ -371,10 +434,21 @@ function showFreedomAlert() {
     .then(() => {
       const alert = document.createElement('div');
       alert.className = ALERT_CLASS;
-      alert.textContent = 'FREEDOM MODE OFF';
+      alert.setAttribute('role', 'status');
+      alert.setAttribute('aria-live', 'assertive');
+
+      const headline = document.createElement('span');
+      headline.className = ALERT_HEADLINE_CLASS;
+      headline.textContent = 'Freedom mode off';
+
+      const detail = document.createElement('span');
+      detail.className = ALERT_DETAIL_CLASS;
+      detail.textContent = 'Metric defaults loaded';
+
+      alert.append(headline, detail);
       document.body.appendChild(alert);
       alertElement = alert;
-      alertDismissTimeout = setTimeout(dismissAlert, 3500);
+      alertDismissTimeout = setTimeout(dismissAlert, METRIC_ALERT_DURATION_MS);
     })
     .catch(() => {
       // No alert if the stylesheet cannot be loaded.
@@ -544,13 +618,19 @@ function setUnits(nextUnits, options = {}) {
   if (!nextUnits) return;
   const { skipConversion = false, silent = false } = options;
   const previousUnits = currentUnitsSelection;
-  if (!skipConversion && previousUnits !== nextUnits) {
-    convertInputs(previousUnits, nextUnits);
-  }
+  const nextSystem = getSystemForUnits(nextUnits);
+  const previousSystem = getSystemForUnits(previousUnits);
   currentUnitsSelection = nextUnits;
+  if (!skipConversion && previousUnits !== nextUnits) {
+    if (previousSystem !== nextSystem) {
+      applySystemDefaultInputs(nextSystem);
+    } else {
+      convertInputs(previousUnits, nextUnits);
+    }
+  }
   updateUnitToggleDisplay(nextUnits);
   applyNumericInputUnits(nextUnits);
-  refreshPresetDropdowns(getSystemForUnits(nextUnits));
+  refreshPresetDropdowns(nextSystem);
   if (!silent) {
     getStatus()('Units changed');
     getUpdate()();
@@ -577,32 +657,9 @@ function handleUnitCelebration(units) {
 }
 
 function applyDefaultInputs() {
-  const { sheet, document, gutter, nonPrintable } = DEFAULT_INPUTS;
   const units = INITIAL_UNITS;
   setUnits(units, { skipConversion: true, silent: true });
-  setAutoMarginMode(true);
-
-  setMeasurementInput('#sheetW', sheet.width, units);
-  setMeasurementInput('#sheetH', sheet.height, units);
-  setMeasurementInput('#docW', document.width, units);
-  setMeasurementInput('#docH', document.height, units);
-  setMeasurementInput('#gutH', gutter.horizontal, units);
-  setMeasurementInput('#gutV', gutter.vertical, units);
-  setMeasurementInput('#npTop', nonPrintable.top, units);
-  setMeasurementInput('#npRight', nonPrintable.right, units);
-  setMeasurementInput('#npBottom', nonPrintable.bottom, units);
-  setMeasurementInput('#npLeft', nonPrintable.left, units);
-
-  ['#mTop', '#mRight', '#mBottom', '#mLeft', '#scoresV', '#scoresH', '#perfV', '#perfH'].forEach(
-    (selector) => {
-      const el = $(selector);
-      if (!el) return;
-      el.value = '';
-    }
-  );
-
-  resetDocCountState();
-
+  applySystemDefaultInputs(getSystemForUnits(units));
   getStatus()('');
 }
 

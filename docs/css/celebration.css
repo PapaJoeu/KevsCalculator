@@ -39,21 +39,38 @@
 
 .freedom-alert {
   position: fixed;
-  top: 20px;
+  top: 50%;
   left: 50%;
-  transform: translateX(-50%);
+  transform: translate(-50%, -55%) scale(0.98);
   z-index: 9999;
-  padding: 12px 20px;
-  border-radius: 999px;
-  background: color-mix(in srgb, var(--color-surface-0) 88%, transparent);
+  padding: clamp(18px, 3vw, 32px) clamp(28px, 4vw, 44px);
+  border-radius: clamp(24px, 5vw, 48px);
+  background: color-mix(in srgb, var(--color-surface-0) 92%, transparent);
   color: var(--color-text-primary);
-  font-weight: 700;
+  display: grid;
+  gap: clamp(6px, 1.6vw, 14px);
+  justify-items: center;
+  text-align: center;
+  border: 3px solid color-mix(in srgb, var(--color-text-muted) 30%, transparent);
+  box-shadow: 0 20px 45px color-mix(in srgb, var(--color-text-inverse) 45%, transparent);
+  pointer-events: none;
+  max-inline-size: min(90vw, 560px);
+  animation: freedom-alert-fade 5s ease-in-out forwards;
+}
+
+.freedom-alert__headline {
+  font-size: clamp(1.6rem, 3.5vw + 1rem, 3rem);
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.freedom-alert__detail {
+  font-size: clamp(1.05rem, 1.6vw + 0.8rem, 1.75rem);
+  font-weight: 600;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  border: 2px solid color-mix(in srgb, var(--color-text-muted) 40%, transparent);
-  box-shadow: 0 14px 30px color-mix(in srgb, var(--color-text-inverse) 35%, transparent);
-  pointer-events: none;
-  animation: freedom-alert-fade 3.5s ease-in-out forwards;
+  color: color-mix(in srgb, var(--color-text-primary) 80%, var(--color-text-muted) 20%);
 }
 
 .freedom-confetti {
@@ -105,18 +122,18 @@
 @keyframes freedom-alert-fade {
   0% {
     opacity: 0;
-    transform: translate(-50%, -6px);
+    transform: translate(-50%, -65%) scale(0.92);
   }
-  15% {
+  18% {
     opacity: 1;
-    transform: translate(-50%, 0);
+    transform: translate(-50%, -55%) scale(1);
   }
-  80% {
+  85% {
     opacity: 1;
-    transform: translate(-50%, 0);
+    transform: translate(-50%, -55%) scale(1);
   }
   100% {
     opacity: 0;
-    transform: translate(-50%, -6px);
+    transform: translate(-50%, -45%) scale(0.96);
   }
 }
