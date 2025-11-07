@@ -8,6 +8,7 @@ import {
   getUnitsPrecision,
 } from '../utils/units.js';
 import { hydrateTabPanel } from './registry.js';
+import { detectPreferredUnits } from '../utils/measurement-system.js';
 
 const TAB_KEY = 'inputs';
 const marginInputSelectors = ['#mTop', '#mRight', '#mBottom', '#mLeft'];
@@ -34,6 +35,8 @@ const CANONICAL_INCHES_ATTR = 'inches';
  * layer always has a deterministic fallback.
  */
 const normalizeUnits = (units) => (units === 'mm' ? 'mm' : 'in');
+
+const INITIAL_UNITS = detectPreferredUnits(DEFAULT_INPUTS.units);
 
 /**
  * Persists the canonical inch measurement for a numeric input so the layout
@@ -146,7 +149,7 @@ const presetSelectionMemory = {
 
 let initialized = false;
 let autoMarginMode = true;
-let currentUnitsSelection = DEFAULT_INPUTS.units;
+let currentUnitsSelection = INITIAL_UNITS;
 let storedContext = { update: () => {}, status: () => {} };
 let keydownHandlerAttached = false;
 
@@ -574,7 +577,8 @@ function handleUnitCelebration(units) {
 }
 
 function applyDefaultInputs() {
-  const { units, sheet, document, gutter, nonPrintable } = DEFAULT_INPUTS;
+  const { sheet, document, gutter, nonPrintable } = DEFAULT_INPUTS;
+  const units = INITIAL_UNITS;
   setUnits(units, { skipConversion: true, silent: true });
   setAutoMarginMode(true);
 
