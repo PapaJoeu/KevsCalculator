@@ -94,6 +94,13 @@ export const documentPresets = [
     systems: ['imperial'],
   },
   {
+    id: 'doc-85x55',
+    label: '85×55 mm (Business Card)',
+    width: 3.34646,
+    height: 2.16535,
+    systems: ['metric'],
+  },
+  {
     id: 'doc-a5',
     label: 'A5 (148×210 mm)',
     width: 5.82677,
