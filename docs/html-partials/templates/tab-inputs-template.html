@@ -115,51 +115,12 @@
 
         <div class="layout-stack" data-gap="relaxed">
           <section class="form-section">
-            <div class="layout-stack" data-gap="tight">
-              <div class="layout-cluster" data-align="between">
-                <div class="layout-stack" data-gap="tight">
-                  <h2>Layout alignment</h2>
-                  <p class="text-muted" id="marginAlignSummary">
-                    Auto alignment balances the printable layout inside the sheet. Switch to manual offsets to anchor the layout to specific edges.
-                  </p>
-                </div>
-                <button type="button" class="btn btn-ghost margin-auto-toggle" id="marginAutoToggle" aria-pressed="true">
-                  Auto alignment: On
-                </button>
-              </div>
-              <div class="layout-grid margin-align__grid" data-cols="2" data-gap="snug">
-                <div class="layout-stack" data-gap="tight">
-                  <h3>Horizontal anchor</h3>
-                  <p class="text-muted margin-align__hint" id="marginHorizontalHint">
-                    Keep the layout centered left-to-right.
-                  </p>
-                  <div class="margin-align__options" role="group" aria-label="Horizontal alignment">
-                    <button type="button" class="btn margin-align__option" data-align-horizontal="left" aria-pressed="false">Left edge</button>
-                    <button type="button" class="btn margin-align__option" data-align-horizontal="center" aria-pressed="true">Centered</button>
-                    <button type="button" class="btn margin-align__option" data-align-horizontal="right" aria-pressed="false">Right edge</button>
-                  </div>
-                </div>
-                <div class="layout-stack" data-gap="tight">
-                  <h3>Vertical anchor</h3>
-                  <p class="text-muted margin-align__hint" id="marginVerticalHint">
-                    Keep the layout centered top-to-bottom.
-                  </p>
-                  <div class="margin-align__options" role="group" aria-label="Vertical alignment">
-                    <button type="button" class="btn margin-align__option" data-align-vertical="top" aria-pressed="false">Top edge</button>
-                    <button type="button" class="btn margin-align__option" data-align-vertical="center" aria-pressed="true">Centered</button>
-                    <button type="button" class="btn margin-align__option" data-align-vertical="bottom" aria-pressed="false">Bottom edge</button>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <p class="text-muted margin-align__inputs-hint" id="marginInputHint">
-              Update the highlighted offsets below to pin the layout where you need it.
-            </p>
+            <h2>Margins (inside printable)</h2>
             <div class="form-row" data-cols="4">
-              <label class="form-label margin-edge" data-margin-edge="top" data-margin-axis="vertical"><span>Distance from top edge</span><input id="mTop" class="form-control" type="number" step="0.125" data-inch-step="0.125" /></label>
-              <label class="form-label margin-edge" data-margin-edge="right" data-margin-axis="horizontal"><span>Distance from right edge</span><input id="mRight" class="form-control" type="number" step="0.125" data-inch-step="0.125" /></label>
-              <label class="form-label margin-edge" data-margin-edge="bottom" data-margin-axis="vertical"><span>Distance from bottom edge</span><input id="mBottom" class="form-control" type="number" step="0.125" data-inch-step="0.125" /></label>
-              <label class="form-label margin-edge" data-margin-edge="left" data-margin-axis="horizontal"><span>Distance from left edge</span><input id="mLeft" class="form-control" type="number" step="0.125" data-inch-step="0.125" /></label>
+              <label class="form-label"><span>Top</span><input id="mTop" class="form-control" type="number" step="0.125" data-inch-step="0.125" placeholder="auto" /></label>
+              <label class="form-label"><span>Right</span><input id="mRight" class="form-control" type="number" step="0.125" data-inch-step="0.125" placeholder="auto" /></label>
+              <label class="form-label"><span>Bottom</span><input id="mBottom" class="form-control" type="number" step="0.125" data-inch-step="0.125" placeholder="auto" /></label>
+              <label class="form-label"><span>Left</span><input id="mLeft" class="form-control" type="number" step="0.125" data-inch-step="0.125" placeholder="auto" /></label>
             </div>
           </section>
 
