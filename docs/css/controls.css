@@ -187,6 +187,51 @@ input[type="number"].form-control { text-align: right; }
   font-size: 1rem;
 }
 
+.units-toggle {
+  border-radius: 999px;
+  padding: var(--space-2) var(--space-4);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-weight: 600;
+  border-width: 2px;
+  gap: var(--space-2);
+}
+
+.units-toggle span[data-role='units-toggle-abbr'] {
+  font-size: 0.75em;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  opacity: 0.8;
+}
+
+.units-toggle[data-system='imperial'] {
+  background: linear-gradient(135deg, rgba(178, 34, 52, 0.92), rgba(60, 59, 110, 0.92));
+  border-color: rgba(60, 59, 110, 0.85);
+  color: #f9fafb;
+  box-shadow: 0 12px 26px rgba(60, 59, 110, 0.28);
+}
+
+.units-toggle[data-system='imperial'] span[data-role='units-toggle-abbr'] {
+  color: rgba(255, 255, 255, 0.85);
+  opacity: 1;
+}
+
+.units-toggle[data-system='metric'] {
+  background: var(--color-surface-2);
+  color: var(--color-text-secondary);
+}
+
+.units-toggle[data-system='metric']:hover,
+.units-toggle[data-system='metric']:focus-visible {
+  color: var(--color-text-primary);
+}
+
+.units-toggle[data-system='imperial']:hover,
+.units-toggle[data-system='imperial']:focus-visible {
+  background: linear-gradient(135deg, rgba(178, 34, 52, 1), rgba(60, 59, 110, 1));
+  color: #ffffff;
+}
+
 /* ---- Tabs ---- */
 .tabs-nav {
   border-bottom: 1px solid var(--color-border);

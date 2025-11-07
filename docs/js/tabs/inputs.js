@@ -46,14 +46,61 @@ const EAGLE_CLASS = 'freedom-eagle';
 const ALERT_CLASS = 'freedom-alert';
 const CELEBRATION_STYLESHEET_URL = './css/celebration.css';
 const CELEBRATION_STYLESHEET_ATTR = 'data-optional-celebration';
+const CONFETTI_CLASS = 'freedom-confetti';
+const CONFETTI_PIECE_CLASS = 'freedom-confetti__piece';
+const CONFETTI_COLORS = ['#B22234', '#FFFFFF', '#3C3B6E'];
 let celebrationStylesheetPromise = null;
 let eagleElement = null;
 let eagleAudio = null;
 let alertElement = null;
 let alertDismissTimeout = null;
+let confettiContainer = null;
+let confettiCleanupTimeout = null;
+let unitToggleButton = null;
 
 const getStatus = () => storedContext.status ?? (() => {});
 const getUpdate = () => storedContext.update ?? (() => {});
+
+function getUnitToggleButton() {
+  if (typeof document === 'undefined') return null;
+  if (unitToggleButton && document.body.contains(unitToggleButton)) {
+    return unitToggleButton;
+  }
+  unitToggleButton = document.querySelector('[data-role="units-toggle"]');
+  return unitToggleButton;
+}
+
+function updateUnitToggleDisplay(units) {
+  const button = getUnitToggleButton();
+  if (!button) return;
+  const system = getSystemForUnits(units);
+  button.dataset.system = system;
+  button.setAttribute('aria-pressed', system === 'imperial' ? 'true' : 'false');
+  const label = button.querySelector('[data-role="units-toggle-label"]');
+  const abbr = button.querySelector('[data-role="units-toggle-abbr"]');
+  if (label) {
+    label.textContent = system === 'imperial' ? 'Imperial Units' : 'Metric Units';
+  }
+  if (abbr) {
+    abbr.textContent = units;
+  }
+  const targetSystem = system === 'imperial' ? 'metric' : 'imperial';
+  const targetUnits = targetSystem === 'imperial' ? 'in' : 'mm';
+  const hint = `Switch to ${targetSystem} units (${targetUnits})`;
+  button.setAttribute('title', hint);
+  button.setAttribute('aria-label', hint);
+}
+
+function initializeUnitToggle() {
+  const button = getUnitToggleButton();
+  if (!button || button.dataset.bound === 'true') return;
+  button.dataset.bound = 'true';
+  button.addEventListener('click', () => {
+    const nextUnits = currentUnitsSelection === 'in' ? 'mm' : 'in';
+    setUnits(nextUnits);
+  });
+  updateUnitToggleDisplay(currentUnitsSelection);
+}
 
 function ensureCelebrationStyles() {
   if (typeof document === 'undefined') return Promise.resolve();
@@ -103,6 +150,51 @@ function ensureCelebrationStyles() {
   return celebrationStylesheetPromise;
 }
 
+function destroyConfetti() {
+  if (confettiCleanupTimeout) {
+    clearTimeout(confettiCleanupTimeout);
+    confettiCleanupTimeout = null;
+  }
+  if (confettiContainer) {
+    confettiContainer.remove();
+    confettiContainer = null;
+  }
+}
+
+function launchConfetti() {
+  if (typeof document === 'undefined') return;
+  destroyConfetti();
+  const container = document.createElement('div');
+  container.className = CONFETTI_CLASS;
+  const totalPieces = 60;
+  let maxLifespan = 0;
+  for (let i = 0; i < totalPieces; i += 1) {
+    const piece = document.createElement('span');
+    piece.className = CONFETTI_PIECE_CLASS;
+    const color = CONFETTI_COLORS[i % CONFETTI_COLORS.length];
+    const startX = `${Math.random() * 100}vw`;
+    const endX = `${Math.random() * 100}vw`;
+    const rotation = `${Math.random() * 960 - 480}deg`;
+    const duration = 3 + Math.random() * 2.5;
+    const delay = Math.random() * 0.9;
+    const scale = (0.6 + Math.random() * 0.7).toFixed(2);
+    piece.style.setProperty('--confetti-color', color);
+    piece.style.setProperty('--confetti-x-start', startX);
+    piece.style.setProperty('--confetti-x-end', endX);
+    piece.style.setProperty('--confetti-rotation', rotation);
+    piece.style.setProperty('--confetti-duration', `${duration}s`);
+    piece.style.setProperty('--confetti-delay', `${delay}s`);
+    piece.style.setProperty('--confetti-scale', scale);
+    container.appendChild(piece);
+    maxLifespan = Math.max(maxLifespan, duration + delay);
+  }
+  document.body.appendChild(container);
+  confettiContainer = container;
+  confettiCleanupTimeout = window.setTimeout(() => {
+    destroyConfetti();
+  }, (maxLifespan + 0.5) * 1000);
+}
+
 function destroyEagle() {
   if (eagleElement) {
     eagleElement.removeEventListener('animationend', destroyEagle);
@@ -117,6 +209,7 @@ function destroyEagle() {
       // Some browsers may not allow resetting currentTime immediately after pause.
     }
   }
+  destroyConfetti();
 }
 
 function triggerFreedomEagle() {
@@ -140,6 +233,7 @@ function triggerFreedomEagle() {
       img.addEventListener('animationend', destroyEagle, { once: true });
       document.body.appendChild(img);
       eagleElement = img;
+      launchConfetti();
     })
     .catch(() => {
       // If the stylesheet fails to load, we silently skip the visual celebration.
@@ -254,7 +348,7 @@ function handlePresetSelect(selectEl, memoryKey, applyPreset) {
   if (!selectEl) return;
   selectEl.addEventListener('change', (event) => {
     const option = event.target.selectedOptions?.[0];
-    const units = $('#units').value;
+    const units = currentUnitsSelection;
     const system = getSystemForUnits(units);
     const memory = presetSelectionMemory[memoryKey];
     if (memory) {
@@ -270,7 +364,7 @@ function handlePresetSelect(selectEl, memoryKey, applyPreset) {
 }
 
 function setSheetPreset(w, h) {
-  const units = $('#units').value;
+  const units = currentUnitsSelection;
   const width = convertForUnits(w, units);
   const height = convertForUnits(h, units);
   $('#sheetW').value = width;
@@ -279,7 +373,7 @@ function setSheetPreset(w, h) {
 }
 
 function setDocumentPreset(w, h) {
-  const units = $('#units').value;
+  const units = currentUnitsSelection;
   const width = convertForUnits(w, units);
   const height = convertForUnits(h, units);
   $('#docW').value = width;
@@ -288,7 +382,7 @@ function setDocumentPreset(w, h) {
 }
 
 function setGutterPreset(horizontal, vertical) {
-  const units = $('#units').value;
+  const units = currentUnitsSelection;
   const h = convertForUnits(horizontal, units);
   const v = convertForUnits(vertical, units);
   $('#gutH').value = h;
@@ -352,6 +446,27 @@ function convertInputs(fromUnits, toUnits) {
   applyNumericInputUnits(toUnits);
 }
 
+function setUnits(nextUnits, options = {}) {
+  if (!nextUnits) return;
+  const { skipConversion = false, silent = false } = options;
+  const previousUnits = currentUnitsSelection;
+  if (!skipConversion && previousUnits !== nextUnits) {
+    convertInputs(previousUnits, nextUnits);
+  }
+  currentUnitsSelection = nextUnits;
+  updateUnitToggleDisplay(nextUnits);
+  applyNumericInputUnits(nextUnits);
+  refreshPresetDropdowns(getSystemForUnits(nextUnits));
+  if (!silent) {
+    getStatus()('Units changed');
+    getUpdate()();
+    handleUnitCelebration(nextUnits);
+  } else {
+    dismissAlert();
+    destroyEagle();
+  }
+}
+
 function handleUnitCelebration(units) {
   if (units === 'in') {
     dismissAlert();
@@ -380,8 +495,7 @@ function applyDefaultInputs() {
     el.value = formatUnitsValue(value, units, precision);
   };
 
-  $('#units').value = units;
-  currentUnitsSelection = units;
+  setUnits(units, { skipConversion: true, silent: true });
   setAutoMarginMode(true);
 
   setValue('#sheetW', sheet.width);
@@ -406,26 +520,12 @@ function applyDefaultInputs() {
   resetDocCountState();
 
   getStatus()('');
-  applyNumericInputUnits(units);
 }
 
 function refreshPresetDropdowns(system) {
   populatePresetSelect($('#sheetPresetSelect'), sheetPresets, system, 'sheet');
   populatePresetSelect($('#documentPresetSelect'), documentPresets, system, 'document');
   populatePresetSelect($('#gutterPresetSelect'), gutterPresets, system, 'gutter');
-}
-
-function attachUnitChangeListener(unitsSelect) {
-  if (!unitsSelect) return;
-  unitsSelect.addEventListener('change', (e) => {
-    const nextUnits = e.target.value;
-    convertInputs(currentUnitsSelection, nextUnits);
-    currentUnitsSelection = nextUnits;
-    refreshPresetDropdowns(getSystemForUnits(nextUnits));
-    getStatus()('Units changed');
-    getUpdate()();
-    handleUnitCelebration(nextUnits);
-  });
 }
 
 function attachMarginListeners() {
@@ -463,7 +563,6 @@ function attachActionButtons() {
   $('#calcBtn')?.addEventListener('click', () => getUpdate()());
   $('#resetBtn')?.addEventListener('click', () => {
     applyDefaultInputs();
-    refreshPresetDropdowns(getSystemForUnits(currentUnitsSelection));
     getUpdate()();
   });
 }
@@ -534,18 +633,17 @@ function runUnitConversionRegression() {
 function init(context = {}) {
   hydrateTabPanel(TAB_KEY);
   storedContext = { ...storedContext, ...context };
+  initializeUnitToggle();
   if (initialized) return;
   setAutoMarginMode(autoMarginMode);
   attachMarginListeners();
   attachDocCountListeners();
-  attachUnitChangeListener($('#units'));
   attachPresetDropdownHandlers();
   attachActionButtons();
   attachSwapButtons();
   attachApplyButtons();
   attachKeyboardShortcut();
   applyDefaultInputs();
-  refreshPresetDropdowns(getSystemForUnits(currentUnitsSelection));
   runUnitConversionRegression();
   initialized = true;
 }
@@ -568,6 +666,10 @@ export function isAutoMarginModeEnabled() {
 
 export function enableAutoMarginMode(enabled) {
   setAutoMarginMode(enabled);
+}
+
+export function getCurrentUnits() {
+  return currentUnitsSelection;
 }
 
 export default inputsTab;

@@ -2,6 +2,7 @@ import { layoutPresets } from '../data/layout-presets.js';
 import { $, $$ } from '../utils/dom.js';
 import { formatValueForUnits } from '../utils/units.js';
 import { hydrateTabPanel } from './registry.js';
+import { getCurrentUnits } from './inputs.js';
 
 const TAB_KEY = 'presets';
 const marginInputSelectors = ['#mTop', '#mRight', '#mBottom', '#mLeft'];
@@ -46,7 +47,7 @@ function applyLayoutPreset(presetKey) {
   storedContext.enableAutoMarginMode?.(true);
   clearMarginInputs();
 
-  const units = $('#units')?.value || 'in';
+  const units = getCurrentUnits();
   const sheet = preset.sheet || {};
   const document = preset.document || {};
   const gutter = preset.gutter || {};
