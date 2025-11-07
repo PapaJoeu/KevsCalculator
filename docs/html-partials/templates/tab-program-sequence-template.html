@@ -1,7 +1,6 @@
 <!--
   Load timing:
-    - Hydrated into #tab-program-sequence by the tab registry when the Program
-      Sequence tab is registered or activated.
+    - Hydrated into #tab-program-sequence by the tab registry when the Program Sequence tab is registered or activated.
   Key selectors:
     - #tblProgramSequence tbody receives measurement rows via fillTable.
   JS dependencies:
@@ -9,9 +8,9 @@
 -->
 
 <template id="tab-program-sequence-template">
-  <div class="data-card">
+  <div class="layout-card layout-stack" data-gap="snug">
     <h3>Program Sequence</h3>
-    <table class="data-table" id="tblProgramSequence">
+    <table class="summary-table" id="tblProgramSequence">
       <thead>
         <tr><th>Step</th><th>in</th><th>mm</th></tr>
       </thead>

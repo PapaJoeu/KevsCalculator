@@ -2,176 +2,170 @@
   Load timing:
     - Cloned into #tab-summary by docs/js/tabs/registry.hydrateTabPanel('summary') after templates load during bootstrap.
   Key selectors:
-    - .summary-metrics-grid container and spans #vAcross, #vDown, #vTotal, #vLayout, #vOrigin, #vRealMargins, #vUsed, #vTrail.
+    - Metrics spans (#vAcross, #vDown, #vTotal, #vLayout, #vOrigin, #vRealMargins, #vUsed, #vTrail).
   JS dependencies:
     - docs/js/tabs/summary.js writes calculated metrics into the spans on activation/registration.
     - docs/js/app.js feeds formatted measurement strings used by the summary module for display updates.
 -->
 
 <template id="tab-summary-template">
-  <div class="summary-metrics-grid">
-    <article class="data-card summary-card">
-      <h3 class="summary-card__title">Counts</h3>
-      <dl class="summary-card__metrics">
+  <div class="summary-grid">
+    <article class="layout-card summary-card">
+      <h3>Counts</h3>
+      <dl class="summary-metrics">
         <div>
           <dt>Across</dt>
-          <dd class="summary-metric-value" id="vAcross">—</dd>
+          <dd class="text-metric" id="vAcross">—</dd>
         </div>
         <div>
           <dt>Down</dt>
-          <dd class="summary-metric-value" id="vDown">—</dd>
+          <dd class="text-metric" id="vDown">—</dd>
         </div>
         <div>
           <dt>Total</dt>
-          <dd class="summary-metric-value" id="vTotal">—</dd>
+          <dd class="text-metric" id="vTotal">—</dd>
         </div>
       </dl>
     </article>
-    <article class="data-card summary-card">
-      <h3 class="summary-card__title">Layout Area</h3>
-      <dl class="summary-card__metrics">
+    <article class="layout-card summary-card">
+      <h3>Layout Area</h3>
+      <dl class="summary-metrics">
         <div>
           <dt>W × H</dt>
-          <dd class="summary-metric-value" id="vLayout">—</dd>
+          <dd class="text-metric" id="vLayout">—</dd>
         </div>
         <div>
           <dt>Origin</dt>
-          <dd class="summary-metric-value" id="vOrigin">—</dd>
+          <dd class="text-metric" id="vOrigin">—</dd>
         </div>
         <div>
           <dt>Realized Margins</dt>
-          <dd class="summary-metric-value" id="vRealMargins">—</dd>
+          <dd class="text-metric" id="vRealMargins">—</dd>
         </div>
       </dl>
     </article>
-    <article class="data-card summary-card">
-      <h3 class="summary-card__title">Utilization</h3>
-      <dl class="summary-card__metrics">
+    <article class="layout-card summary-card">
+      <h3>Utilization</h3>
+      <dl class="summary-metrics">
         <div>
           <dt>Used W/H</dt>
-          <dd class="summary-metric-value" id="vUsed">—</dd>
+          <dd class="text-metric" id="vUsed">—</dd>
         </div>
         <div>
           <dt>Trailing W/H</dt>
-          <dd class="summary-metric-value" id="vTrail">—</dd>
+          <dd class="text-metric" id="vTrail">—</dd>
         </div>
       </dl>
     </article>
   </div>
 
-  <section class="summary-calculator-section" aria-label="Production calculators">
-    <div class="summary-calculator-grid">
-      <article class="data-card summary-calculator" data-calculator="pad">
-        <header class="summary-calculator__header">
-          <h3 class="summary-calculator__title">Pad Calculator</h3>
-          <p class="summary-calculator__description">
-            Work out how many press sheets you need to build padded sets.
-          </p>
+  <section class="layout-stack" data-gap="relaxed" aria-label="Production calculators">
+    <div class="layout-grid" data-gap="relaxed" data-cols="auto" data-min="280">
+      <article class="layout-card layout-stack summary-calculator" data-gap="snug" data-calculator="pad">
+        <header class="layout-stack" data-gap="snug">
+          <h3>Pad Calculator</h3>
+          <p class="text-muted">Work out how many press sheets you need to build padded sets.</p>
         </header>
-        <form class="summary-calculator__form" autocomplete="off">
-          <label class="summary-calculator__field">
-            <span class="summary-calculator__label">Number of pads</span>
-            <input type="number" inputmode="numeric" min="0" step="1" id="padCount" placeholder="0" />
+        <form class="summary-calculator__form layout-stack" data-gap="snug" autocomplete="off">
+          <label class="form-label summary-calculator__field">
+            <span>Number of pads</span>
+            <input class="form-control" type="number" inputmode="numeric" min="0" step="1" id="padCount" placeholder="0" />
           </label>
-          <label class="summary-calculator__field">
-            <span class="summary-calculator__label">Sheets per pad</span>
-            <input type="number" inputmode="numeric" min="1" step="1" id="padSheets" value="50" />
-            <span class="summary-calculator__hint">Defaulted to 50 finished sheets per pad.</span>
+          <label class="form-label summary-calculator__field">
+            <span>Sheets per pad</span>
+            <input class="form-control" type="number" inputmode="numeric" min="1" step="1" id="padSheets" value="50" />
+            <span class="text-muted summary-calculator__hint">Defaulted to 50 finished sheets per pad.</span>
           </label>
-          <label class="summary-calculator__field">
-            <span class="summary-calculator__label">N-up (per press sheet)</span>
-            <input type="number" inputmode="numeric" min="1" step="1" id="padNUp" />
-            <span class="summary-calculator__hint">Auto-fills from the current layout.</span>
+          <label class="form-label summary-calculator__field">
+            <span>N-up (per press sheet)</span>
+            <input class="form-control" type="number" inputmode="numeric" min="1" step="1" id="padNUp" />
+            <span class="text-muted summary-calculator__hint">Auto-fills from the current layout.</span>
           </label>
         </form>
-        <dl class="summary-calculator__results" aria-live="polite">
+        <dl class="summary-calculator__results summary-metrics" aria-live="polite">
           <div>
             <dt>Finished pieces</dt>
-            <dd id="padTotalPieces">—</dd>
+            <dd class="text-metric" id="padTotalPieces">—</dd>
           </div>
           <div>
             <dt>Press sheets to print</dt>
-            <dd id="padTotalSheets">—</dd>
+            <dd class="text-metric" id="padTotalSheets">—</dd>
           </div>
           <div>
             <dt>Overage after padding</dt>
-            <dd id="padRemainder">—</dd>
+            <dd class="text-metric" id="padRemainder">—</dd>
           </div>
         </dl>
       </article>
 
-      <article class="data-card summary-calculator" data-calculator="run">
-        <header class="summary-calculator__header">
-          <h3 class="summary-calculator__title">Target Quantity Planner</h3>
-          <p class="summary-calculator__description">
-            Start from a desired finished quantity and include spoilage/overs.
-          </p>
+      <article class="layout-card layout-stack summary-calculator" data-gap="snug" data-calculator="run">
+        <header class="layout-stack" data-gap="snug">
+          <h3>Target Quantity Planner</h3>
+          <p class="text-muted">Start from a desired finished quantity and include spoilage/overs.</p>
         </header>
-        <form class="summary-calculator__form" autocomplete="off">
-          <label class="summary-calculator__field">
-            <span class="summary-calculator__label">Desired finished pieces</span>
-            <input type="number" inputmode="numeric" min="0" step="1" id="runDesired" placeholder="0" />
+        <form class="summary-calculator__form layout-stack" data-gap="snug" autocomplete="off">
+          <label class="form-label summary-calculator__field">
+            <span>Desired finished pieces</span>
+            <input class="form-control" type="number" inputmode="numeric" min="0" step="1" id="runDesired" placeholder="0" />
           </label>
-          <label class="summary-calculator__field">
-            <span class="summary-calculator__label">N-up (per press sheet)</span>
-            <input type="number" inputmode="numeric" min="1" step="1" id="runNUp" />
-            <span class="summary-calculator__hint">Auto-fills from the current layout.</span>
+          <label class="form-label summary-calculator__field">
+            <span>N-up (per press sheet)</span>
+            <input class="form-control" type="number" inputmode="numeric" min="1" step="1" id="runNUp" />
+            <span class="text-muted summary-calculator__hint">Auto-fills from the current layout.</span>
           </label>
-          <label class="summary-calculator__field">
-            <span class="summary-calculator__label">Spoilage / overs (%)</span>
-            <input type="number" inputmode="decimal" min="0" step="0.1" id="runOvers" value="0" />
+          <label class="form-label summary-calculator__field">
+            <span>Spoilage / overs (%)</span>
+            <input class="form-control" type="number" inputmode="decimal" min="0" step="0.1" id="runOvers" value="0" />
           </label>
         </form>
-        <dl class="summary-calculator__results" aria-live="polite">
+        <dl class="summary-calculator__results summary-metrics" aria-live="polite">
           <div>
             <dt>Finished pieces with overs</dt>
-            <dd id="runTotalPieces">—</dd>
+            <dd class="text-metric" id="runTotalPieces">—</dd>
           </div>
           <div>
             <dt>Press sheets to print</dt>
-            <dd id="runTotalSheets">—</dd>
+            <dd class="text-metric" id="runTotalSheets">—</dd>
           </div>
           <div>
             <dt>Overs (pieces / sheets)</dt>
-            <dd id="runOversBreakdown">—</dd>
+            <dd class="text-metric" id="runOversBreakdown">—</dd>
           </div>
         </dl>
       </article>
 
-      <article class="data-card summary-calculator" data-calculator="sheets">
-        <header class="summary-calculator__header">
-          <h3 class="summary-calculator__title">Sheets to Pads Converter</h3>
-          <p class="summary-calculator__description">
-            Translate a press run into finished pieces and pad counts.
-          </p>
+      <article class="layout-card layout-stack summary-calculator" data-gap="snug" data-calculator="sheets">
+        <header class="layout-stack" data-gap="snug">
+          <h3>Sheets to Pads Converter</h3>
+          <p class="text-muted">Translate a press run into finished pieces and pad counts.</p>
         </header>
-        <form class="summary-calculator__form" autocomplete="off">
-          <label class="summary-calculator__field">
-            <span class="summary-calculator__label">Press sheets to run</span>
-            <input type="number" inputmode="numeric" min="0" step="1" id="sheetRun" placeholder="0" />
+        <form class="summary-calculator__form layout-stack" data-gap="snug" autocomplete="off">
+          <label class="form-label summary-calculator__field">
+            <span>Press sheets to run</span>
+            <input class="form-control" type="number" inputmode="numeric" min="0" step="1" id="sheetRun" placeholder="0" />
           </label>
-          <label class="summary-calculator__field">
-            <span class="summary-calculator__label">N-up (per press sheet)</span>
-            <input type="number" inputmode="numeric" min="1" step="1" id="sheetNUp" />
-            <span class="summary-calculator__hint">Auto-fills from the current layout.</span>
+          <label class="form-label summary-calculator__field">
+            <span>N-up (per press sheet)</span>
+            <input class="form-control" type="number" inputmode="numeric" min="1" step="1" id="sheetNUp" />
+            <span class="text-muted summary-calculator__hint">Auto-fills from the current layout.</span>
           </label>
-          <label class="summary-calculator__field">
-            <span class="summary-calculator__label">Finished pieces per pad</span>
-            <input type="number" inputmode="numeric" min="1" step="1" id="sheetPerPad" value="50" />
+          <label class="form-label summary-calculator__field">
+            <span>Finished pieces per pad</span>
+            <input class="form-control" type="number" inputmode="numeric" min="1" step="1" id="sheetPerPad" value="50" />
           </label>
         </form>
-        <dl class="summary-calculator__results" aria-live="polite">
+        <dl class="summary-calculator__results summary-metrics" aria-live="polite">
           <div>
             <dt>Total finished pieces</dt>
-            <dd id="sheetTotalPieces">—</dd>
+            <dd class="text-metric" id="sheetTotalPieces">—</dd>
           </div>
           <div>
             <dt>Complete pads</dt>
-            <dd id="sheetTotalPads">—</dd>
+            <dd class="text-metric" id="sheetTotalPads">—</dd>
           </div>
           <div>
             <dt>Leftover pieces</dt>
-            <dd id="sheetPadRemainder">—</dd>
+            <dd class="text-metric" id="sheetPadRemainder">—</dd>
           </div>
         </dl>
       </article>

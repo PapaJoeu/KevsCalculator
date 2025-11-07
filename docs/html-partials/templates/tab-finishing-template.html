@@ -2,20 +2,24 @@
   Load timing:
     - Cloned into #tab-finishing via docs/js/tabs/registry.hydrateTabPanel('finishing') once templates are available from bootstrap.
   Key selectors:
-    - Tables #tblCuts and #tblSlits within .data-table cards for vertical and horizontal cut listings.
+    - Tables #tblCuts and #tblSlits within .summary-table cards for vertical and horizontal cut listings.
   JS dependencies:
     - docs/js/app.js populates these tables using docs/js/utils/dom.fillTable during calculation refreshes.
     - docs/js/utils/dom.js registers measurement IDs from the tables for hover and selection syncing across the UI.
 -->
 
 <template id="tab-finishing-template">
-  <h3 style="margin-bottom:6px">Cut &amp; Slit Systems</h3>
-  <div class="grid grid--columns-2">
-    <div class="data-card"><h3>Cuts (Y edges)</h3>
-      <table class="data-table" id="tblCuts"><thead><tr><th>Label</th><th>in</th><th>mm</th></tr></thead><tbody></tbody></table>
-    </div>
-    <div class="data-card"><h3>Slits (X edges)</h3>
-      <table class="data-table" id="tblSlits"><thead><tr><th>Label</th><th>in</th><th>mm</th></tr></thead><tbody></tbody></table>
+  <div class="layout-stack" data-gap="cozy">
+    <h3>Cut &amp; Slit Systems</h3>
+    <div class="layout-grid" data-cols="2" data-gap="relaxed">
+      <div class="layout-card finishing-results">
+        <h3>Cuts (Y edges)</h3>
+        <table class="summary-table" id="tblCuts"><thead><tr><th>Label</th><th>in</th><th>mm</th></tr></thead><tbody></tbody></table>
+      </div>
+      <div class="layout-card finishing-results">
+        <h3>Slits (X edges)</h3>
+        <table class="summary-table" id="tblSlits"><thead><tr><th>Label</th><th>in</th><th>mm</th></tr></thead><tbody></tbody></table>
+      </div>
     </div>
   </div>
 </template>

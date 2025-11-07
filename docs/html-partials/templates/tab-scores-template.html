@@ -4,85 +4,85 @@
   Key selectors:
     - Preset buttons (#scorePresetBifold, #scorePresetTrifold, #scorePresetCustom, #scorePresetHBifold, #scorePresetHTrifold, #scorePresetHCustom).
     - Offset inputs #scoresV and #scoresH plus result tables #tblScoresH and #tblScoresV.
-    - Action buttons #swapScoreOffsets and #applyScores inside .finishing-score-toolbar areas.
+    - Action buttons #swapScoreOffsets and #applyScores inside .finishing-action-bar areas.
   JS dependencies:
     - docs/js/tabs/scores.js wires preset toggles, input listeners, swap/apply handlers, and fills measurement tables.
     - docs/js/utils/dom.js utilities assist with table population and measurement hover/selection behavior.
 -->
 
 <template id="tab-scores-template">
-  <div class="finishing-score-pane stack">
-    <div class="finishing-score-layout grid">
-      <div class="finishing-score-column stack">
-        <div class="data-card stack finishing-score-card-intro">
-          <div class="finishing-score-card-title">
+  <div class="finishing-pane layout-stack" data-gap="spacious">
+    <div class="finishing-layout">
+      <div class="finishing-column">
+        <div class="layout-card finishing-card finishing-card--intro">
+          <div class="finishing-card__title layout-stack" data-gap="snug">
             <h3>Score Planning</h3>
-            <p class="text-muted-detail">Scores are normalized to each document. Use a preset for common folds or switch to custom entry to fine-tune the layout.</p>
+            <p class="text-muted">Scores are normalized to each document. Use a preset for common folds or switch to custom entry to fine-tune the layout.</p>
           </div>
         </div>
-        <div class="data-card stack finishing-score-card finishing-score-card-vertical">
-          <div class="finishing-score-card-header">
-            <div class="finishing-score-card-title">
+        <div class="layout-card finishing-card">
+          <div class="finishing-card__header">
+            <div class="finishing-card__title layout-stack" data-gap="snug">
               <h3>Vertical Scores</h3>
-              <p class="text-muted-detail">Set positions for lines that run top-to-bottom across the sheet relative to the document width.</p>
+              <p class="text-muted">Set positions for lines that run top-to-bottom across the sheet relative to the document width.</p>
             </div>
-            <div class="finishing-score-preset-group print-hidden" role="group" aria-label="Vertical score presets">
-              <button class="action-button" id="scorePresetBifold" type="button">Bifold</button>
-              <button class="action-button" id="scorePresetTrifold" type="button">Trifold</button>
-              <button class="action-button" id="scorePresetCustom" type="button">Custom</button>
+            <div class="finishing-preset-group print-hidden" role="group" aria-label="Vertical score presets">
+              <button class="btn" id="scorePresetBifold" type="button">Bifold</button>
+              <button class="btn" id="scorePresetTrifold" type="button">Trifold</button>
+              <button class="btn" id="scorePresetCustom" type="button">Custom</button>
             </div>
           </div>
-          <div class="finishing-score-field stack stack--snug">
-            <label class="finishing-score-label" for="scoresV" title="CSV, 0–1 (e.g., 0.5 or 0.33,0.66)">
+          <div class="finishing-field">
+            <label class="form-label" for="scoresV" title="CSV, 0–1 (e.g., 0.5 or 0.33,0.66)">
               <span>Vertical scores</span>
-              <input id="scoresV" type="text" placeholder="e.g., 0.5" />
+              <input id="scoresV" class="form-control" type="text" placeholder="e.g., 0.5" />
             </label>
-            <p class="text-muted-detail finishing-score-hint">Values are relative to the document width.</p>
+            <p class="text-muted finishing-hint">Values are relative to the document width.</p>
           </div>
         </div>
-        <div class="data-card stack finishing-score-card finishing-score-card-horizontal">
-          <div class="finishing-score-card-header">
-            <div class="finishing-score-card-title">
+        <div class="layout-card finishing-card">
+          <div class="finishing-card__header">
+            <div class="finishing-card__title layout-stack" data-gap="snug">
               <h3>Horizontal Scores</h3>
-              <p class="text-muted-detail">Set positions for lines that run left-to-right across the sheet relative to the document height.</p>
+              <p class="text-muted">Set positions for lines that run left-to-right across the sheet relative to the document height.</p>
             </div>
-            <div class="finishing-score-preset-group print-hidden" role="group" aria-label="Horizontal score presets">
-              <button class="action-button" id="scorePresetHBifold" type="button">Bifold</button>
-              <button class="action-button" id="scorePresetHTrifold" type="button">Trifold</button>
-              <button class="action-button" id="scorePresetHCustom" type="button">Custom</button>
+            <div class="finishing-preset-group print-hidden" role="group" aria-label="Horizontal score presets">
+              <button class="btn" id="scorePresetHBifold" type="button">Bifold</button>
+              <button class="btn" id="scorePresetHTrifold" type="button">Trifold</button>
+              <button class="btn" id="scorePresetHCustom" type="button">Custom</button>
             </div>
           </div>
-          <div class="finishing-score-field stack stack--snug">
-            <label class="finishing-score-label" for="scoresH" title="CSV, 0–1">
+          <div class="finishing-field">
+            <label class="form-label" for="scoresH" title="CSV, 0–1">
               <span>Horizontal scores</span>
-              <input id="scoresH" type="text" placeholder="e.g., 0.5" />
+              <input id="scoresH" class="form-control" type="text" placeholder="e.g., 0.5" />
             </label>
-            <p class="text-muted-detail finishing-score-hint">Values are relative to the document height.</p>
+            <p class="text-muted finishing-hint">Values are relative to the document height.</p>
           </div>
         </div>
-        <div class="data-card finishing-action-card">
-          <div class="control-toolbar finishing-action-toolbar print-hidden">
-            <button class="action-button" id="swapScoreOffsets" type="button">Swap vertical ↔ horizontal scores</button>
-            <button class="action-button action-button-primary" id="applyScores" type="button">Apply Scores</button>
-            <span class="text-muted-detail">Leave fields blank to omit scores.</span>
+        <div class="layout-card drilling-action-card">
+          <div class="form-toolbar layout-cluster finishing-action-bar print-hidden" data-gap="snug" data-align="between">
+            <button class="btn" id="swapScoreOffsets" type="button">Swap vertical ↔ horizontal scores</button>
+            <button class="btn btn-primary" id="applyScores" type="button">Apply Scores</button>
+            <span class="text-muted">Leave fields blank to omit scores.</span>
           </div>
         </div>
       </div>
-      <div class="finishing-score-column stack finishing-score-results">
-        <div class="finishing-score-results-grid grid grid--auto-fit">
-          <div class="data-card stack finishing-score-table-card">
-            <div>
+      <div class="finishing-column finishing-results">
+        <div class="finishing-table-grid">
+          <div class="layout-card finishing-results">
+            <div class="layout-stack" data-gap="snug">
               <h3>Scores (Y)</h3>
-              <p class="text-muted-detail">Horizontal runs positioned along the sheet height.</p>
+              <p class="text-muted">Horizontal runs positioned along the sheet height.</p>
             </div>
-            <table class="data-table" id="tblScoresH"><thead><tr><th>Label</th><th>in</th><th>mm</th></tr></thead><tbody></tbody></table>
+            <table class="summary-table" id="tblScoresH"><thead><tr><th>Label</th><th>in</th><th>mm</th></tr></thead><tbody></tbody></table>
           </div>
-          <div class="data-card stack finishing-score-table-card">
-            <div>
+          <div class="layout-card finishing-results">
+            <div class="layout-stack" data-gap="snug">
               <h3>Scores (X)</h3>
-              <p class="text-muted-detail">Vertical runs positioned along the sheet width.</p>
+              <p class="text-muted">Vertical runs positioned along the sheet width.</p>
             </div>
-            <table class="data-table" id="tblScoresV"><thead><tr><th>Label</th><th>in</th><th>mm</th></tr></thead><tbody></tbody></table>
+            <table class="summary-table" id="tblScoresV"><thead><tr><th>Label</th><th>in</th><th>mm</th></tr></thead><tbody></tbody></table>
           </div>
         </div>
       </div>

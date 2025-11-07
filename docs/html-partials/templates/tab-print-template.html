@@ -10,18 +10,17 @@
 -->
 
 <template id="tab-print-template">
-  <div class="print-tab stack stack--spacious">
-    <div class="grid print-layout-grid">
-      <section class="data-card stack print-controls-card">
-        <header class="stack stack--snug">
+  <div class="layout-stack" data-gap="spacious">
+    <div class="layout-grid" data-gap="relaxed" data-cols="auto" data-min="340">
+      <section class="layout-card layout-stack" data-gap="relaxed">
+        <header class="layout-stack" data-gap="snug">
           <h3>Printable Visualizer</h3>
-          <p class="text-muted-detail">
-            Export an accurate 1:1 version of the sheet visualizer. Choose the layers you want, download SVGs, or
-            create a combined PDF package to share or archive.
+          <p class="text-muted">
+            Export an accurate 1:1 version of the sheet visualizer. Choose the layers you want, download SVGs, or create a combined PDF package to share or archive.
           </p>
         </header>
 
-        <dl class="print-summary-grid">
+        <dl class="print-summary">
           <div>
             <dt>Sheet</dt>
             <dd id="printSheetSummary">—</dd>
@@ -44,79 +43,72 @@
           </div>
         </dl>
 
-        <fieldset class="print-layer-selector">
+        <fieldset class="layout-card layout-stack" data-gap="snug">
           <legend>Include layers</legend>
-          <div class="print-layer-options">
-            <label class="print-layer-option">
-              <input type="checkbox" class="print-layer-toggle" data-layer="sheet" checked />
-              <span>Sheet outline</span>
+          <div class="layout-grid" data-gap="snug" data-cols="auto" data-min="180">
+            <label class="form-choice">
+              <input type="checkbox" class="form-choice__control print-layer-toggle" data-layer="sheet" checked />
+              <span class="form-choice__label">Sheet outline</span>
             </label>
-            <label class="print-layer-option">
-              <input type="checkbox" class="print-layer-toggle" data-layer="nonPrintable" checked />
-              <span>Non-printable &amp; printable border</span>
+            <label class="form-choice">
+              <input type="checkbox" class="form-choice__control print-layer-toggle" data-layer="nonPrintable" checked />
+              <span class="form-choice__label">Non-printable &amp; printable border</span>
             </label>
-            <label class="print-layer-option">
-              <input type="checkbox" class="print-layer-toggle" data-layer="layout" checked />
-              <span>Layout area</span>
+            <label class="form-choice">
+              <input type="checkbox" class="form-choice__control print-layer-toggle" data-layer="layout" checked />
+              <span class="form-choice__label">Layout area</span>
             </label>
-            <label class="print-layer-option">
-              <input type="checkbox" class="print-layer-toggle" data-layer="docs" checked />
-              <span>Documents</span>
+            <label class="form-choice">
+              <input type="checkbox" class="form-choice__control print-layer-toggle" data-layer="docs" checked />
+              <span class="form-choice__label">Documents</span>
             </label>
-            <label class="print-layer-option">
-              <input type="checkbox" class="print-layer-toggle" data-layer="cuts" checked />
-              <span>Cuts</span>
+            <label class="form-choice">
+              <input type="checkbox" class="form-choice__control print-layer-toggle" data-layer="cuts" checked />
+              <span class="form-choice__label">Cuts</span>
             </label>
-            <label class="print-layer-option">
-              <input type="checkbox" class="print-layer-toggle" data-layer="slits" checked />
-              <span>Slits</span>
+            <label class="form-choice">
+              <input type="checkbox" class="form-choice__control print-layer-toggle" data-layer="slits" checked />
+              <span class="form-choice__label">Slits</span>
             </label>
-            <label class="print-layer-option">
-              <input type="checkbox" class="print-layer-toggle" data-layer="scores" checked />
-              <span>Scores</span>
+            <label class="form-choice">
+              <input type="checkbox" class="form-choice__control print-layer-toggle" data-layer="scores" checked />
+              <span class="form-choice__label">Scores</span>
             </label>
-            <label class="print-layer-option">
-              <input type="checkbox" class="print-layer-toggle" data-layer="perforations" checked />
-              <span>Perforations</span>
+            <label class="form-choice">
+              <input type="checkbox" class="form-choice__control print-layer-toggle" data-layer="perforations" checked />
+              <span class="form-choice__label">Perforations</span>
             </label>
-            <label class="print-layer-option">
-              <input type="checkbox" class="print-layer-toggle" data-layer="holes" checked />
-              <span>Holes</span>
+            <label class="form-choice">
+              <input type="checkbox" class="form-choice__control print-layer-toggle" data-layer="holes" checked />
+              <span class="form-choice__label">Holes</span>
             </label>
           </div>
         </fieldset>
 
-        <div class="print-actions stack stack--tight">
-          <div class="print-action-row">
-            <button type="button" class="action-button action-button-primary" id="printDownloadPdf" disabled>
-              Export 2-page PDF
-            </button>
-            <button type="button" class="action-button" id="printOpenPrintDialog" disabled>
-              Open print dialog
-            </button>
+        <div class="layout-stack" data-gap="snug">
+          <div class="layout-cluster" data-gap="snug">
+            <button type="button" class="btn btn-primary" id="printDownloadPdf" disabled>Export 2-page PDF</button>
+            <button type="button" class="btn" id="printOpenPrintDialog" disabled>Open print dialog</button>
           </div>
-          <div class="print-action-row">
-            <button type="button" class="action-button" id="printDownloadSvg" disabled>Download layout SVG</button>
-            <button type="button" class="action-button" id="printDownloadLayoutDetails" disabled>
-              Download layout details SVG
-            </button>
+          <div class="layout-cluster" data-gap="snug">
+            <button type="button" class="btn" id="printDownloadSvg" disabled>Download layout SVG</button>
+            <button type="button" class="btn" id="printDownloadLayoutDetails" disabled>Download layout details SVG</button>
           </div>
-          <p class="print-actions-hint text-muted-detail">
+          <p class="text-muted">
             The PDF includes the visualizer and the detailed program sheet on separate pages sized to the selected sheet.
           </p>
         </div>
       </section>
 
-      <section class="data-card stack print-preview-card">
-        <div class="print-preview-stage measurement-theme" id="printPreviewStage" aria-live="polite">
-          <div class="print-preview-empty">
+      <section class="layout-card layout-stack" data-gap="snug">
+        <div class="layout-card print-stage viz-theme" id="printPreviewStage" aria-live="polite">
+          <div class="layout-stack" data-gap="snug">
             <p>The printable visualizer is ready once a layout is calculated.</p>
             <p>Adjust inputs on the other tabs, then return here to export.</p>
           </div>
         </div>
-        <p class="text-muted-detail">
-          The preview uses physical measurements (<code>in</code>/<code>mm</code>) so it may be larger than the screen.
-          Use your browser zoom controls to inspect details, but exported files always stay at 100% scale.
+        <p class="text-muted">
+          The preview uses physical measurements (<code>in</code>/<code>mm</code>) so it may be larger than the screen. Use your browser zoom controls to inspect details, but exported files always stay at 100% scale.
         </p>
       </section>
     </div>

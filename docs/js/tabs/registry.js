@@ -7,7 +7,7 @@ let isInitialized = false;
 
 const getTabTrigger = (key) =>
   typeof document !== 'undefined'
-    ? document.querySelector(`.output-tab-trigger[data-tab='${key}']`)
+    ? document.querySelector(`.tabs-trigger[data-tab='${key}']`)
     : null;
 const getTabPanel = (key) => (typeof document !== 'undefined' ? document.querySelector(`#tab-${key}`) : null);
 const hydratedPanels = new Set();
@@ -52,7 +52,7 @@ const resolveTabElements = (preferredKey) => {
   if (fallbackTrigger && fallbackPanel) {
     return { key: fallbackTabKey, trigger: fallbackTrigger, panel: fallbackPanel };
   }
-  const firstTrigger = typeof document !== 'undefined' ? document.querySelector('.output-tab-trigger') : null;
+  const firstTrigger = typeof document !== 'undefined' ? document.querySelector('.tabs-trigger') : null;
   if (firstTrigger) {
     const firstKey = firstTrigger.dataset.tab;
     const firstPanel = getTabPanel(firstKey);
@@ -84,8 +84,8 @@ export function activateTab(targetKey) {
   }
 
   if (typeof document !== 'undefined') {
-    document.querySelectorAll('.output-tab-trigger').forEach((el) => el.classList.remove('is-active'));
-    document.querySelectorAll('.output-tabpanel-collection>section').forEach((el) => el.classList.remove('is-active'));
+    document.querySelectorAll('.tabs-trigger').forEach((el) => el.classList.remove('is-active'));
+    document.querySelectorAll('.tabs-panels>section').forEach((el) => el.classList.remove('is-active'));
   }
 
   trigger.classList.add('is-active');
@@ -106,14 +106,14 @@ export function initializeTabRegistry(options = {}) {
   }
 
   if (!isInitialized && typeof document !== 'undefined') {
-    document.querySelectorAll('.output-tab-trigger').forEach((trigger) => {
+    document.querySelectorAll('.tabs-trigger').forEach((trigger) => {
       trigger.addEventListener('click', () => activateTab(trigger.dataset.tab));
     });
     isInitialized = true;
   }
 
   const initiallyActive = typeof document !== 'undefined'
-    ? document.querySelector('.output-tab-trigger.is-active')
+    ? document.querySelector('.tabs-trigger.is-active')
     : null;
   const initialKey = initiallyActive?.dataset?.tab ?? fallbackTabKey;
   activateTab(initialKey);

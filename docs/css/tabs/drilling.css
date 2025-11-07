@@ -1,63 +1,48 @@
 /* =============================================
  * Drilling Planner
  * ---------------------------------------------
- * Layout styles for the hole drilling configuration tab.
+ * Custom layouts for configuring hole drilling
+ * presets and ad-hoc locations.
  * ============================================= */
+.drilling-card { display: grid; gap: var(--space-3); }
 
-.drilling-configuration-card { --gap: var(--gap-roomy); }
-
-.drilling-plan-fields {
-  --gap: var(--gap-default);
+.drilling-plan-grid {
+  display: grid;
+  gap: var(--space-3);
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  align-items: flex-end;
+  align-items: end;
 }
 
-.drilling-plan-fields label select {
-  width: 100%;
-}
+.drilling-plan-grid select { width: 100%; }
 
-.drilling-custom-config > p {
-  margin: 0;
-}
+.drilling-note { margin: 0; }
 
-.drilling-location-list { --gap: var(--gap-default); }
+.drilling-location-list { display: grid; gap: var(--space-3); }
 
 .drilling-location-row {
   display: grid;
-  gap: 12px;
+  gap: var(--space-3);
   grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
   align-items: end;
-  padding: 12px;
-  border: 1px solid var(--border-overlay);
-  border-radius: 12px;
-  background: var(--surface-control);
+  padding: var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-2);
 }
 
-.drilling-location-row .finishing-score-label span {
-  font-size: 0.85rem;
-  color: var(--text-secondary);
+.drilling-location-row .form-label {
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--space-2);
 }
 
-.drilling-location-row .text-muted-detail {
-  margin: 0;
-  font-size: 0.8rem;
-}
+.drilling-location-row .text-muted { margin: 0; font-size: var(--font-xs); }
 
-.drilling-location-row button {
-  align-self: center;
-  justify-self: flex-start;
-}
+.drilling-location-row .btn { align-self: center; }
 
-.drilling-action-card {
-  padding: 0;
-}
+.drilling-action-card { padding: 0; }
+.drilling-action-card .finishing-action-bar { padding: var(--space-3); }
 
-.drilling-action-card .finishing-action-toolbar {
-  padding: 12px;
-}
-
-@media (--bp-narrow) {
-  .drilling-location-row {
-    grid-template-columns: 1fr;
-  }
+@media (max-width: 760px) {
+  .drilling-location-row { grid-template-columns: 1fr; }
 }

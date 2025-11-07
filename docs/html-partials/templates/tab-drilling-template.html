@@ -11,34 +11,34 @@
 -->
 
 <template id="tab-drilling-template">
-  <div class="finishing-score-pane stack">
-    <div class="finishing-score-layout grid">
-      <div class="finishing-score-column stack">
-        <div class="data-card stack finishing-score-card-intro">
-          <div class="finishing-score-card-title">
+  <div class="finishing-pane layout-stack" data-gap="spacious">
+    <div class="finishing-layout">
+      <div class="finishing-column">
+        <div class="layout-card finishing-card finishing-card--intro">
+          <div class="finishing-card__title layout-stack" data-gap="snug">
             <h3>Hole Drilling Planner</h3>
-            <p class="text-muted-detail">Define punching patterns that repeat for each document in the layout.</p>
+            <p class="text-muted">Define punching patterns that repeat for each document in the layout.</p>
           </div>
         </div>
-        <div class="data-card stack drilling-configuration-card">
-          <div class="finishing-score-card-header">
-            <div class="finishing-score-card-title">
+        <div class="layout-card finishing-card drilling-card">
+          <div class="finishing-card__header">
+            <div class="finishing-card__title layout-stack" data-gap="snug">
               <h3>Plan Settings</h3>
-              <p class="text-muted-detail">Choose a preset or build a custom plan relative to the document edges.</p>
+              <p class="text-muted">Choose a preset or build a custom plan relative to the document edges.</p>
             </div>
           </div>
-          <div class="drilling-plan-fields grid">
-            <label class="finishing-score-label" for="drillPreset">
+          <div class="drilling-plan-grid">
+            <label class="form-label" for="drillPreset">
               <span>Hole preset</span>
-              <select id="drillPreset">
+              <select id="drillPreset" class="form-select">
                 <option value="none">No holes</option>
                 <option value="three-hole">3-hole (left edge)</option>
                 <option value="custom">Custom</option>
               </select>
             </label>
-            <label class="finishing-score-label" for="drillSize">
+            <label class="form-label" for="drillSize">
               <span>Hole size</span>
-              <select id="drillSize">
+              <select id="drillSize" class="form-select">
                 <option value="0.25">1/4 in (0.250)</option>
                 <option value="0.1875">3/16 in (0.1875)</option>
                 <option value="0.3125">5/16 in (0.3125)</option>
@@ -46,30 +46,29 @@
               </select>
             </label>
           </div>
-          <div class="drilling-custom-config stack stack--comfortable" data-custom-config hidden>
-            <p class="text-muted-detail">
-              Add hole locations and offsets relative to the document. Alignment determines where the row begins; offsets
-              move the hole along and into the sheet.
+          <div class="drilling-custom-config layout-stack" data-gap="cozy" data-custom-config hidden>
+            <p class="text-muted drilling-note">
+              Add hole locations and offsets relative to the document. Alignment determines where the row begins; offsets move the hole along and into the sheet.
             </p>
-            <div class="drilling-location-list stack stack--comfortable" id="drillLocations"></div>
-            <button class="action-button action-button-secondary" id="drillAddLocation" type="button">Add hole location</button>
+            <div class="drilling-location-list" id="drillLocations"></div>
+            <button class="btn" id="drillAddLocation" type="button">Add hole location</button>
           </div>
           <input id="holePlanData" type="hidden" value="" />
         </div>
-        <div class="data-card drilling-action-card">
-          <div class="control-toolbar finishing-action-toolbar print-hidden">
-            <button class="action-button action-button-primary" id="applyDrilling" type="button">Apply Drilling</button>
-            <span class="text-muted-detail">Leave the preset on “No holes” to omit drilling from the layout.</span>
+        <div class="layout-card finishing-action-card">
+          <div class="form-toolbar layout-cluster finishing-action-bar print-hidden" data-gap="snug" data-align="between">
+            <button class="btn btn-primary" id="applyDrilling" type="button">Apply Drilling</button>
+            <span class="text-muted">Leave the preset on “No holes” to omit drilling from the layout.</span>
           </div>
         </div>
       </div>
-      <div class="finishing-score-column stack finishing-score-results">
-        <div class="data-card stack finishing-score-table-card">
-          <div>
+      <div class="finishing-column finishing-results">
+        <div class="layout-card finishing-results">
+          <div class="layout-stack" data-gap="snug">
             <h3>Hole Locations</h3>
-            <p class="text-muted-detail">Centers are reported from the sheet origin with diameter conversions.</p>
+            <p class="text-muted">Centers are reported from the sheet origin with diameter conversions.</p>
           </div>
-          <table class="data-table" id="tblHoles">
+          <table class="summary-table" id="tblHoles">
             <thead>
               <tr>
                 <th>Label</th>
