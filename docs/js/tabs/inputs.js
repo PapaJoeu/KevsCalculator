@@ -1,6 +1,6 @@
 import { sheetPresets, documentPresets, gutterPresets } from '../data/input-presets.js';
 import { DEFAULT_INPUTS } from '../config/defaults.js';
-import { $ } from '../utils/dom.js';
+import { $, $$ } from '../utils/dom.js';
 import {
   MM_PER_INCH,
   describePresetValue,
@@ -25,6 +25,43 @@ const numericInputSelectors = [
   '#npBottom',
   '#npLeft',
 ];
+
+const marginAutoToggleSelector = '#marginAutoToggle';
+const horizontalAlignmentSelector = '[data-align-horizontal]';
+const verticalAlignmentSelector = '[data-align-vertical]';
+
+const AUTO_SUMMARY_TEXT =
+  'Auto alignment balances the printable layout inside the sheet. Switch to manual offsets to anchor the layout to specific edges.';
+const AUTO_INPUT_HINT_TEXT = 'Auto mode fills these offsets for you after each update.';
+const MANUAL_INPUT_HINT_TEXT = 'Update the highlighted offsets below to pin the layout where you need it.';
+
+const ALIGNMENT_HINTS = {
+  horizontal: {
+    left: 'Pin to the left printable edge. Set the left offset; the right value becomes trailing space.',
+    center: 'Keep the layout centered left-to-right. Adjust both offsets if you need extra clearance.',
+    right: 'Pin to the right printable edge. Set the right offset; the left value becomes trailing space.',
+  },
+  vertical: {
+    top: 'Pin to the top printable edge. Set the top offset; the bottom value becomes trailing space.',
+    center: 'Keep the layout centered top-to-bottom. Adjust both offsets if you need extra clearance.',
+    bottom: 'Pin to the bottom printable edge. Set the bottom offset; the top value becomes trailing space.',
+  },
+};
+
+const ALIGNMENT_STATUS_MESSAGES = {
+  horizontal: {
+    left: 'Horizontal anchor set to the left edge.',
+    center: 'Horizontal anchor centered.',
+    right: 'Horizontal anchor set to the right edge.',
+  },
+  vertical: {
+    top: 'Vertical anchor set to the top edge.',
+    center: 'Vertical anchor centered.',
+    bottom: 'Vertical anchor set to the bottom edge.',
+  },
+};
+
+const MARGIN_ALIGNMENT_DEFAULT = { horizontal: 'center', vertical: 'center' };
 
 const CANONICAL_INCHES_ATTR = 'inches';
 
@@ -146,6 +183,7 @@ const presetSelectionMemory = {
 
 let initialized = false;
 let autoMarginMode = true;
+let marginAlignment = { ...MARGIN_ALIGNMENT_DEFAULT };
 let currentUnitsSelection = DEFAULT_INPUTS.units;
 let storedContext = { update: () => {}, status: () => {} };
 let keydownHandlerAttached = false;
@@ -170,6 +208,109 @@ let unitToggleButton = null;
 
 const getStatus = () => storedContext.status ?? (() => {});
 const getUpdate = () => storedContext.update ?? (() => {});
+
+function getMarginEdgeLabelForInput(el) {
+  if (!el || typeof el.closest !== 'function') return null;
+  return el.closest('[data-margin-edge]');
+}
+
+function describeAnchor(axis, value) {
+  if (value === 'center') {
+    return axis === 'horizontal' ? 'centered horizontally' : 'centered vertically';
+  }
+  return `locked to the ${value} edge`;
+}
+
+function updateMarginAutoToggle() {
+  const toggle = $(marginAutoToggleSelector);
+  if (!toggle) return;
+  toggle.dataset.active = autoMarginMode ? 'true' : 'false';
+  toggle.setAttribute('aria-pressed', autoMarginMode ? 'true' : 'false');
+  toggle.textContent = autoMarginMode ? 'Auto alignment: On' : 'Auto alignment: Off';
+  const hint = autoMarginMode ? 'Switch to manual offsets' : 'Return to automatic centering';
+  toggle.setAttribute('title', hint);
+  toggle.setAttribute('aria-label', hint);
+}
+
+function updateMarginAlignmentCopy() {
+  const summary = $('#marginAlignSummary');
+  if (summary) {
+    if (autoMarginMode) {
+      summary.textContent = AUTO_SUMMARY_TEXT;
+    } else {
+      const { horizontal, vertical } = marginAlignment;
+      summary.textContent = `Manual alignment pins the layout ${describeAnchor('horizontal', horizontal)} and ${describeAnchor(
+        'vertical',
+        vertical
+      )}. Adjust the highlighted offsets to set your clearance.`;
+    }
+  }
+
+  const horizontalHint = $('#marginHorizontalHint');
+  if (horizontalHint) {
+    const key = autoMarginMode ? 'center' : marginAlignment.horizontal;
+    horizontalHint.textContent = ALIGNMENT_HINTS.horizontal[key] || '';
+  }
+
+  const verticalHint = $('#marginVerticalHint');
+  if (verticalHint) {
+    const key = autoMarginMode ? 'center' : marginAlignment.vertical;
+    verticalHint.textContent = ALIGNMENT_HINTS.vertical[key] || '';
+  }
+
+  const inputHint = $('#marginInputHint');
+  if (inputHint) {
+    inputHint.textContent = autoMarginMode ? AUTO_INPUT_HINT_TEXT : MANUAL_INPUT_HINT_TEXT;
+  }
+}
+
+function updateMarginAlignmentUI() {
+  const { horizontal, vertical } = marginAlignment;
+
+  $$(horizontalAlignmentSelector).forEach((btn) => {
+    const value = btn.dataset.alignHorizontal;
+    const active = value === horizontal;
+    btn.dataset.active = active ? 'true' : 'false';
+    btn.setAttribute('aria-pressed', active ? 'true' : 'false');
+    btn.disabled = autoMarginMode;
+  });
+
+  $$(verticalAlignmentSelector).forEach((btn) => {
+    const value = btn.dataset.alignVertical;
+    const active = value === vertical;
+    btn.dataset.active = active ? 'true' : 'false';
+    btn.setAttribute('aria-pressed', active ? 'true' : 'false');
+    btn.disabled = autoMarginMode;
+  });
+
+  const horizontalEdges = autoMarginMode || horizontal === 'center' ? ['left', 'right'] : [horizontal];
+  const verticalEdges = autoMarginMode || vertical === 'center' ? ['top', 'bottom'] : [vertical];
+
+  marginInputSelectors.forEach((selector) => {
+    const input = $(selector);
+    if (!input) return;
+    const label = getMarginEdgeLabelForInput(input);
+    if (!label) return;
+    const edge = label.dataset.marginEdge;
+    const axis = label.dataset.marginAxis;
+    const isHorizontalEdge = axis === 'horizontal';
+    const isActive = isHorizontalEdge
+      ? horizontalEdges.includes(edge)
+      : verticalEdges.includes(edge);
+    if (isActive) {
+      label.dataset.anchorActive = 'true';
+    } else {
+      delete label.dataset.anchorActive;
+    }
+    if (autoMarginMode) {
+      label.dataset.auto = 'true';
+    } else {
+      delete label.dataset.auto;
+    }
+  });
+
+  updateMarginAlignmentCopy();
+}
 
 function getUnitToggleButton() {
   if (typeof document === 'undefined') return null;
@@ -380,6 +521,9 @@ function showFreedomAlert() {
 
 function setAutoMarginMode(enabled) {
   autoMarginMode = Boolean(enabled);
+  if (autoMarginMode) {
+    marginAlignment = { ...MARGIN_ALIGNMENT_DEFAULT };
+  }
   marginInputSelectors.forEach((selector) => {
     const el = $(selector);
     if (!el) return;
@@ -393,6 +537,8 @@ function setAutoMarginMode(enabled) {
       delete el.dataset.auto;
     }
   });
+  updateMarginAutoToggle();
+  updateMarginAlignmentUI();
 }
 
 function syncDocCountStateFromValue(el) {
@@ -621,6 +767,62 @@ function attachMarginListeners() {
   });
 }
 
+function handleAlignmentSelection(axis, value) {
+  if (!value) return;
+  if (autoMarginMode) {
+    setAutoMarginMode(false);
+    getStatus()('Manual alignment enabled — adjust the highlighted offsets.');
+  }
+  if (marginAlignment[axis] === value && !autoMarginMode) {
+    updateMarginAlignmentUI();
+    return;
+  }
+  marginAlignment = { ...marginAlignment, [axis]: value };
+  const message = ALIGNMENT_STATUS_MESSAGES[axis]?.[value];
+  if (message) {
+    getStatus()(message);
+  }
+  updateMarginAlignmentUI();
+}
+
+function attachMarginAlignmentControls() {
+  $$(horizontalAlignmentSelector).forEach((btn) => {
+    if (!btn || btn.dataset.bound === 'true') return;
+    btn.dataset.bound = 'true';
+    btn.addEventListener('click', () => {
+      const value = btn.dataset.alignHorizontal;
+      handleAlignmentSelection('horizontal', value);
+    });
+  });
+
+  $$(verticalAlignmentSelector).forEach((btn) => {
+    if (!btn || btn.dataset.bound === 'true') return;
+    btn.dataset.bound = 'true';
+    btn.addEventListener('click', () => {
+      const value = btn.dataset.alignVertical;
+      handleAlignmentSelection('vertical', value);
+    });
+  });
+
+  const autoToggle = $(marginAutoToggleSelector);
+  if (autoToggle && autoToggle.dataset.bound !== 'true') {
+    autoToggle.dataset.bound = 'true';
+    autoToggle.addEventListener('click', () => {
+      const next = !autoMarginMode;
+      setAutoMarginMode(next);
+      if (next) {
+        getStatus()('Auto alignment enabled.');
+      } else {
+        getStatus()('Manual alignment enabled — adjust the highlighted offsets.');
+      }
+      getUpdate()();
+    });
+  }
+
+  updateMarginAutoToggle();
+  updateMarginAlignmentUI();
+}
+
 function attachDocCountListeners() {
   docCountSelectors.forEach((selector) => {
     const el = $(selector);
@@ -730,6 +932,7 @@ function init(context = {}) {
   storedContext = { ...storedContext, ...context };
   initializeUnitToggle();
   if (initialized) return;
+  attachMarginAlignmentControls();
   setAutoMarginMode(autoMarginMode);
   attachMarginListeners();
   attachDocCountListeners();
