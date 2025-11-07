@@ -4,12 +4,10 @@
  * Layout styles for the hole drilling configuration tab.
  * ============================================= */
 
-.drilling-configuration-card {
-  --stack-gap: 16px;
-}
+.drilling-configuration-card { --gap: var(--gap-roomy); }
 
 .drilling-plan-fields {
-  --grid-gap: 12px;
+  --gap: var(--gap-default);
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   align-items: flex-end;
 }
@@ -22,9 +20,7 @@
   margin: 0;
 }
 
-.drilling-location-list {
-  --stack-gap: 12px;
-}
+.drilling-location-list { --gap: var(--gap-default); }
 
 .drilling-location-row {
   display: grid;
@@ -60,7 +56,7 @@
   padding: 12px;
 }
 
-@media (max-width: 720px) {
+@media (--bp-narrow) {
   .drilling-location-row {
     grid-template-columns: 1fr;
   }

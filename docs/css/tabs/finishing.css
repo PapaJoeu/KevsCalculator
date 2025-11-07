@@ -6,36 +6,26 @@
  * ============================================= */
 
 /* This container stacks score planning panels and supplemental results. */
-.finishing-score-pane {
-  --stack-gap: var(--stack-gap-spacious);
-}
+.finishing-score-pane { --gap: var(--gap-spacious); }
 
 /* This layout splits inputs and results into columns for large screens. */
 .finishing-score-layout {
-  --grid-gap: var(--grid-gap-spacious);
+  --gap: var(--gap-spacious);
   grid-template-columns: minmax(0, 420px) minmax(0, 1fr);
   align-items: start;
 }
 
 /* Each column stacks cards in the scoring and perforation tabs. */
-.finishing-score-column {
-  --stack-gap: var(--stack-gap-spacious);
-}
+.finishing-score-column { --gap: var(--gap-spacious); }
 
 /* This card introduces the scoring/perforation section with contextual copy. */
-.finishing-score-card-intro {
-  --stack-gap: 8px;
-}
+.finishing-score-card-intro { --gap: var(--gap-snug); }
 
 /* This modifier adds breathing room between result cards. */
-.finishing-score-results {
-  --stack-gap: var(--stack-gap-comfortable);
-}
+.finishing-score-results { --gap: var(--gap-roomy); }
 
 /* This base card adds vertical rhythm for score configuration forms. */
-.finishing-score-card {
-  --stack-gap: 16px;
-}
+.finishing-score-card { --gap: var(--gap-roomy); }
 
 /* Horizontal score cards allow wider headlines to wrap cleanly. */
 .finishing-score-card-horizontal .finishing-score-card-title p,
@@ -75,9 +65,7 @@
 }
 
 /* This container stacks score input labels and helper copy. */
-.finishing-score-field {
-  --stack-gap: var(--stack-gap-snug);
-}
+.finishing-score-field { --gap: var(--gap-snug); }
 
 /* Score labels switch to a column layout for multi-line instructions. */
 .finishing-score-field label {
@@ -101,8 +89,8 @@
 
 /* Locked score inputs adopt a disabled palette to indicate read-only state. */
 .finishing-score-field label input.is-locked {
-  background: var(--surface-tab);
-  border-color: var(--border-tab);
+  background: var(--surface-control);
+  border-color: var(--border-muted);
   color: var(--text-secondary);
   cursor: not-allowed;
   opacity: 0.85;
@@ -135,9 +123,7 @@
 }
 
 /* Result cards tighten spacing for summary tables and descriptions. */
-.finishing-score-table-card {
-  --stack-gap: 12px;
-}
+.finishing-score-table-card { --gap: var(--gap-default); }
 
 /* Copy inside result cards uses a smaller type scale. */
 .finishing-score-table-card p {
@@ -147,18 +133,18 @@
 
 /* Result grids arrange tables responsively based on available width. */
 .finishing-score-results-grid {
-  --grid-gap: var(--grid-gap-comfortable);
+  --gap: var(--gap-roomy);
   --grid-min: 260px;
 }
 
-@media (max-width: 960px) {
+@media (--bp-medium) {
   /* Score layouts collapse to a single column on mid-sized screens. */
   .finishing-score-layout {
     grid-template-columns: 1fr;
   }
 }
 
-@media (max-width: 680px) {
+@media (--bp-compact) {
   /* Score headers stack elements vertically on narrow devices. */
   .finishing-score-card-header {
     flex-direction: column;
