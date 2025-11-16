@@ -14,14 +14,10 @@ const INPUT_SELECTORS = [
   '#sheetNUp',
   '#sheetPerPad',
 ];
-const TAB_SELECTOR = '.summary-calculator-tab';
-const PANEL_SELECTOR = '.summary-calculator__panel';
-const QUICK_PICK_SELECTOR = '.summary-calculator__quick-pick';
 
 let isInitialized = false;
 let autoNUp = 1;
 let pendingAutoNUp = null;
-let activeCalculator = null;
 
 const formatNumber = (value) => {
   if (!Number.isFinite(value)) {
@@ -178,74 +174,6 @@ const recalcAll = () => {
   updateSheetsConverter();
 };
 
-const activateCalculator = (calculatorId) => {
-  if (!calculatorId) {
-    return;
-  }
-  activeCalculator = calculatorId;
-  $$(TAB_SELECTOR).forEach((tab) => {
-    const isActive = tab.dataset.calculatorTab === calculatorId;
-    tab.setAttribute('aria-selected', isActive ? 'true' : 'false');
-    tab.tabIndex = isActive ? 0 : -1;
-  });
-  $$(PANEL_SELECTOR).forEach((panel) => {
-    const isActive = panel.dataset.calculatorPanel === calculatorId;
-    panel.hidden = !isActive;
-  });
-};
-
-const bindCalculatorTabs = () => {
-  const tabs = $$(TAB_SELECTOR);
-  if (!tabs.length) {
-    return;
-  }
-  const defaultTab = tabs.find((tab) => tab.dataset.default === 'true');
-  activateCalculator(defaultTab?.dataset.calculatorTab || tabs[0].dataset.calculatorTab);
-  tabs.forEach((tab, index) => {
-    tab.addEventListener('click', () => {
-      const calculatorId = tab.dataset.calculatorTab;
-      activateCalculator(calculatorId);
-      tab.focus();
-    });
-    tab.addEventListener('keydown', (event) => {
-      if (!['ArrowDown', 'ArrowUp', 'ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) {
-        return;
-      }
-      event.preventDefault();
-      const lastIndex = tabs.length - 1;
-      let nextIndex = index;
-      if (event.key === 'ArrowDown' || event.key === 'ArrowRight') {
-        nextIndex = index === lastIndex ? 0 : index + 1;
-      } else if (event.key === 'ArrowUp' || event.key === 'ArrowLeft') {
-        nextIndex = index === 0 ? lastIndex : index - 1;
-      } else if (event.key === 'Home') {
-        nextIndex = 0;
-      } else if (event.key === 'End') {
-        nextIndex = lastIndex;
-      }
-      const nextTab = tabs[nextIndex];
-      if (nextTab) {
-        activateCalculator(nextTab.dataset.calculatorTab);
-        nextTab.focus();
-      }
-    });
-  });
-};
-
-const bindQuickPickButtons = () => {
-  $$(QUICK_PICK_SELECTOR).forEach((button) => {
-    button.addEventListener('click', () => {
-      const selector = button.dataset.target;
-      if (!selector) return;
-      const input = $(selector);
-      if (!input) return;
-      input.value = button.dataset.value ?? '';
-      input.dispatchEvent(new Event('input', { bubbles: true }));
-      input.dispatchEvent(new Event('change', { bubbles: true }));
-    });
-  });
-};
-
 function attachEventListeners() {
   INPUT_SELECTORS.forEach((selector) => {
     const input = $(selector);
@@ -298,8 +226,6 @@ export function initializeSummaryCalculators() {
     return;
   }
   isInitialized = true;
-  bindCalculatorTabs();
-  bindQuickPickButtons();
   attachEventListeners();
   ensureDefaultValues();
   syncAutoFillInputs();
