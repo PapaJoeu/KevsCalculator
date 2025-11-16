@@ -614,6 +614,19 @@ function convertInputs(fromUnits, toUnits) {
   applyNumericInputUnits(safeTo);
 }
 
+function broadcastUnitsChange(units) {
+  if (typeof document === 'undefined') return;
+  try {
+    document.dispatchEvent(
+      new CustomEvent('calculator:units-change', {
+        detail: { units },
+      }),
+    );
+  } catch (error) {
+    console.warn('Failed to broadcast units change', error);
+  }
+}
+
 function setUnits(nextUnits, options = {}) {
   if (!nextUnits) return;
   const { skipConversion = false, silent = false } = options;
@@ -631,6 +644,7 @@ function setUnits(nextUnits, options = {}) {
   updateUnitToggleDisplay(nextUnits);
   applyNumericInputUnits(nextUnits);
   refreshPresetDropdowns(nextSystem);
+  broadcastUnitsChange(nextUnits);
   if (!silent) {
     getStatus()('Units changed');
     getUpdate()();

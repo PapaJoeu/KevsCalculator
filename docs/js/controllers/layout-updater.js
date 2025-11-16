@@ -103,6 +103,37 @@ function readHolePlan() {
   }
 }
 
+function readRoundedCorners() {
+  const defaultCorners = { topLeft: 0, topRight: 0, bottomRight: 0, bottomLeft: 0 };
+  const el = $('#roundedCornersData');
+  if (!el) {
+    return defaultCorners;
+  }
+  const raw = el.value;
+  if (!raw) {
+    return defaultCorners;
+  }
+  try {
+    const parsed = JSON.parse(raw);
+    if (!parsed || typeof parsed !== 'object') {
+      return defaultCorners;
+    }
+    const coerce = (value) => {
+      const numeric = Number(value);
+      return Number.isFinite(numeric) && numeric > 0 ? numeric : 0;
+    };
+    return {
+      topLeft: coerce(parsed.topLeft),
+      topRight: coerce(parsed.topRight),
+      bottomRight: coerce(parsed.bottomRight),
+      bottomLeft: coerce(parsed.bottomLeft),
+    };
+  } catch (error) {
+    console.error('Failed to parse rounded corner data', error);
+    return defaultCorners;
+  }
+}
+
 export function status(txt) {
   $('#status').textContent = txt;
 }
@@ -149,6 +180,7 @@ export function update() {
     perforationVertical: inp.perfV,
     holePlan: inp.drilling,
   });
+  layout.roundedCorners = readRoundedCorners();
   const programSequence = calculateProgramSequence(layout);
 
   updateDocCountField('#forceAcross', layout.counts.across);

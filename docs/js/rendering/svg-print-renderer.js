@@ -1,3 +1,5 @@
+import { buildRoundedRectPath, clampCornerRadii, normalizeCornerRadii, scaleCornerRadii } from './rounded-rect-path.js';
+import { buildLayoutScene } from './svg-layout-scene.js';
 import { applyLayerAttributes } from './svg-layer-attributes.js';
 
 const SVG_NS = 'http://www.w3.org/2000/svg';
@@ -66,22 +68,6 @@ function toLayerSet(layers) {
   return null;
 }
 
-function getNonPrintableMetrics(sheet) {
-  const nonPrintable = sheet?.nonPrintable ?? {};
-  return {
-    top: Math.max(0, nonPrintable.top ?? 0),
-    right: Math.max(0, nonPrintable.right ?? 0),
-    bottom: Math.max(0, nonPrintable.bottom ?? 0),
-    left: Math.max(0, nonPrintable.left ?? 0),
-  };
-}
-
-function getPrintableDimensions(sheet, nonPrintable) {
-  const width = Math.max(0, sheet.rawWidth - nonPrintable.left - nonPrintable.right);
-  const height = Math.max(0, sheet.rawHeight - nonPrintable.top - nonPrintable.bottom);
-  return { width, height };
-}
-
 function createScaledDrawers(svg, scale) {
   // All of the calculations the layout engine produces are measured in inches.
   // The SVG, however, works in pixel space. The scale parameter tells us how
@@ -89,12 +75,29 @@ function createScaledDrawers(svg, scale) {
   // maintains the correct physical size when opened in another tool.
   const toPx = (value) => value * scale;
 
-  const drawRect = (x, y, rectWidth, rectHeight, { layer, classNames } = {}) => {
+  const drawRect = (x, y, rectWidth, rectHeight, { layer, classNames, cornerRadii } = {}) => {
+    const normalized = normalizeCornerRadii(cornerRadii);
+    const rounded = clampCornerRadii(normalized, rectWidth, rectHeight);
+    const pxX = toPx(x);
+    const pxY = toPx(y);
+    const pxWidth = toPx(rectWidth);
+    const pxHeight = toPx(rectHeight);
+
+    if (rounded) {
+      const path = createSvgElement('path');
+      const scaledRadii = scaleCornerRadii(rounded, scale);
+      path.setAttribute('d', buildRoundedRectPath(pxX, pxY, pxWidth, pxHeight, scaledRadii));
+      addClassNames(path, classNames);
+      applyLayerAttributes(path, layer);
+      svg.appendChild(path);
+      return;
+    }
+
     const rect = createSvgElement('rect');
-    rect.setAttribute('x', toPx(x));
-    rect.setAttribute('y', toPx(y));
-    rect.setAttribute('width', toPx(rectWidth));
-    rect.setAttribute('height', toPx(rectHeight));
+    rect.setAttribute('x', pxX);
+    rect.setAttribute('y', pxY);
+    rect.setAttribute('width', pxWidth);
+    rect.setAttribute('height', pxHeight);
     addClassNames(rect, classNames);
     applyLayerAttributes(rect, layer);
     svg.appendChild(rect);
@@ -148,13 +151,10 @@ function createSvgRoot(widthInches, heightInches) {
 }
 
 export function createPrintableSvg(layout, finishing, options = {}) {
-  if (!layout?.sheet) return null;
-  const { sheet } = layout;
-  const width = Number(sheet.rawWidth ?? 0);
-  const height = Number(sheet.rawHeight ?? 0);
-  if (!Number.isFinite(width) || !Number.isFinite(height) || width <= 0 || height <= 0) {
-    return null;
-  }
+  const scene = buildLayoutScene(layout, finishing);
+  if (!scene) return null;
+  const width = scene.width;
+  const height = scene.height;
 
   const layerSet = toLayerSet(options.visibleLayers) ?? new Set(DEFAULT_LAYERS);
   const isLayerVisible = (layer) => layerSet.has(layer);
@@ -167,202 +167,30 @@ export function createPrintableSvg(layout, finishing, options = {}) {
 
   const { drawRect, drawLine, drawCircle } = createScaledDrawers(svg, scale);
 
-  if (isLayerVisible('sheet')) {
-    // Always start with the raw sheet dimensions so we can see the true
-    // material boundary, even if additional content extends inward.
-    drawRect(0, 0, width, height, {
-      layer: 'sheet',
-      classNames: ['svg-sheet-outline'],
-    });
-  }
-
-  const nonPrintable = getNonPrintableMetrics(sheet);
-  const printable = getPrintableDimensions(sheet, nonPrintable);
-
-  if (isLayerVisible('nonPrintable')) {
-    // Highlight the unusable margin at the top of the sheet.
-    if (nonPrintable.top > 0) {
-      drawRect(0, 0, width, nonPrintable.top, {
-        layer: 'nonPrintable',
-        classNames: ['svg-nonprintable-region'],
+  scene.items.forEach((item) => {
+    if (!item || !isLayerVisible(item.layer)) return;
+    if (item.type === 'rect') {
+      drawRect(item.x, item.y, item.width, item.height, {
+        layer: item.layer,
+        classNames: item.classNames,
+        cornerRadii: item.cornerRadii,
+      });
+      return;
+    }
+    if (item.type === 'line') {
+      drawLine(item.x1, item.y1, item.x2, item.y2, {
+        layer: item.layer,
+        classNames: item.classNames,
+      });
+      return;
+    }
+    if (item.type === 'circle') {
+      drawCircle(item.cx, item.cy, item.radius, {
+        layer: item.layer,
+        classNames: item.classNames,
       });
     }
-
-    // Highlight the unusable margin at the bottom of the sheet.
-    if (nonPrintable.bottom > 0) {
-      drawRect(0, height - nonPrintable.bottom, width, nonPrintable.bottom, {
-        layer: 'nonPrintable',
-        classNames: ['svg-nonprintable-region'],
-      });
-    }
-
-    const verticalBandHeight = Math.max(0, height - nonPrintable.top - nonPrintable.bottom);
-    // The left margin is a vertical strip running between the top/bottom
-    // exclusions. Only draw it if there is remaining vertical space.
-    if (nonPrintable.left > 0 && verticalBandHeight > 0) {
-      drawRect(0, nonPrintable.top, nonPrintable.left, verticalBandHeight, {
-        layer: 'nonPrintable',
-        classNames: ['svg-nonprintable-region'],
-      });
-    }
-
-    // Mirror the same logic for the right margin.
-    if (nonPrintable.right > 0 && verticalBandHeight > 0) {
-      drawRect(width - nonPrintable.right, nonPrintable.top, nonPrintable.right, verticalBandHeight, {
-        layer: 'nonPrintable',
-        classNames: ['svg-nonprintable-region'],
-      });
-    }
-
-    // Draw the printable rectangle so users can easily see the usable area.
-    if (printable.width > 0 && printable.height > 0) {
-      drawRect(nonPrintable.left, nonPrintable.top, printable.width, printable.height, {
-        layer: 'nonPrintable',
-        classNames: ['svg-printable-outline'],
-      });
-    }
-  }
-
-  if (isLayerVisible('layout')) {
-    // The layout area tells us where the repeating document grid should start
-    // and how much space it consumes overall.
-    drawRect(
-      layout.layoutArea.originX,
-      layout.layoutArea.originY,
-      layout.layoutArea.width,
-      layout.layoutArea.height,
-      {
-        layer: 'layout',
-        classNames: ['svg-layout-area'],
-      },
-    );
-  }
-
-  if (isLayerVisible('docs')) {
-    const across = layout.counts?.across ?? 0;
-    const down = layout.counts?.down ?? 0;
-    for (let y = 0; y < down; y += 1) {
-      for (let x = 0; x < across; x += 1) {
-        // Each document is offset from the layout origin by the gutter spacing
-        // plus the width/height of the previous items.
-        const originX = layout.layoutArea.originX + x * (layout.document.width + layout.gutter.horizontal);
-        const originY = layout.layoutArea.originY + y * (layout.document.height + layout.gutter.vertical);
-        drawRect(originX, originY, layout.document.width, layout.document.height, {
-          layer: 'docs',
-          classNames: ['svg-document-area'],
-        });
-      }
-    }
-  }
-
-  if (isLayerVisible('cuts')) {
-    // Horizontal cuts span the full layout width and are measured from the top
-    // edge of the sheet, just like in the interactive preview.
-    (finishing?.cuts ?? []).forEach((cut) => {
-      drawLine(
-        layout.layoutArea.originX,
-        cut.inches,
-        layout.layoutArea.originX + layout.layoutArea.width,
-        cut.inches,
-        {
-          layer: 'cuts',
-          classNames: ['svg-cut-line'],
-        },
-      );
-    });
-  }
-
-  if (isLayerVisible('slits')) {
-    // Vertical slits run along the height of the layout area.
-    (finishing?.slits ?? []).forEach((slit) => {
-      drawLine(
-        slit.inches,
-        layout.layoutArea.originY,
-        slit.inches,
-        layout.layoutArea.originY + layout.layoutArea.height,
-        {
-          layer: 'slits',
-          classNames: ['svg-slit-line'],
-        },
-      );
-    });
-  }
-
-  if (isLayerVisible('scores')) {
-    // Scores can run horizontally or vertically; render each group separately
-    // so we can mirror the preview ordering.
-    (finishing?.scores?.horizontal ?? []).forEach((score) => {
-      drawLine(
-        layout.layoutArea.originX,
-        score.inches,
-        layout.layoutArea.originX + layout.layoutArea.width,
-        score.inches,
-        {
-          layer: 'scores',
-          classNames: ['svg-score-line'],
-        },
-      );
-    });
-
-    (finishing?.scores?.vertical ?? []).forEach((score) => {
-      drawLine(
-        score.inches,
-        layout.layoutArea.originY,
-        score.inches,
-        layout.layoutArea.originY + layout.layoutArea.height,
-        {
-          layer: 'scores',
-          classNames: ['svg-score-line'],
-        },
-      );
-    });
-  }
-
-  if (isLayerVisible('perforations')) {
-    // Perforations mirror the score logic but use a dashed stroke so the
-    // printable export matches the preview legend.
-    (finishing?.perforations?.horizontal ?? []).forEach((perforation) => {
-      drawLine(
-        layout.layoutArea.originX,
-        perforation.inches,
-        layout.layoutArea.originX + layout.layoutArea.width,
-        perforation.inches,
-        {
-          layer: 'perforations',
-          classNames: ['svg-perforation-line'],
-        },
-      );
-    });
-
-    (finishing?.perforations?.vertical ?? []).forEach((perforation) => {
-      drawLine(
-        perforation.inches,
-        layout.layoutArea.originY,
-        perforation.inches,
-        layout.layoutArea.originY + layout.layoutArea.height,
-        {
-          layer: 'perforations',
-          classNames: ['svg-perforation-line'],
-        },
-      );
-    });
-  }
-
-  if (isLayerVisible('holes')) {
-    // The layout keeps hole diameters in inches, so divide by two to convert to
-    // a radius for the SVG circle element.
-    (finishing?.holes ?? []).forEach((hole) => {
-      const diameter = Number(hole?.diameter ?? 0);
-      if (!Number.isFinite(diameter) || diameter <= 0) return;
-      const radius = diameter / 2;
-      const cx = Number(hole?.x ?? 0);
-      const cy = Number(hole?.y ?? 0);
-      drawCircle(cx, cy, radius, {
-        layer: 'holes',
-        classNames: ['svg-hole'],
-      });
-    });
-  }
+  });
 
   return svg;
 }
