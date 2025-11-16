@@ -177,21 +177,118 @@ th { color: var(--color-text-secondary); font-weight: 500; letter-spacing: 0.02e
 /* ---- Summary layout ---- */
 .summary-shell { flex: 1; min-height: 0; }
 
-.summary-grid {
+/*
+  Summary calculators replace the legacy metric cards with a tabbed, calculator-first
+  layout. The rules below define the visual hierarchy for the nav, calculator cards,
+  quick actions, and responsive behavior.
+*/
+.summary-calculators { --calculator-max-width: 1080px; }
+
+.summary-calculators__nav {
+  /* Provide a tactile, segmented control across desktop + tablet widths. */
   display: grid;
-  gap: var(--space-3);
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: var(--space-3);
 }
 
-.summary-card {
-  display: grid;
-  gap: var(--space-2);
+.summary-calculators__tab {
+  /* Tab triggers mirror cards for a button-like affordance. */
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  align-items: flex-start;
+  padding: var(--space-3);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface-2);
+  border: 1px solid var(--color-border-muted);
+  color: var(--color-text-secondary);
+  text-align: left;
+  cursor: pointer;
+  font: inherit;
+  transition: border-color var(--motion-fast) ease, background var(--motion-fast) ease, color var(--motion-fast) ease;
 }
+
+.summary-calculators__tab:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+.summary-calculators__tab.is-active {
+  border-color: var(--color-border-accent);
+  background: color-mix(in srgb, var(--color-accent) 10%, var(--color-surface-2));
+  color: var(--color-text-primary);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+}
+
+.summary-calculators__tab-label { font-weight: 600; }
+.summary-calculators__tab-caption { font-size: var(--font-sm); color: var(--color-text-muted); }
+.summary-calculators__tab.is-active .summary-calculators__tab-caption { color: var(--color-text-secondary); }
+
+.summary-calculator-panel { max-inline-size: var(--calculator-max-width); }
+.summary-calculator-panel[hidden] { display: none; }
+
+.summary-calculator {
+  /* Cards inherit spacing tokens to keep headers + content balanced. */
+  gap: var(--space-4);
+}
+
+.summary-calculator__header {
+  border-bottom: 1px solid var(--color-border-muted);
+  padding-bottom: var(--space-3);
+}
+
+.summary-calculator__eyebrow {
+  font-size: var(--font-xs);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  margin: 0;
+}
+
+.summary-calculator__layout {
+  /* Inputs and outputs form a responsive two-column grid. */
+  display: grid;
+  gap: var(--space-4);
+  grid-template-columns: minmax(0, 1fr) minmax(280px, 360px);
+}
+
+.summary-calculator__results-card {
+  border: 1px solid var(--color-border-muted);
+  border-radius: var(--radius-lg);
+  padding: var(--space-4);
+  background: var(--color-surface-2);
+  display: grid;
+  gap: var(--space-3);
+}
+
+.summary-calculator__results-card > h4 {
+  margin: 0;
+  font-size: var(--font-sm);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-text-secondary);
+}
+
+.summary-calculator__presets {
+  border: 1px dashed var(--color-border-muted);
+  border-radius: var(--radius-lg);
+  padding: var(--space-3);
+}
+
+.summary-calculator__preset-group { display: grid; gap: var(--space-2); }
+.summary-calculator__preset-label { margin: 0; font-size: var(--font-xs); letter-spacing: 0.05em; text-transform: uppercase; color: var(--color-text-muted); }
+.summary-calculator__preset-buttons { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+
+.summary-calculator__hint { font-size: var(--font-xs); }
 
 .summary-metrics { display: grid; gap: var(--space-2); }
 .summary-metrics > div { display: flex; justify-content: space-between; gap: var(--space-2); }
 .summary-metrics dt { margin: 0; color: var(--color-text-secondary); font-weight: 500; }
 .summary-metrics dd { margin: 0; font-weight: 600; text-align: right; font-variant-numeric: tabular-nums; }
+
+@media (max-width: 1024px) {
+  .summary-calculator__layout { grid-template-columns: 1fr; }
+}
 
 /* ---- Responsive helpers ---- */
 @media (max-width: 960px) {

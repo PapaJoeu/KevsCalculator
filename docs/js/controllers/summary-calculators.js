@@ -14,10 +14,16 @@ const INPUT_SELECTORS = [
   '#sheetNUp',
   '#sheetPerPad',
 ];
+const CALCULATOR_TABLIST_SELECTOR = '[data-calculator-tabs]';
+const CALCULATOR_TAB_SELECTOR = '[data-calculator-tab]';
+const CALCULATOR_PANEL_SELECTOR = '[data-calculator-panel]';
+const PRESET_BUTTON_SELECTOR = '[data-preset-input][data-preset-value]';
 
 let isInitialized = false;
 let autoNUp = 1;
 let pendingAutoNUp = null;
+let calculatorTabsInitialized = false;
+let presetButtonsInitialized = false;
 
 const formatNumber = (value) => {
   if (!Number.isFinite(value)) {
@@ -210,6 +216,124 @@ function ensureDefaultValues() {
   });
 }
 
+/**
+ * Configures the in-tab calculator navigation so users can switch between tools with
+ * either the mouse or keyboard. The markup mirrors a lightweight tablist, so we only
+ * need to orchestrate aria-selected, tabindex, and panel visibility.
+ */
+function initializeCalculatorTabs() {
+  if (calculatorTabsInitialized) {
+    return;
+  }
+  const tablist = $(CALCULATOR_TABLIST_SELECTOR);
+  if (!tablist) {
+    return;
+  }
+  const tabs = Array.from(tablist.querySelectorAll(CALCULATOR_TAB_SELECTOR));
+  const panels = $$(CALCULATOR_PANEL_SELECTOR);
+  if (tabs.length === 0 || panels.length === 0) {
+    return;
+  }
+  // Safely resolve the tab trigger even when events originate from nested spans/text nodes.
+  const resolveTargetFromEvent = (eventTarget) => {
+    if (!(eventTarget instanceof Element)) {
+      return null;
+    }
+    return eventTarget.closest(CALCULATOR_TAB_SELECTOR);
+  };
+  const activateTab = (nextTab, { focus } = { focus: false }) => {
+    if (!nextTab) {
+      return;
+    }
+    const targetKey = nextTab.dataset.calculatorTab;
+    tabs.forEach((tab) => {
+      const isActive = tab === nextTab;
+      tab.classList.toggle('is-active', isActive);
+      tab.setAttribute('aria-selected', String(isActive));
+      tab.tabIndex = isActive ? 0 : -1;
+    });
+    panels.forEach((panel) => {
+      const isMatch = panel.dataset.calculatorPanel === targetKey;
+      panel.classList.toggle('is-active', isMatch);
+      panel.hidden = !isMatch;
+    });
+    if (focus) {
+      nextTab.focus();
+    }
+  };
+  const focusableTabs = () => tabs.filter((tab) => !tab.disabled);
+  tablist.addEventListener('click', (event) => {
+    const target = resolveTargetFromEvent(event.target);
+    if (!target || target.disabled) {
+      return;
+    }
+    activateTab(target, { focus: true });
+  });
+  tablist.addEventListener('keydown', (event) => {
+    const currentTab = resolveTargetFromEvent(event.target);
+    if (!currentTab) {
+      return;
+    }
+    const enabledTabs = focusableTabs();
+    const currentIndex = enabledTabs.indexOf(currentTab);
+    if (currentIndex === -1) {
+      return;
+    }
+    let nextIndex = currentIndex;
+    if (event.key === 'ArrowRight') {
+      event.preventDefault();
+      nextIndex = (currentIndex + 1) % enabledTabs.length;
+    } else if (event.key === 'ArrowLeft') {
+      event.preventDefault();
+      nextIndex = (currentIndex - 1 + enabledTabs.length) % enabledTabs.length;
+    } else if (event.key === 'Home') {
+      event.preventDefault();
+      nextIndex = 0;
+    } else if (event.key === 'End') {
+      event.preventDefault();
+      nextIndex = enabledTabs.length - 1;
+    } else {
+      return;
+    }
+    activateTab(enabledTabs[nextIndex], { focus: true });
+  });
+  const defaultTab = tabs.find((tab) => tab.classList.contains('is-active')) || tabs[0];
+  activateTab(defaultTab);
+  calculatorTabsInitialized = true;
+}
+
+/**
+ * Wires up the preset buttons so the most common pad sizes, counts, and overage targets
+ * can be applied with a single click/tap. Dispatching an input event keeps the existing
+ * calculator observers in sync.
+ */
+function initializePresetButtons() {
+  if (presetButtonsInitialized) {
+    return;
+  }
+  const buttons = $$(PRESET_BUTTON_SELECTOR);
+  if (buttons.length === 0) {
+    return;
+  }
+  buttons.forEach((button) => {
+    button.addEventListener('click', () => {
+      const inputId = button.dataset.presetInput;
+      const presetValue = button.dataset.presetValue ?? '';
+      if (!inputId) {
+        return;
+      }
+      const input = document.getElementById(inputId);
+      if (!input) {
+        return;
+      }
+      input.value = presetValue;
+      input.dispatchEvent(new Event('input', { bubbles: true }));
+      input.focus();
+    });
+  });
+  presetButtonsInitialized = true;
+}
+
 function applyAutoNUp(nextNUp) {
   const sanitized = Number.isFinite(nextNUp) ? Math.max(0, Math.floor(nextNUp)) : 0;
   autoNUp = sanitized;
@@ -227,6 +351,8 @@ export function initializeSummaryCalculators() {
   }
   isInitialized = true;
   attachEventListeners();
+  initializeCalculatorTabs();
+  initializePresetButtons();
   ensureDefaultValues();
   syncAutoFillInputs();
   if (pendingAutoNUp !== null) {
