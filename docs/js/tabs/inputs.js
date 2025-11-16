@@ -739,7 +739,14 @@ function swapInputValues(selectorA, selectorB) {
 }
 
 function attachSwapButtons() {
-  const buttons = document.querySelectorAll('.input-swap-button[data-swap-targets]');
+  // Swap buttons are used in multiple layouts with slightly different class
+  // names, so we listen for both the legacy `.input-swap-button` and the newer
+  // `.btn-swap` selector while we migrate the markup. Each button declares the
+  // selectors for the paired inputs (and an optional status message) via
+  // `data-swap-*` attributes.
+  const buttons = document.querySelectorAll(
+    '.btn-swap[data-swap-targets], .input-swap-button[data-swap-targets]'
+  );
   buttons.forEach((button) => {
     button.addEventListener('click', () => {
       const rawTargets = button.dataset.swapTargets || '';
@@ -749,10 +756,14 @@ function attachSwapButtons() {
         .filter(Boolean);
       if (selectors.length !== 2) return;
       if (!swapInputValues(selectors[0], selectors[1])) return;
+      // If provided, broadcast the contextual status string (e.g. "Swapped"
+      // for the document dimensions) so the user sees immediate feedback.
       const message = button.dataset.swapMessage;
       if (message) {
         getStatus()(message);
       }
+      // Swapping inputs affects the downstream layout math, so trigger the same
+      // recalculation/visual refresh as the primary "calculate" button.
       getUpdate()();
     });
   });
