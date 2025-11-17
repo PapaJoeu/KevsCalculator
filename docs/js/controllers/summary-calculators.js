@@ -1,4 +1,9 @@
-import { $, $$ } from '../utils/dom.js';
+import { $, $$, readFloatInput, readIntegerInput } from '../utils/dom.js';
+import {
+  calculatePadTotals,
+  calculateRunPlan,
+  calculateSheetConversion,
+} from '../utils/summary-calculations.js';
 
 const numberFormatter = typeof Intl !== 'undefined' ? new Intl.NumberFormat() : { format: (value) => String(value) };
 
@@ -32,34 +37,8 @@ const setText = (selector, value) => {
   el.textContent = value;
 };
 
-const readNumberFromInput = (selector) => {
-  const el = $(selector);
-  if (!el) return Number.NaN;
-  const raw = el.value;
-  if (raw === '') return Number.NaN;
-  const parsed = Number(raw);
-  return Number.isFinite(parsed) ? parsed : Number.NaN;
-};
-
-const readInteger = (selector, { min = 0, fallback = 0 } = {}) => {
-  const parsed = readNumberFromInput(selector);
-  if (!Number.isFinite(parsed)) {
-    return fallback;
-  }
-  const floored = Math.floor(parsed);
-  return Math.max(min, floored);
-};
-
-const readFloat = (selector, { min = 0, fallback = 0 } = {}) => {
-  const parsed = readNumberFromInput(selector);
-  if (!Number.isFinite(parsed)) {
-    return fallback;
-  }
-  return Math.max(min, parsed);
-};
-
 const readNUp = (selector) => {
-  const value = readInteger(selector, { min: 0, fallback: autoNUp });
+  const value = readIntegerInput(selector, { min: 0, fallback: autoNUp });
   if (value > 0) {
     return value;
   }
@@ -101,19 +80,18 @@ const formatPiecesWithSheets = (pieces, sheets) => {
 };
 
 const updatePadCalculator = () => {
-  const padCount = readInteger('#padCount', { min: 0, fallback: 0 });
-  const sheetsPerPad = readInteger('#padSheets', { min: 0, fallback: 0 });
+  const padCount = readIntegerInput('#padCount', { min: 0, fallback: 0 });
+  const sheetsPerPad = readIntegerInput('#padSheets', { min: 0, fallback: 0 });
   const nUp = readNUp('#padNUp');
-  if (padCount <= 0 || sheetsPerPad <= 0 || nUp <= 0) {
+  const result = calculatePadTotals({ padCount, sheetsPerPad, nUp });
+  if (!result) {
     setText('#padTotalPieces', '—');
     setText('#padTotalSheets', '—');
     setText('#padRemainder', '—');
     return;
   }
 
-  const totalPieces = padCount * sheetsPerPad;
-  const totalSheets = Math.ceil(totalPieces / nUp);
-  const overagePieces = Math.max(0, totalSheets * nUp - totalPieces);
+  const { totalPieces, totalSheets, overagePieces } = result;
 
   setText('#padTotalPieces', formatNumber(totalPieces));
   setText('#padTotalSheets', formatNumber(totalSheets));
@@ -121,22 +99,19 @@ const updatePadCalculator = () => {
 };
 
 const updateRunPlanner = () => {
-  const desiredPieces = readInteger('#runDesired', { min: 0, fallback: 0 });
+  const desiredPieces = readIntegerInput('#runDesired', { min: 0, fallback: 0 });
   const nUp = readNUp('#runNUp');
-  const oversPercent = readFloat('#runOvers', { min: 0, fallback: 0 });
+  const oversPercent = readFloatInput('#runOvers', { min: 0, fallback: 0 });
 
-  if (desiredPieces <= 0 || nUp <= 0) {
+  const result = calculateRunPlan({ desiredPieces, nUp, oversPercent });
+  if (!result) {
     setText('#runTotalPieces', '—');
     setText('#runTotalSheets', '—');
     setText('#runOversBreakdown', '—');
     return;
   }
 
-  const oversPieces = Math.ceil((desiredPieces * oversPercent) / 100);
-  const totalPieces = desiredPieces + oversPieces;
-  const baseSheets = Math.ceil(desiredPieces / nUp);
-  const totalSheets = Math.ceil(totalPieces / nUp);
-  const oversSheets = Math.max(0, totalSheets - baseSheets);
+  const { totalPieces, totalSheets, oversPieces, oversSheets } = result;
 
   setText('#runTotalPieces', formatNumber(totalPieces));
   setText('#runTotalSheets', formatNumber(totalSheets));
@@ -144,25 +119,24 @@ const updateRunPlanner = () => {
 };
 
 const updateSheetsConverter = () => {
-  const sheetsToRun = readInteger('#sheetRun', { min: 0, fallback: 0 });
+  const sheetsToRun = readIntegerInput('#sheetRun', { min: 0, fallback: 0 });
   const nUp = readNUp('#sheetNUp');
-  const piecesPerPad = readInteger('#sheetPerPad', { min: 0, fallback: 0 });
+  const piecesPerPad = readIntegerInput('#sheetPerPad', { min: 0, fallback: 0 });
 
-  if (sheetsToRun <= 0 || nUp <= 0) {
+  const result = calculateSheetConversion({ sheetsToRun, nUp, piecesPerPad });
+  if (!result) {
     setText('#sheetTotalPieces', '—');
     setText('#sheetTotalPads', '—');
     setText('#sheetPadRemainder', '—');
     return;
   }
 
-  const totalPieces = sheetsToRun * nUp;
-  const completePads = piecesPerPad > 0 ? Math.floor(totalPieces / piecesPerPad) : 0;
-  const remainderPieces = piecesPerPad > 0 ? totalPieces % piecesPerPad : totalPieces;
+  const { totalPieces, hasPadBreakdown, completePads, remainderPieces } = result;
 
   setText('#sheetTotalPieces', formatNumber(totalPieces));
-  setText('#sheetTotalPads', piecesPerPad > 0 ? formatNumber(completePads) : '—');
-  if (piecesPerPad > 0) {
-    setText('#sheetPadRemainder', remainderPieces > 0 ? `${formatNumber(remainderPieces)} pieces` : 'None');
+  setText('#sheetTotalPads', hasPadBreakdown && completePads !== null ? formatNumber(completePads) : '—');
+  if (hasPadBreakdown) {
+    setText('#sheetPadRemainder', remainderPieces && remainderPieces > 0 ? `${formatNumber(remainderPieces)} pieces` : 'None');
   } else {
     setText('#sheetPadRemainder', '—');
   }

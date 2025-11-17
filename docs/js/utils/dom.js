@@ -177,3 +177,28 @@ export const parseOffsets = (value) =>
     .filter(Boolean)
     .map(Number)
     .filter((n) => Number.isFinite(n));
+
+const readNumberFromInput = (selector) => {
+  const el = $(selector);
+  if (!el) return Number.NaN;
+  const raw = el.value;
+  if (raw === '') return Number.NaN;
+  const parsed = Number(raw);
+  return Number.isFinite(parsed) ? parsed : Number.NaN;
+};
+
+export const readIntegerInput = (selector, { min = 0, fallback = 0 } = {}) => {
+  const parsed = readNumberFromInput(selector);
+  if (!Number.isFinite(parsed)) {
+    return fallback;
+  }
+  return Math.max(min, Math.floor(parsed));
+};
+
+export const readFloatInput = (selector, { min = 0, fallback = 0 } = {}) => {
+  const parsed = readNumberFromInput(selector);
+  if (!Number.isFinite(parsed)) {
+    return fallback;
+  }
+  return Math.max(min, parsed);
+};
