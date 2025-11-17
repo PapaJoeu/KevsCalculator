@@ -2,7 +2,7 @@ import { hydrateTabPanel } from './registry.js';
 import { createPrintableSvg } from '../rendering/svg-print-renderer.js';
 import { createLayoutDetailsSvg } from '../rendering/svg-layout-details-renderer.js';
 import { calculateProgramSequence } from '../utils/program-sequence.js';
-import { inchesToMillimeters } from '../utils/units.js';
+import { inchesToMillimeters, DISPLAY_MILLIMETERS_PRECISION } from '../utils/units.js';
 
 const TAB_KEY = 'print';
 const DEFAULT_LAYERS = ['sheet', 'nonPrintable', 'layout', 'docs', 'cuts', 'slits', 'scores', 'perforations', 'holes'];
@@ -30,7 +30,10 @@ const state = {
   programSequence: null,
 };
 
-const fmtInches = (inches) => `${inches.toFixed(3)} in / ${inchesToMillimeters(inches).toFixed(2)} mm`;
+export const fmtInches = (inches) => {
+  const mm = inchesToMillimeters(inches, DISPLAY_MILLIMETERS_PRECISION);
+  return `${inches.toFixed(3)} in / ${mm.toFixed(DISPLAY_MILLIMETERS_PRECISION)} mm`;
+};
 
 function ensurePanel() {
   if (panelEl) return panelEl;

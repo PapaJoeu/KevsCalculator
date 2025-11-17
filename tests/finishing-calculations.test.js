@@ -5,8 +5,10 @@ import {
   mapPositionsToReadout,
   calculateFinishing,
 } from '../docs/js/calculations/finishing-calculations.js';
+import { fmtInches } from '../docs/js/tabs/print.js';
+import { DISPLAY_MILLIMETERS_PRECISION, MM_PER_INCH } from '../docs/js/utils/units.js';
 
-const mm = (inches) => Number((inches * 25.4).toFixed(3));
+const mm = (inches) => Number((inches * MM_PER_INCH).toFixed(DISPLAY_MILLIMETERS_PRECISION));
 
 describe('finishing calculations integration', () => {
   it('produces mapped cut, slit, score, and perforation readouts for a representative layout', () => {
@@ -130,6 +132,20 @@ describe('hole drilling generation', () => {
 
     const expectedSecondRowFirstDoc = { label: 'Hole 1 — Doc 1,2', x: 1.3125, y: 10.5, diameter: 0.25 };
     expect(result.holes[6]).toMatchObject(expectedSecondRowFirstDoc);
+  });
+});
+
+describe('display readouts share millimeter precision', () => {
+  it('matches preview rows and print summaries', () => {
+    const sample = 0.049;
+    const readout = mapPositionsToReadout('Cut', [sample])[0];
+    const printSummary = fmtInches(sample);
+    const match = printSummary.match(/\/\s+([0-9.]+)\s+mm/);
+    expect(match).not.toBeNull();
+    const [, mmText] = match;
+    expect(Number(mmText)).toBe(readout.millimeters);
+    const decimals = mmText.includes('.') ? mmText.split('.')[1].length : 0;
+    expect(decimals).toBeLessThanOrEqual(DISPLAY_MILLIMETERS_PRECISION);
   });
 });
 

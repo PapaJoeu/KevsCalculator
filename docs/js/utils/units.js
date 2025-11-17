@@ -1,4 +1,11 @@
 export const MM_PER_INCH = 25.4;
+export const DISPLAY_MILLIMETERS_PRECISION = 2;
+
+const roundToPrecision = (value, precision) => {
+  if (!Number.isFinite(value)) return 0;
+  if (!Number.isFinite(precision)) return value;
+  return Number(value.toFixed(precision));
+};
 
 export const clampToZero = (value) => Math.max(0, value);
 
@@ -16,7 +23,7 @@ export const trimTrailingZeros = (str) => {
 export const getUnitsPrecision = (units) => (units === 'mm' ? 2 : 3);
 
 export const inchesToMillimeters = (inches, precision = 3) =>
-  Number((inches * MM_PER_INCH).toFixed(precision));
+  roundToPrecision(inches * MM_PER_INCH, precision);
 
 export const formatUnitsValue = (value, units, precisionOverride) => {
   if (value == null || value === '') return '';

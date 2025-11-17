@@ -1,4 +1,8 @@
-import { clampToZero, inchesToMillimeters } from '../utils/units.js';
+import {
+  clampToZero,
+  inchesToMillimeters,
+  DISPLAY_MILLIMETERS_PRECISION,
+} from '../utils/units.js';
 
 const VALID_HOLE_EDGES = new Set(['top', 'bottom', 'left', 'right']);
 const VALID_HOLE_ALIGNS = new Set(['start', 'center', 'end']);
@@ -151,12 +155,17 @@ export function generateScorePositions(startOffset, docSpan, gutterSpan, docCoun
   return out;
 }
 
-export const mapPositionsToReadout = (label, positions) =>
-  positions.map((p, i) => ({
+export const mapPositionsToReadout = (label, positions, precision = {}) => {
+  const inchesPrecision = Number.isFinite(precision.inches) ? precision.inches : 3;
+  const millimetersPrecision = Number.isFinite(precision.millimeters)
+    ? precision.millimeters
+    : DISPLAY_MILLIMETERS_PRECISION;
+  return positions.map((p, i) => ({
     label: `${label} ${i + 1}`,
-    inches: Number(p.toFixed(3)),
-    millimeters: inchesToMillimeters(p),
+    inches: Number(p.toFixed(inchesPrecision)),
+    millimeters: inchesToMillimeters(p, millimetersPrecision),
   }));
+};
 
 export function calculateFinishing(layout, options = {}) {
   const { layoutArea, counts, document, gutter } = layout;

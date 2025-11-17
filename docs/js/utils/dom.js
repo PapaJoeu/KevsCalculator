@@ -1,4 +1,4 @@
-import { inchesToMillimeters } from './units.js';
+import { inchesToMillimeters, DISPLAY_MILLIMETERS_PRECISION } from './units.js';
 
 export const $ = (selector) => document.querySelector(selector);
 export const $$ = (selector) => Array.from(document.querySelectorAll(selector));
@@ -99,16 +99,22 @@ export const setLayerVisibility = (layer, visible) => {
 
 export const getLayerVisibility = (layer) => layerVisibility[layer] ?? true;
 
+const formatDisplayValue = (value, precision) => {
+  if (!Number.isFinite(value)) return '—';
+  return value.toFixed(precision);
+};
+
 export const fillTable = (tbody, rows, type = 'measure') => {
   if (!tbody) return;
+  const mmPrecision = DISPLAY_MILLIMETERS_PRECISION;
   tbody.innerHTML = rows
     .map((row, index) => {
       const id = createMeasurementId(type, index);
       registerMeasurementId(id);
       const cells = [
         `<td>${row.label}</td>`,
-        `<td class="k">${row.inches.toFixed(3)}</td>`,
-        `<td class="k">${row.millimeters.toFixed(2)}</td>`,
+        `<td class="k">${formatDisplayValue(row.inches, 3)}</td>`,
+        `<td class="k">${formatDisplayValue(row.millimeters, mmPrecision)}</td>`,
       ];
       return `<tr class="viz-measure-row" data-measure-id="${id}" data-measure-type="${type}" data-measure-index="${index}">${cells.join('')}</tr>`;
     })
@@ -124,6 +130,7 @@ export const fillTable = (tbody, rows, type = 'measure') => {
 export const fillHoleTable = (tbody, holes = []) => {
   if (!tbody) return;
   const rows = Array.isArray(holes) ? holes : [];
+  const mmPrecision = DISPLAY_MILLIMETERS_PRECISION;
   tbody.innerHTML = rows
     .map((hole, index) => {
       const id = createMeasurementId('hole', index);
@@ -132,14 +139,17 @@ export const fillHoleTable = (tbody, holes = []) => {
       const x = Number(hole?.x ?? 0);
       const y = Number(hole?.y ?? 0);
       const diameter = Math.max(0, Number(hole?.diameter ?? 0));
+      const mmX = inchesToMillimeters(x, mmPrecision);
+      const mmY = inchesToMillimeters(y, mmPrecision);
+      const mmDiameter = inchesToMillimeters(diameter, mmPrecision);
       const cells = [
         `<td>${label}</td>`,
-        `<td class="k">${x.toFixed(3)}</td>`,
-        `<td class="k">${y.toFixed(3)}</td>`,
-        `<td class="k">${diameter.toFixed(3)}</td>`,
-        `<td class="k">${inchesToMillimeters(x).toFixed(2)}</td>`,
-        `<td class="k">${inchesToMillimeters(y).toFixed(2)}</td>`,
-        `<td class="k">${inchesToMillimeters(diameter).toFixed(2)}</td>`,
+        `<td class="k">${formatDisplayValue(x, 3)}</td>`,
+        `<td class="k">${formatDisplayValue(y, 3)}</td>`,
+        `<td class="k">${formatDisplayValue(diameter, 3)}</td>`,
+        `<td class="k">${formatDisplayValue(mmX, mmPrecision)}</td>`,
+        `<td class="k">${formatDisplayValue(mmY, mmPrecision)}</td>`,
+        `<td class="k">${formatDisplayValue(mmDiameter, mmPrecision)}</td>`,
       ];
       return `<tr class="viz-measure-row" data-measure-id="${id}" data-measure-type="hole" data-measure-index="${index}">${cells.join('')}</tr>`;
     })
