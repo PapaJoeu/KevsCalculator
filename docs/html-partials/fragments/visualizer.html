@@ -13,10 +13,13 @@
 <section class="layout-panel viz-shell layout-stack" data-gap="cozy">
   <div class="viz-layout">
     <div class="layout-card viz-stage viz-theme"><svg id="svg" width="960" height="600" viewBox="0 0 960 600" aria-label="sheet preview"></svg></div>
-    <aside class="layout-card layout-stack viz-layers print-hidden" data-gap="cozy" aria-label="Layer visibility">
+    <aside class="layout-card layout-stack viz-layers print-hidden" data-gap="cozy" aria-labelledby="vizLayerHeading">
+      <div class="viz-layers__header">
+        <p id="vizLayerHeading" class="viz-layers__title">Layer visibility</p>
+      </div>
       <div class="viz-toggle-list">
         <label class="viz-layer-toggle" data-layer="layout">
-          <input class="viz-layer-input" type="checkbox" data-layer="layout" checked />
+          <input class="viz-layer-input" type="checkbox" data-layer="layout" />
           <span class="viz-layer-label">
             <i class="viz-legend-swatch" data-layer="layout" aria-hidden="true"></i>
             <span>Layout Area</span>
@@ -37,35 +40,35 @@
           </span>
         </label>
         <label class="viz-layer-toggle" data-layer="cuts">
-          <input class="viz-layer-input" type="checkbox" data-layer="cuts" checked />
+          <input class="viz-layer-input" type="checkbox" data-layer="cuts" />
           <span class="viz-layer-label">
             <i class="viz-legend-swatch" data-layer="cuts" aria-hidden="true"></i>
             <span>Cuts</span>
           </span>
         </label>
         <label class="viz-layer-toggle" data-layer="slits">
-          <input class="viz-layer-input" type="checkbox" data-layer="slits" checked />
+          <input class="viz-layer-input" type="checkbox" data-layer="slits" />
           <span class="viz-layer-label">
             <i class="viz-legend-swatch" data-layer="slits" aria-hidden="true"></i>
             <span>Slits</span>
           </span>
         </label>
         <label class="viz-layer-toggle" data-layer="scores">
-          <input class="viz-layer-input" type="checkbox" data-layer="scores" checked />
+          <input class="viz-layer-input" type="checkbox" data-layer="scores" />
           <span class="viz-layer-label">
             <i class="viz-legend-swatch" data-layer="scores" aria-hidden="true"></i>
             <span>Scores</span>
           </span>
         </label>
         <label class="viz-layer-toggle" data-layer="perforations">
-          <input class="viz-layer-input" type="checkbox" data-layer="perforations" checked />
+          <input class="viz-layer-input" type="checkbox" data-layer="perforations" />
           <span class="viz-layer-label">
             <i class="viz-legend-swatch" data-layer="perforations" aria-hidden="true"></i>
             <span>Perforations</span>
           </span>
         </label>
         <label class="viz-layer-toggle" data-layer="holes">
-          <input class="viz-layer-input" type="checkbox" data-layer="holes" checked />
+          <input class="viz-layer-input" type="checkbox" data-layer="holes" />
           <span class="viz-layer-label">
             <i class="viz-legend-swatch" data-layer="holes" aria-hidden="true"></i>
             <span>Holes</span>

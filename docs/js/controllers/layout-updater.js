@@ -13,6 +13,7 @@ import {
   parseOffsets,
   readIntOptional,
   resetMeasurementRegistry,
+  autoActivateLayerVisibility,
 } from '../utils/dom.js';
 import { updateSummaryCalculators } from './summary-calculators.js';
 import {
@@ -182,6 +183,16 @@ export function update() {
   });
   layout.roundedCorners = readRoundedCorners();
   const programSequence = calculateProgramSequence(layout);
+
+  autoActivateLayerVisibility({
+    scores:
+      (fin.scores?.horizontal?.length ?? 0) > 0 ||
+      (fin.scores?.vertical?.length ?? 0) > 0,
+    perforations:
+      (fin.perforations?.horizontal?.length ?? 0) > 0 ||
+      (fin.perforations?.vertical?.length ?? 0) > 0,
+    holes: (fin.holes?.length ?? 0) > 0,
+  });
 
   updateDocCountField('#forceAcross', layout.counts.across);
   updateDocCountField('#forceDown', layout.counts.down);

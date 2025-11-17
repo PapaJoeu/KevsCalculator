@@ -7,15 +7,18 @@ export const $ = (selector) => document.querySelector(selector);
 export const $$ = (selector) => Array.from(document.querySelectorAll(selector));
 
 const layerVisibility = {
-  layout: true,
+  layout: false,
   docs: true,
   nonPrintable: true,
-  cuts: true,
-  slits: true,
-  scores: true,
-  perforations: true,
-  holes: true,
+  cuts: false,
+  slits: false,
+  scores: false,
+  perforations: false,
+  holes: false,
 };
+
+const AUTO_ACTIVATED_LAYERS = new Set(['scores', 'perforations', 'holes']);
+const userManagedLayers = new Set();
 
 const selectedMeasurements = new Set();
 let currentMeasurementIds = new Set();
@@ -84,6 +87,14 @@ export const restoreMeasurementSelections = () => {
   stale.forEach((id) => selectedMeasurements.delete(id));
 };
 
+const syncLayerInputState = (layer, checked) => {
+  $$(`.viz-layer-input[data-layer="${layer}"]`).forEach((input) => {
+    if (input.checked !== checked) {
+      input.checked = checked;
+    }
+  });
+};
+
 export const applyLayerVisibility = () => {
   const svg = $('#svg');
   if (!svg) return;
@@ -94,13 +105,34 @@ export const applyLayerVisibility = () => {
   });
 };
 
-export const setLayerVisibility = (layer, visible) => {
+export const setLayerVisibility = (layer, visible, { userInitiated = false } = {}) => {
   if (!(layer in layerVisibility)) return;
-  layerVisibility[layer] = Boolean(visible);
+  const normalized = Boolean(visible);
+  layerVisibility[layer] = normalized;
+  if (userInitiated) {
+    userManagedLayers.add(layer);
+  }
+  syncLayerInputState(layer, normalized);
   applyLayerVisibility();
 };
 
 export const getLayerVisibility = (layer) => layerVisibility[layer] ?? true;
+
+export const autoActivateLayerVisibility = (availability = {}) => {
+  let shouldApply = false;
+  Object.entries(availability).forEach(([layer, hasContent]) => {
+    if (!hasContent) return;
+    if (!AUTO_ACTIVATED_LAYERS.has(layer)) return;
+    if (userManagedLayers.has(layer)) return;
+    if (layerVisibility[layer]) return;
+    layerVisibility[layer] = true;
+    syncLayerInputState(layer, true);
+    shouldApply = true;
+  });
+  if (shouldApply) {
+    applyLayerVisibility();
+  }
+};
 
 export const fillTable = (tbody, rows, type = 'measure') => {
   if (!tbody) return;

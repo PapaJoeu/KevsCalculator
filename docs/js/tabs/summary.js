@@ -16,7 +16,7 @@ function init() {
     input.checked = initial;
     setLayerVisibility(layer, initial);
     input.addEventListener('change', (e) => {
-      setLayerVisibility(layer, e.target.checked);
+      setLayerVisibility(layer, e.target.checked, { userInitiated: true });
     });
   });
   applyLayerVisibility();
