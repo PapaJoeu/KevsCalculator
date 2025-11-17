@@ -7,12 +7,32 @@ A printable layout calculator prototype organized into a minimal static web proj
 ```
 .
 ├── docs/
-│   ├── index.html        # UI markup that links to bundled assets in /docs
+│   ├── index.html        # UI markup that pulls in compiled CSS/JS assets
 │   ├── css/
 │   │   └── style.css     # Layout and presentation styles for the calculator
 │   └── js/
-│       └── app.js        # Calculator logic, rendering helpers, and event bindings
+│       ├── bootstrap.js  # Loads HTML fragments/templates, then starts the controllers
+│       ├── calculator-app-controller.js
+│       │                   # Registers layout controllers and initializes tabs
+│       ├── controllers/   # Shared layout controller modules (update, status, etc.)
+│       └── tabs/          # Individual tab controllers plus the registry (tabs/registry.js)
 └── README.md             # Project overview
+```
+
+### Boot sequence overview
+
+```
+docs/js/bootstrap.js
+        │
+        ├─▶ loadFragments()  ─┐
+        ├─▶ loadTemplates()  ├─ prepares DOM partials/templates referenced by index.html
+        │                    │
+        └─▶ import('calculator-app-controller.js')
+                               │
+                               ├─ registerTabs({ update, status })
+                               │        └─ tabs/registry.js wires per-tab controllers
+                               │              and hydrates tab templates on activation
+                               └─ update() kicks the layout controllers once everything is wired
 ```
 
 Open `docs/index.html` in a browser to run the calculator.
