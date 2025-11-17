@@ -158,7 +158,7 @@ describe('finishing calculation helpers edge cases', () => {
     expect(result.perforations.vertical).toEqual([]);
   });
 
-  it('sanitizes offsets and handles zero gutters without duplicate cuts', () => {
+  it('sanitizes offsets for score generation', () => {
     const sanitized = generateScorePositions(1, 2, 0.5, 2, [
       -1,
       0,
@@ -170,7 +170,9 @@ describe('finishing calculation helpers edge cases', () => {
     ]);
 
     expect(sanitized).toEqual([1, 1, 1.4, 2.6, 3, 1, 3.5, 3.5, 3.9, 5.1, 5.5, 3.5]);
+  });
 
+  it('avoids duplicate cut positions for zero-gutter layouts', () => {
     const zeroGutterEdges = generateEdgePositions(0, 1, 0, 2);
     expect(new Set(zeroGutterEdges).size).toBe(zeroGutterEdges.length);
 
