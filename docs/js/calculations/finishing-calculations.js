@@ -206,10 +206,3 @@ export function calculateFinishing(layout, options = {}) {
   };
 }
 
-if (typeof console !== 'undefined') {
-  const regressionPositions = generateEdgePositions(0, 1, 0, 2);
-  console.assert(
-    regressionPositions.length === 3 && new Set(regressionPositions).size === 3,
-    'Expected unique cut positions for zero gutter layouts.'
-  );
-}

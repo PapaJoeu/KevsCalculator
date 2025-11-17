@@ -791,26 +791,6 @@ function attachKeyboardShortcut() {
   keydownHandlerAttached = true;
 }
 
-function runUnitConversionRegression() {
-  const initialUnits = currentUnitsSelection;
-  const alternateUnits = initialUnits === 'in' ? 'mm' : 'in';
-  const snapshot = numericInputSelectors
-    .map((selector) => {
-      const el = $(selector);
-      if (!el) return null;
-      return { selector, value: el.value, step: el.getAttribute('step') };
-    })
-    .filter(Boolean);
-  convertInputs(initialUnits, alternateUnits);
-  convertInputs(alternateUnits, initialUnits);
-  const mismatches = snapshot.filter(({ selector, value, step }) => {
-    const el = $(selector);
-    if (!el) return false;
-    return el.value !== value || el.getAttribute('step') !== step;
-  });
-  console.assert(mismatches.length === 0, 'Unit toggles should preserve numeric values and steps');
-}
-
 function init(context = {}) {
   hydrateTabPanel(TAB_KEY);
   storedContext = { ...storedContext, ...context };
@@ -826,7 +806,6 @@ function init(context = {}) {
   attachApplyButtons();
   attachKeyboardShortcut();
   applyDefaultInputs();
-  runUnitConversionRegression();
   initialized = true;
 }
 
@@ -854,6 +833,6 @@ export function getCurrentUnits() {
   return currentUnitsSelection;
 }
 
-export { setMeasurementInput };
+export { setMeasurementInput, convertInputs };
 
 export default inputsTab;
