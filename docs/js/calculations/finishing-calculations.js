@@ -1,4 +1,16 @@
-import { clampToZero, inchesToMillimeters } from '../utils/units.js';
+import { clampToZero, inchesToMillimeters, getUnitsPrecision } from '../utils/units.js';
+
+const DEFAULT_MEASUREMENT_PRECISION = {
+  inches: getUnitsPrecision('in'),
+  millimeters: getUnitsPrecision('mm'),
+};
+
+const normalizeMeasurementPrecision = (precision = {}) => ({
+  inches: Number.isFinite(precision.inches) ? precision.inches : DEFAULT_MEASUREMENT_PRECISION.inches,
+  millimeters: Number.isFinite(precision.millimeters)
+    ? precision.millimeters
+    : DEFAULT_MEASUREMENT_PRECISION.millimeters,
+});
 
 const VALID_HOLE_EDGES = new Set(['top', 'bottom', 'left', 'right']);
 const VALID_HOLE_ALIGNS = new Set(['start', 'center', 'end']);
@@ -151,12 +163,14 @@ export function generateScorePositions(startOffset, docSpan, gutterSpan, docCoun
   return out;
 }
 
-export const mapPositionsToReadout = (label, positions) =>
-  positions.map((p, i) => ({
+export const mapPositionsToReadout = (label, positions, precision) => {
+  const resolvedPrecision = normalizeMeasurementPrecision(precision);
+  return positions.map((p, i) => ({
     label: `${label} ${i + 1}`,
-    inches: Number(p.toFixed(3)),
-    millimeters: inchesToMillimeters(p),
+    inches: Number(p.toFixed(resolvedPrecision.inches)),
+    millimeters: inchesToMillimeters(p, resolvedPrecision.millimeters),
   }));
+};
 
 export function calculateFinishing(layout = {}, options = {}) {
   const layoutArea = layout?.layoutArea ?? {};
@@ -192,16 +206,17 @@ export function calculateFinishing(layout = {}, options = {}) {
     options.perforationVertical
   );
   const holes = generateHolePositions(layout, options.holePlan);
+  const measurementPrecision = normalizeMeasurementPrecision(options.measurementPrecision);
   return {
-    cuts: mapPositionsToReadout('Cut', hEdges),
-    slits: mapPositionsToReadout('Slit', vEdges),
+    cuts: mapPositionsToReadout('Cut', hEdges, measurementPrecision),
+    slits: mapPositionsToReadout('Slit', vEdges, measurementPrecision),
     scores: {
-      horizontal: mapPositionsToReadout('Score', hScores),
-      vertical: mapPositionsToReadout('Score', vScores),
+      horizontal: mapPositionsToReadout('Score', hScores, measurementPrecision),
+      vertical: mapPositionsToReadout('Score', vScores, measurementPrecision),
     },
     perforations: {
-      horizontal: mapPositionsToReadout('Perforation', hPerforations),
-      vertical: mapPositionsToReadout('Perforation', vPerforations),
+      horizontal: mapPositionsToReadout('Perforation', hPerforations, measurementPrecision),
+      vertical: mapPositionsToReadout('Perforation', vPerforations, measurementPrecision),
     },
     holes,
   };

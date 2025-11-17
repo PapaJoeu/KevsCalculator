@@ -1,4 +1,7 @@
-import { inchesToMillimeters } from './units.js';
+import { inchesToMillimeters, getUnitsPrecision } from './units.js';
+
+const INCH_PRECISION = getUnitsPrecision('in');
+const MILLIMETER_PRECISION = getUnitsPrecision('mm');
 
 export const $ = (selector) => document.querySelector(selector);
 export const $$ = (selector) => Array.from(document.querySelectorAll(selector));
@@ -107,8 +110,8 @@ export const fillTable = (tbody, rows, type = 'measure') => {
       registerMeasurementId(id);
       const cells = [
         `<td>${row.label}</td>`,
-        `<td class="k">${row.inches.toFixed(3)}</td>`,
-        `<td class="k">${row.millimeters.toFixed(2)}</td>`,
+        `<td class="k">${row.inches.toFixed(INCH_PRECISION)}</td>`,
+        `<td class="k">${row.millimeters.toFixed(MILLIMETER_PRECISION)}</td>`,
       ];
       return `<tr class="viz-measure-row" data-measure-id="${id}" data-measure-type="${type}" data-measure-index="${index}">${cells.join('')}</tr>`;
     })
@@ -134,12 +137,12 @@ export const fillHoleTable = (tbody, holes = []) => {
       const diameter = Math.max(0, Number(hole?.diameter ?? 0));
       const cells = [
         `<td>${label}</td>`,
-        `<td class="k">${x.toFixed(3)}</td>`,
-        `<td class="k">${y.toFixed(3)}</td>`,
-        `<td class="k">${diameter.toFixed(3)}</td>`,
-        `<td class="k">${inchesToMillimeters(x).toFixed(2)}</td>`,
-        `<td class="k">${inchesToMillimeters(y).toFixed(2)}</td>`,
-        `<td class="k">${inchesToMillimeters(diameter).toFixed(2)}</td>`,
+        `<td class="k">${x.toFixed(INCH_PRECISION)}</td>`,
+        `<td class="k">${y.toFixed(INCH_PRECISION)}</td>`,
+        `<td class="k">${diameter.toFixed(INCH_PRECISION)}</td>`,
+        `<td class="k">${inchesToMillimeters(x, MILLIMETER_PRECISION).toFixed(MILLIMETER_PRECISION)}</td>`,
+        `<td class="k">${inchesToMillimeters(y, MILLIMETER_PRECISION).toFixed(MILLIMETER_PRECISION)}</td>`,
+        `<td class="k">${inchesToMillimeters(diameter, MILLIMETER_PRECISION).toFixed(MILLIMETER_PRECISION)}</td>`,
       ];
       return `<tr class="viz-measure-row" data-measure-id="${id}" data-measure-type="hole" data-measure-index="${index}">${cells.join('')}</tr>`;
     })

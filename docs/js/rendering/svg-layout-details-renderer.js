@@ -1,7 +1,8 @@
-import { inchesToMillimeters } from '../utils/units.js';
+import { inchesToMillimeters, getUnitsPrecision } from '../utils/units.js';
 
 const SVG_NS = 'http://www.w3.org/2000/svg';
 const PRINT_DPI = 96;
+const MILLIMETER_PRECISION = getUnitsPrecision('mm');
 
 const INLINE_STYLE_MARKER = 'data-layout-details-style';
 
@@ -96,7 +97,7 @@ function formatDistanceInches(value, digits = 3) {
   return `${n.toFixed(digits)} in`;
 }
 
-function formatDistanceMillimeters(value, digits = 2) {
+function formatDistanceMillimeters(value, digits = MILLIMETER_PRECISION) {
   const n = Number(value);
   if (!Number.isFinite(n)) return '—';
   return `${n.toFixed(digits)} mm`;
@@ -105,8 +106,8 @@ function formatDistanceMillimeters(value, digits = 2) {
 function formatMeasurementPair(inches) {
   const n = Number(inches);
   if (!Number.isFinite(n)) return '—';
-  const mm = inchesToMillimeters(n);
-  return `${n.toFixed(3)} in (${mm.toFixed(2)} mm)`;
+  const mm = inchesToMillimeters(n, MILLIMETER_PRECISION);
+  return `${n.toFixed(3)} in (${mm.toFixed(MILLIMETER_PRECISION)} mm)`;
 }
 
 function formatPerSide(perSide = {}) {
