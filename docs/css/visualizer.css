@@ -126,6 +126,19 @@
   --layout-card-shadow: var(--shadow-lg);
 }
 
+.viz-layers__header {
+  padding-bottom: var(--space-2);
+  border-bottom: 1px solid var(--viz-layer-border);
+  margin-bottom: var(--space-2);
+}
+
+.viz-layers__title {
+  font-size: var(--font-sm);
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  margin: 0;
+}
+
 .viz-toggle-list { display: grid; gap: var(--space-2); }
 
 .viz-layer-toggle {
