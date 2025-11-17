@@ -133,6 +133,71 @@ describe('hole drilling generation', () => {
   });
 });
 
+describe('calculateFinishing layout resilience', () => {
+  it('returns empty measurement collections when layout is omitted', () => {
+    const result = calculateFinishing(undefined, {
+      scoreHorizontal: [0.5],
+      scoreVertical: [0.5],
+      perforationHorizontal: [0.25],
+      perforationVertical: [0.25],
+    });
+
+    expect(result).toEqual({
+      cuts: [],
+      slits: [],
+      scores: { horizontal: [], vertical: [] },
+      perforations: { horizontal: [], vertical: [] },
+      holes: [],
+    });
+  });
+
+  it('falls back to defaults when only partial layout data is provided', () => {
+    const layout = {
+      layoutArea: { originX: 1 },
+      counts: { across: 2 },
+      document: { width: 4 },
+    };
+
+    const result = calculateFinishing(layout, {
+      scoreVertical: [0.5],
+      perforationVertical: [0.25],
+    });
+
+    expect(result.cuts).toEqual([]);
+    expect(result.scores.horizontal).toEqual([]);
+    expect(result.perforations.horizontal).toEqual([]);
+
+    const expectedSlits = [1, 5, 9];
+    expect(result.slits).toEqual(
+      expectedSlits.map((value, index) => ({
+        label: `Slit ${index + 1}`,
+        inches: Number(value.toFixed(3)),
+        millimeters: mm(value),
+      }))
+    );
+
+    const expectedVerticalScores = [3, 7];
+    expect(result.scores.vertical).toEqual(
+      expectedVerticalScores.map((value, index) => ({
+        label: `Score ${index + 1}`,
+        inches: Number(value.toFixed(3)),
+        millimeters: mm(value),
+      }))
+    );
+
+    const expectedVerticalPerforations = [2, 6];
+    expect(result.perforations.vertical).toEqual(
+      expectedVerticalPerforations.map((value, index) => ({
+        label: `Perforation ${index + 1}`,
+        inches: Number(value.toFixed(3)),
+        millimeters: mm(value),
+      }))
+    );
+
+    expect(result.holes).toEqual([]);
+  });
+});
+
 describe('finishing calculation helpers edge cases', () => {
   it('returns empty arrays for zero documents', () => {
     expect(generateEdgePositions(0, 2, 0.5, 0)).toEqual([]);
