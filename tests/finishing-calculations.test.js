@@ -6,7 +6,7 @@ import {
   calculateFinishing,
 } from '../docs/js/calculations/finishing-calculations.js';
 
-const mm = (inches) => Number((inches * 25.4).toFixed(3));
+const mm = (inches, precision = 2) => Number((inches * 25.4).toFixed(precision));
 
 describe('finishing calculations integration', () => {
   it('produces mapped cut, slit, score, and perforation readouts for a representative layout', () => {
@@ -93,7 +93,7 @@ describe('finishing calculations integration', () => {
     ];
 
     readouts.forEach(({ inches, millimeters }) => {
-      expect(millimeters).toBeCloseTo(mm(inches), 3);
+      expect(millimeters).toBe(mm(inches));
     });
   });
 });
@@ -243,7 +243,23 @@ describe('finishing calculation helpers edge cases', () => {
 
     const readout = mapPositionsToReadout('Cut', zeroGutterEdges);
     readout.forEach(({ inches, millimeters }) => {
-      expect(millimeters).toBeCloseTo(mm(inches), 3);
+      expect(millimeters).toBe(mm(inches));
     });
+  });
+});
+
+describe('mapPositionsToReadout precision controls', () => {
+  it('rounds millimeters once to keep preview and print aligned', () => {
+    const value = 0.123456;
+    const [entry] = mapPositionsToReadout('Cut', [value]);
+    expect(entry.millimeters).toBe(mm(value));
+  });
+
+  it('honors custom precision overrides', () => {
+    const value = 1 / 3;
+    const precision = { inches: 4, millimeters: 3 };
+    const [entry] = mapPositionsToReadout('Cut', [value], precision);
+    expect(entry.inches).toBe(Number(value.toFixed(precision.inches)));
+    expect(entry.millimeters).toBe(mm(value, precision.millimeters));
   });
 });

@@ -1,4 +1,6 @@
-import { clampToZero, inchesToMillimeters } from './units.js';
+import { clampToZero, inchesToMillimeters, getUnitsPrecision } from './units.js';
+
+const MILLIMETER_PRECISION = getUnitsPrecision('mm');
 
 // Utility: convert any value to a finite number or fall back to zero.
 // Accepts strings, numbers, or undefined. Any non-numeric value becomes 0 so
@@ -217,7 +219,7 @@ export const calculateProgramSequence = (layout = {}) => {
       return {
         label: `Step ${index + 1}`,
         inches,
-        millimeters: inchesToMillimeters(inches),
+        millimeters: inchesToMillimeters(inches, MILLIMETER_PRECISION),
       };
     });
 };
