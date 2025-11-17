@@ -158,36 +158,37 @@ export const mapPositionsToReadout = (label, positions) =>
     millimeters: inchesToMillimeters(p),
   }));
 
-export function calculateFinishing(layout, options = {}) {
-  const { layoutArea, counts, document, gutter } = layout;
-  const hEdges = generateEdgePositions(layoutArea.originY, document.height, gutter.vertical, counts.down);
-  const vEdges = generateEdgePositions(layoutArea.originX, document.width, gutter.horizontal, counts.across);
-  const hScores = generateScorePositions(
-    layoutArea.originY,
-    document.height,
-    gutter.vertical,
-    counts.down,
-    options.scoreHorizontal
-  );
-  const vScores = generateScorePositions(
-    layoutArea.originX,
-    document.width,
-    gutter.horizontal,
-    counts.across,
-    options.scoreVertical
-  );
+export function calculateFinishing(layout = {}, options = {}) {
+  const layoutArea = layout?.layoutArea ?? {};
+  const counts = layout?.counts ?? {};
+  const document = layout?.document ?? {};
+  const gutter = layout?.gutter ?? {};
+
+  const originX = Number.isFinite(layoutArea.originX) ? layoutArea.originX : 0;
+  const originY = Number.isFinite(layoutArea.originY) ? layoutArea.originY : 0;
+  const docWidth = Number.isFinite(document.width) && document.width > 0 ? document.width : 0;
+  const docHeight = Number.isFinite(document.height) && document.height > 0 ? document.height : 0;
+  const horizontalGutter = Number.isFinite(gutter.horizontal) ? gutter.horizontal : 0;
+  const verticalGutter = Number.isFinite(gutter.vertical) ? gutter.vertical : 0;
+  const countAcross = Math.max(0, Number.isFinite(counts.across) ? counts.across : 0);
+  const countDown = Math.max(0, Number.isFinite(counts.down) ? counts.down : 0);
+
+  const hEdges = generateEdgePositions(originY, docHeight, verticalGutter, countDown);
+  const vEdges = generateEdgePositions(originX, docWidth, horizontalGutter, countAcross);
+  const hScores = generateScorePositions(originY, docHeight, verticalGutter, countDown, options.scoreHorizontal);
+  const vScores = generateScorePositions(originX, docWidth, horizontalGutter, countAcross, options.scoreVertical);
   const hPerforations = generateScorePositions(
-    layoutArea.originY,
-    document.height,
-    gutter.vertical,
-    counts.down,
+    originY,
+    docHeight,
+    verticalGutter,
+    countDown,
     options.perforationHorizontal
   );
   const vPerforations = generateScorePositions(
-    layoutArea.originX,
-    document.width,
-    gutter.horizontal,
-    counts.across,
+    originX,
+    docWidth,
+    horizontalGutter,
+    countAcross,
     options.perforationVertical
   );
   const holes = generateHolePositions(layout, options.holePlan);
