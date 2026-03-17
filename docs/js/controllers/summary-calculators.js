@@ -20,7 +20,7 @@ const INPUT_SELECTORS = [
   '#sheetPerPad',
 ];
 
-let isInitialized = false;
+let initialized = false;
 let autoNUp = 1;
 let pendingAutoNUp = null;
 
@@ -187,7 +187,7 @@ function ensureDefaultValues() {
 function applyAutoNUp(nextNUp) {
   const sanitized = Number.isFinite(nextNUp) ? Math.max(0, Math.floor(nextNUp)) : 0;
   autoNUp = sanitized;
-  if (!isInitialized) {
+  if (!initialized) {
     pendingAutoNUp = autoNUp;
     return;
   }
@@ -196,10 +196,10 @@ function applyAutoNUp(nextNUp) {
 }
 
 export function initializeSummaryCalculators() {
-  if (isInitialized) {
+  if (initialized) {
     return;
   }
-  isInitialized = true;
+  initialized = true;
   attachEventListeners();
   ensureDefaultValues();
   syncAutoFillInputs();

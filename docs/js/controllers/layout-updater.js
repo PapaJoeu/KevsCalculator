@@ -76,63 +76,42 @@ function currentInputs() {
   };
 }
 
-function readHolePlan() {
-  const el = $('#holePlanData');
-  if (!el) {
-    return { preset: 'none', size: 0, entries: [] };
-  }
-  const raw = el.value;
-  if (!raw) {
-    return { preset: 'none', size: 0, entries: [] };
-  }
+function readJsonInput(selector, defaultValue) {
+  const el = $(selector);
+  if (!el?.value) return defaultValue;
   try {
-    const parsed = JSON.parse(raw);
-    if (!parsed || typeof parsed !== 'object') {
-      return { preset: 'none', size: 0, entries: [] };
-    }
-    const preset = typeof parsed.preset === 'string' ? parsed.preset : 'none';
-    const size = Number(parsed.size);
-    const entries = Array.isArray(parsed.entries) ? parsed.entries : [];
-    return {
-      preset,
-      size: Number.isFinite(size) ? size : 0,
-      entries,
-    };
-  } catch (error) {
-    console.error('Failed to parse hole plan data', error);
-    return { preset: 'none', size: 0, entries: [] };
+    const parsed = JSON.parse(el.value);
+    return (parsed && typeof parsed === 'object') ? parsed : defaultValue;
+  } catch {
+    console.error(`Failed to parse JSON from ${selector}`);
+    return defaultValue;
   }
 }
 
+function readHolePlan() {
+  const defaults = { preset: 'none', size: 0, entries: [] };
+  const parsed = readJsonInput('#holePlanData', defaults);
+  if (parsed === defaults) return defaults;
+  const preset = typeof parsed.preset === 'string' ? parsed.preset : 'none';
+  const size = Number(parsed.size);
+  const entries = Array.isArray(parsed.entries) ? parsed.entries : [];
+  return { preset, size: Number.isFinite(size) ? size : 0, entries };
+}
+
 function readRoundedCorners() {
-  const defaultCorners = { topLeft: 0, topRight: 0, bottomRight: 0, bottomLeft: 0 };
-  const el = $('#roundedCornersData');
-  if (!el) {
-    return defaultCorners;
-  }
-  const raw = el.value;
-  if (!raw) {
-    return defaultCorners;
-  }
-  try {
-    const parsed = JSON.parse(raw);
-    if (!parsed || typeof parsed !== 'object') {
-      return defaultCorners;
-    }
-    const coerce = (value) => {
-      const numeric = Number(value);
-      return Number.isFinite(numeric) && numeric > 0 ? numeric : 0;
-    };
-    return {
-      topLeft: coerce(parsed.topLeft),
-      topRight: coerce(parsed.topRight),
-      bottomRight: coerce(parsed.bottomRight),
-      bottomLeft: coerce(parsed.bottomLeft),
-    };
-  } catch (error) {
-    console.error('Failed to parse rounded corner data', error);
-    return defaultCorners;
-  }
+  const defaults = { topLeft: 0, topRight: 0, bottomRight: 0, bottomLeft: 0 };
+  const parsed = readJsonInput('#roundedCornersData', defaults);
+  if (parsed === defaults) return defaults;
+  const coerce = (value) => {
+    const numeric = Number(value);
+    return Number.isFinite(numeric) && numeric > 0 ? numeric : 0;
+  };
+  return {
+    topLeft: coerce(parsed.topLeft),
+    topRight: coerce(parsed.topRight),
+    bottomRight: coerce(parsed.bottomRight),
+    bottomLeft: coerce(parsed.bottomLeft),
+  };
 }
 
 export function status(txt) {

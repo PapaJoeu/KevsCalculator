@@ -8,6 +8,8 @@ export const normalizePerSide = (s = {}) => ({
 });
 
 export function createCalculationContext({ sheet, document, gutter, margins = {}, nonPrintable = {} }) {
+  // Abbreviations: sw/sh = sheet width/height, dw/dh = document width/height,
+  // gh/gv = gutter horizontal/vertical, m = margins, np = non-printable area
   const m = normalizePerSide(margins);
   const np = normalizePerSide(nonPrintable);
   const sw = toNumber(sheet?.width),

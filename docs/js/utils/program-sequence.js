@@ -1,14 +1,7 @@
 import { clampToZero, inchesToMillimeters, getUnitsPrecision } from './units.js';
+import { toFiniteNumber as toFinite } from './numbers.js';
 
 const MILLIMETER_PRECISION = getUnitsPrecision('mm');
-
-// Utility: convert any value to a finite number or fall back to zero.
-// Accepts strings, numbers, or undefined. Any non-numeric value becomes 0 so
-// downstream math never receives NaN or Infinity.
-const toFinite = (value) => {
-  const n = Number(value);
-  return Number.isFinite(n) ? n : 0;
-};
 
 // Utility: iterate through candidate values and return the first finite number.
 // This mirrors how the historical code would fall back from realized margins to
