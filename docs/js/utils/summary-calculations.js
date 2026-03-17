@@ -1,5 +1,4 @@
-const sanitizeInteger = (value) => Math.max(0, Math.floor(Number(value) || 0));
-const sanitizeFloat = (value) => Math.max(0, Number(value) || 0);
+import { sanitizeInteger, sanitizeFloat } from './numbers.js';
 
 export const calculatePadTotals = ({ padCount = 0, sheetsPerPad = 0, nUp = 0 } = {}) => {
   const pads = sanitizeInteger(padCount);

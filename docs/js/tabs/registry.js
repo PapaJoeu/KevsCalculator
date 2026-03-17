@@ -3,7 +3,7 @@ const DEFAULT_TAB_KEY = 'inputs';
 const tabModules = new Map();
 let activeTabKey = null;
 let fallbackTabKey = DEFAULT_TAB_KEY;
-let isInitialized = false;
+let initialized = false;
 
 const getTabTrigger = (key) =>
   typeof document !== 'undefined'
@@ -105,11 +105,11 @@ export function initializeTabRegistry(options = {}) {
     fallbackTabKey = defaultTab;
   }
 
-  if (!isInitialized && typeof document !== 'undefined') {
+  if (!initialized && typeof document !== 'undefined') {
     document.querySelectorAll('.tabs-trigger').forEach((trigger) => {
       trigger.addEventListener('click', () => activateTab(trigger.dataset.tab));
     });
-    isInitialized = true;
+    initialized = true;
   }
 
   const initiallyActive = typeof document !== 'undefined'

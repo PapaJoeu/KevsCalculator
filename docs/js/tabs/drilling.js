@@ -1,4 +1,5 @@
 import { $ } from '../utils/dom.js';
+import { toFiniteNumber } from '../utils/numbers.js';
 import { hydrateTabPanel } from './registry.js';
 
 const TAB_KEY = 'drilling';
@@ -56,10 +57,7 @@ let currentConfig = {
 const getUpdate = () => storedContext.update ?? (() => {});
 const getStatus = () => storedContext.status ?? (() => {});
 
-const toNumber = (value, fallback = 0) => {
-  const numeric = Number(value);
-  return Number.isFinite(numeric) ? numeric : fallback;
-};
+const toNumber = (value, fallback = 0) => toFiniteNumber(value, fallback);
 
 const normalizeEntry = (entry = {}) => {
   const edge = EDGE_OPTIONS.some((opt) => opt.value === entry.edge) ? entry.edge : 'left';

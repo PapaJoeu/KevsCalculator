@@ -2,10 +2,7 @@ export const MM_PER_INCH = 25.4;
 
 export const clampToZero = (value) => Math.max(0, value);
 
-export const toNumber = (value) => {
-  const n = Number(value);
-  return Number.isFinite(n) ? n : 0;
-};
+export { toFiniteNumber as toNumber } from './numbers.js';
 
 export const trimTrailingZeros = (str) => {
   if (typeof str !== 'string' || !str.includes('.')) return str;
