@@ -206,4 +206,5 @@ th { color: var(--color-text-secondary); font-weight: 500; letter-spacing: 0.02e
   .layout-panel { padding: var(--space-3); }
   .layout-card { padding: var(--space-3); }
   .layout-stack[data-gap="spacious"] { --stack-gap: var(--space-5); }
+  .form-row[data-cols="2"] { grid-template-columns: 1fr; }
 }
