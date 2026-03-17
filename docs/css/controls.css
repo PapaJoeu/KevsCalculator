@@ -76,6 +76,14 @@ input[type="number"].form-control { text-align: right; }
   gap: var(--space-3);
 }
 
+.form-group-heading {
+  font-size: var(--font-md);
+  font-weight: 600;
+  color: var(--color-text-primary);
+  letter-spacing: 0.01em;
+  margin: 0;
+}
+
 .form-section > h2 { font-size: var(--font-sm); font-weight: 600; letter-spacing: 0.02em; text-transform: uppercase; color: var(--color-text-secondary); }
 
 .form-row {
@@ -84,6 +92,7 @@ input[type="number"].form-control { text-align: right; }
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
 }
 
+.form-row[data-cols="2"] { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .form-row[data-cols="4"] { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 
 .form-row[data-variant="with-action"] {
