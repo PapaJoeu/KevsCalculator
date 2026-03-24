@@ -6,6 +6,191 @@ finishing positions (cuts, slits, scores, perforations, holes).
 
 ---
 
+## 0. Platform & Design Requirements
+
+### 0.1 Tech Stack
+- **HTML + CSS + JavaScript** — no framework required; vanilla JS is fine
+- Static file delivery (no build step needed, though a bundler is acceptable)
+
+### 0.2 Responsive Layout
+- **Desktop-first priority** — show as much information simultaneously as possible
+  (e.g., inputs panel + visualizer + results tables side-by-side)
+- **Mobile supported** — panels stack vertically; tabs or accordion collapse for
+  space; visualizer scales down proportionally
+- Breakpoint strategy: single column below ~768 px, multi-column above
+
+### 0.3 Presets System
+- Presets exist for: sheet sizes, document sizes, gutters, score types
+- User can **add custom presets** for complete configurations (all inputs saved as
+  a named slot)
+- Presets are filterable by unit system (imperial vs. metric)
+- Preset data should be stored in a simple JS object or JSON so it is easy to
+  extend
+
+### 0.4 Unit Handling
+- Global unit toggle: **Imperial (in)** ↔ **Metric (mm)**
+- **Per-field unit suffix override**: while in imperial mode a user can type
+  `540 mm` (or `540mm`) into any measurement field and the value is
+  automatically converted to inches on blur/enter. Likewise `2.5 in` while in
+  metric mode converts to mm.
+- Internally all values are stored as canonical inches; display-only conversion
+  happens at render time to avoid compounding rounding errors.
+- Precision: inches → 4 decimal places; mm → 2 decimal places
+
+---
+
+## 13. CSS Architecture — Three Approaches
+
+Below are three distinct strategies for structuring the stylesheet. Pick one
+before starting; mixing them mid-project causes maintenance pain.
+
+---
+
+### Approach A — Utility-First (Tailwind-style, hand-rolled)
+
+**What it is:** A large set of single-purpose helper classes. Markup drives
+layout and style by composing many small classes directly in HTML.
+
+```html
+<!-- Example -->
+<div class="flex gap-4 p-6 bg-surface rounded-md shadow-sm">
+  <label class="text-sm font-medium text-label w-32">Sheet Width</label>
+  <input class="input w-24 text-right" />
+  <span class="text-muted text-sm self-center">in</span>
+</div>
+```
+
+**Class naming examples:**
+- Layout: `flex`, `grid`, `col-span-2`, `gap-2`, `p-4`, `mt-2`
+- Typography: `text-sm`, `font-bold`, `text-muted`, `text-label`
+- Surfaces: `bg-surface`, `bg-panel`, `rounded-md`, `shadow-sm`
+- State: `is-active`, `is-error`, `is-hidden`
+
+**Pros:**
+- Almost no CSS to write after the utility layer is defined
+- Easy to iterate on layout in HTML without touching CSS
+- No class-name collision risk
+- Natural fit for a responsive multi-column desktop layout
+
+**Cons:**
+- HTML becomes verbose and harder to read at a glance
+- Requires discipline to keep utility definitions DRY
+- Custom components (e.g., the SVG visualizer container) still need
+  one-off rules
+
+**Best for:** Rapid UI prototyping, developers comfortable reading dense markup,
+projects where the HTML is the design source of truth.
+
+---
+
+### Approach B — BEM (Block–Element–Modifier)
+
+**What it is:** A naming convention that encodes component hierarchy directly
+in class names. Each component is a "block", its parts are "elements" (`__`),
+and variants are "modifiers" (`--`).
+
+```html
+<!-- Example -->
+<div class="input-group input-group--inline">
+  <label class="input-group__label">Sheet Width</label>
+  <input class="input-group__field input-group__field--numeric" />
+  <span class="input-group__unit">in</span>
+</div>
+```
+
+**Class naming examples:**
+- `calc-panel`, `calc-panel--collapsed`
+- `preset-select`, `preset-select__option`, `preset-select__option--active`
+- `visualizer`, `visualizer__layer`, `visualizer__layer--hidden`
+- `program-table`, `program-table__row`, `program-table__row--highlight`
+
+**Pros:**
+- CSS is completely self-documenting; class names tell you what and where
+- Low specificity (all single-class selectors) — easy to override
+- Works well with a component-per-file CSS organisation
+- Industry standard — easy to hand off
+
+**Cons:**
+- Class names can get very long (`calc-panel__header__title--truncated`)
+- Requires up-front component decomposition; can feel over-engineered for
+  small one-off elements
+- No built-in layout utilities — you still need some helper classes or a
+  small reset/grid system alongside it
+
+**Best for:** Projects with multiple contributors, when component reuse across
+pages is planned, or when maintainability over time is the top concern.
+
+---
+
+### Approach C — CSS Custom Properties + Scoped Component Classes (Hybrid)
+
+**What it is:** A middle path. A token layer (CSS custom properties) defines
+the design system (colors, spacing, radii, type scale). Components get short,
+readable class names. A small set of layout utilities handles flex/grid
+without going full utility-first.
+
+```css
+/* tokens.css */
+:root {
+  --color-surface: #1e1e2e;
+  --color-label:   #cdd6f4;
+  --space-4:       1rem;
+  --radius-md:     0.375rem;
+}
+
+/* input-group.css */
+.input-group           { display: flex; align-items: center; gap: var(--space-2); }
+.input-group__label    { color: var(--color-label); font-size: var(--text-sm); }
+.input-group__field    { … }
+.input-group__unit     { color: var(--color-muted); }
+```
+
+```html
+<!-- Example -->
+<div class="input-group">
+  <label class="input-group__label">Sheet Width</label>
+  <input class="input-group__field" />
+  <span class="input-group__unit">in</span>
+</div>
+```
+
+**Pros:**
+- Tokens make theming (dark/light mode, brand changes) trivial — one variable
+  change propagates everywhere
+- Components are readable and compact without being BEM-verbose
+- Easy to expose theme controls to users (e.g., a dark-mode toggle just swaps
+  a `data-theme` attribute on `<html>`)
+- Custom properties are inspectable in DevTools, which helps debugging layout
+
+**Cons:**
+- Slightly more upfront setup (defining the token system)
+- Without discipline, component files can still accumulate one-off rules
+- IE11 does not support custom properties (not a concern for a modern tool)
+
+**Best for:** Solo or small-team projects that value clean, maintainable CSS
+and want an easy path to dark/light theming or future visual refresh.
+
+---
+
+### Recommendation
+
+For this project — a single-page tool, desktop+mobile, built by one or a few
+developers — **Approach C (Hybrid tokens + scoped components)** is the most
+practical. It gives you:
+
+1. A coherent design system through tokens (spacing, color, type) without
+   needing an external framework
+2. Short, readable component classes for the many repeated patterns
+   (input groups, preset dropdowns, result tables, visualizer layers)
+3. Straightforward dark/light mode via a single `data-theme` swap
+4. Easy to add a small set of layout utilities (`flex`, `gap-*`, `col-span-*`)
+   without committing to a full utility framework
+
+If you anticipate handing this off or want the most industry-standard approach,
+choose **Approach B (BEM)** instead.
+
+---
+
 ## 1. Inputs
 
 ### 1.1 Sheet
