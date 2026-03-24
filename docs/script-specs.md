@@ -39,155 +39,215 @@ finishing positions (cuts, slits, scores, perforations, holes).
 
 ---
 
-## 13. CSS Architecture — Three Approaches
+## 13. JS Architecture — Three Approaches
 
-Below are three distinct strategies for structuring the stylesheet. Pick one
-before starting; mixing them mid-project causes maintenance pain.
+The core challenge: inputs, presets, unit conversion, layout calculations, the
+visualizer, the cutting program, and the results tables all share the same data.
+A change to any input must propagate consistently to every consumer. The three
+approaches below differ in *how that shared state flows*.
 
 ---
 
-### Approach A — Utility-First (Tailwind-style, hand-rolled)
+### Approach A — Single State Object + Recalculate-on-Change
 
-**What it is:** A large set of single-purpose helper classes. Markup drives
-layout and style by composing many small classes directly in HTML.
+**What it is:** One plain JS object (`state`) holds every canonical value
+(always in inches). Every input change calls `setState(patch)`, which merges
+the patch, runs the full calculation pipeline, then calls `render()`. Render
+functions read from `state` and write directly to the DOM.
 
-```html
-<!-- Example -->
-<div class="flex gap-4 p-6 bg-surface rounded-md shadow-sm">
-  <label class="text-sm font-medium text-label w-32">Sheet Width</label>
-  <input class="input w-24 text-right" />
-  <span class="text-muted text-sm self-center">in</span>
-</div>
+```js
+// state.js
+const state = {
+  unit: 'imperial',
+  sheet:    { w: 12, h: 18 },
+  doc:      { w: 3.5, h: 2 },
+  gutter:   { h: 0.125, v: 0.125 },
+  margins:  { auto: true, t: 0, r: 0, b: 0, l: 0 },
+  nonPrint: { t: 0.0625, r: 0.0625, b: 0.0625, l: 0.0625 },
+  // ... results populated by calculate()
+};
+
+function setState(patch) {
+  Object.assign(state, patch);   // shallow merge (use deep for nested)
+  calculate(state);              // mutates state.results.*
+  renderAll(state);              // pushes values into DOM
+}
 ```
 
-**Class naming examples:**
-- Layout: `flex`, `grid`, `col-span-2`, `gap-2`, `p-4`, `mt-2`
-- Typography: `text-sm`, `font-bold`, `text-muted`, `text-label`
-- Surfaces: `bg-surface`, `bg-panel`, `rounded-md`, `shadow-sm`
-- State: `is-active`, `is-error`, `is-hidden`
-
-**Pros:**
-- Almost no CSS to write after the utility layer is defined
-- Easy to iterate on layout in HTML without touching CSS
-- No class-name collision risk
-- Natural fit for a responsive multi-column desktop layout
-
-**Cons:**
-- HTML becomes verbose and harder to read at a glance
-- Requires discipline to keep utility definitions DRY
-- Custom components (e.g., the SVG visualizer container) still need
-  one-off rules
-
-**Best for:** Rapid UI prototyping, developers comfortable reading dense markup,
-projects where the HTML is the design source of truth.
-
----
-
-### Approach B — BEM (Block–Element–Modifier)
-
-**What it is:** A naming convention that encodes component hierarchy directly
-in class names. Each component is a "block", its parts are "elements" (`__`),
-and variants are "modifiers" (`--`).
-
-```html
-<!-- Example -->
-<div class="input-group input-group--inline">
-  <label class="input-group__label">Sheet Width</label>
-  <input class="input-group__field input-group__field--numeric" />
-  <span class="input-group__unit">in</span>
-</div>
+```
+Input event → setState() → calculate() → renderAll()
+                                │
+                     ┌──────────┼──────────┐
+                  renderVisualizer  renderTable  renderProgram
 ```
 
-**Class naming examples:**
-- `calc-panel`, `calc-panel--collapsed`
-- `preset-select`, `preset-select__option`, `preset-select__option--active`
-- `visualizer`, `visualizer__layer`, `visualizer__layer--hidden`
-- `program-table`, `program-table__row`, `program-table__row--highlight`
-
 **Pros:**
-- CSS is completely self-documenting; class names tell you what and where
-- Low specificity (all single-class selectors) — easy to override
-- Works well with a component-per-file CSS organisation
-- Industry standard — easy to hand off
+- Dead simple to trace a bug: one function call chain, no indirection
+- Easy to serialize the whole app state (for presets / undo)
+- Calculation is a pure function: `calculate(state)` → predictable, testable
+- No dependencies — 100% vanilla JS
 
 **Cons:**
-- Class names can get very long (`calc-panel__header__title--truncated`)
-- Requires up-front component decomposition; can feel over-engineered for
-  small one-off elements
-- No built-in layout utilities — you still need some helper classes or a
-  small reset/grid system alongside it
+- `renderAll()` re-renders every panel even when only one changed — fine for
+  this tool's scale, but worth noting
+- As inputs grow, `setState` callers must know the correct nested key path
+- No automatic dependency tracking; you manually decide what to re-render
 
-**Best for:** Projects with multiple contributors, when component reuse across
-pages is planned, or when maintainability over time is the top concern.
+**Best for:** Straightforward single-page tools, solo devs, when debuggability
+and simplicity are the priority.
 
 ---
 
-### Approach C — CSS Custom Properties + Scoped Component Classes (Hybrid)
+### Approach B — Event Bus (Publish / Subscribe)
 
-**What it is:** A middle path. A token layer (CSS custom properties) defines
-the design system (colors, spacing, radii, type scale). Components get short,
-readable class names. A small set of layout utilities handles flex/grid
-without going full utility-first.
+**What it is:** A tiny event bus sits at the centre. Input modules *publish*
+change events. The calculation engine *subscribes* to input events, computes,
+and *publishes* result events. The visualizer, cutting program, and result
+tables each *subscribe* only to the result events they care about. Modules
+never import each other directly.
 
-```css
-/* tokens.css */
-:root {
-  --color-surface: #1e1e2e;
-  --color-label:   #cdd6f4;
-  --space-4:       1rem;
-  --radius-md:     0.375rem;
+```js
+// bus.js
+const bus = {
+  _listeners: {},
+  on(event, fn) { (this._listeners[event] ??= []).push(fn); },
+  emit(event, data) { (this._listeners[event] ?? []).forEach(fn => fn(data)); }
+};
+
+// inputs.js
+sheetWidthInput.addEventListener('input', e => {
+  bus.emit('input:sheet', { w: parseInches(e.target.value) });
+});
+
+// calculator.js
+bus.on('input:sheet', ({ w }) => {
+  store.sheet.w = w;
+  const results = calculate(store);
+  bus.emit('results:layout', results.layout);
+  bus.emit('results:program', results.program);
+});
+
+// visualizer.js
+bus.on('results:layout', layout => drawVisualizer(layout));
+
+// cuttingProgram.js
+bus.on('results:program', program => renderTable(program));
+```
+
+```
+[Input module] --emit('input:sheet')--> [Calculator]
+                                             │
+                          ┌──────────────────┤
+                   emit('results:layout')  emit('results:program')
+                          │                  │
+                    [Visualizer]       [CuttingProgram]
+```
+
+**Pros:**
+- Modules are fully decoupled — easy to add a new output panel without
+  touching any existing code
+- Clear ownership: each module handles exactly one concern
+- Easy to log every event for debugging (`bus.on('*', console.log)`)
+- Scales well if the tool gains more independent panels
+
+**Cons:**
+- Data flow is implicit — you must trace events to understand what triggers what
+- Shared mutable `store` inside the calculator module is still needed
+- Risk of event naming drift if not documented (`input:sheet` vs `sheet:input`)
+- Slightly more boilerplate per input field
+
+**Best for:** Tools expected to grow significantly, when panels/modules are
+likely to be added or swapped by different people.
+
+---
+
+### Approach C — Reactive Store with Derived State (Signal-like)
+
+**What it is:** A lightweight reactive store where *derived values*
+(calculations) automatically recompute when their upstream inputs change.
+Consumers subscribe to specific slices. Similar in spirit to Vue's `computed`
+or a hand-rolled signal system — no framework needed.
+
+```js
+// store.js
+function createStore(initial) {
+  const subs = {};
+  const state = new Proxy({ ...initial }, {
+    set(obj, key, val) {
+      obj[key] = val;
+      (subs[key] ?? []).forEach(fn => fn(val, obj));
+      return true;
+    }
+  });
+  return {
+    state,
+    on(key, fn) { (subs[key] ??= []).push(fn); }
+  };
 }
 
-/* input-group.css */
-.input-group           { display: flex; align-items: center; gap: var(--space-2); }
-.input-group__label    { color: var(--color-label); font-size: var(--text-sm); }
-.input-group__field    { … }
-.input-group__unit     { color: var(--color-muted); }
+const { state, on } = createStore({
+  sheetW: 12, sheetH: 18,
+  docW: 3.5,  docH: 2,
+  gutterH: 0.125, gutterV: 0.125,
+  // derived — recalculated automatically:
+  layout: null, program: null
+});
+
+// calculator.js — subscribe to any raw input and push derived results
+['sheetW','sheetH','docW','docH','gutterH','gutterV'].forEach(key => {
+  on(key, () => {
+    state.layout  = calcLayout(state);   // triggers layout subscribers
+    state.program = calcProgram(state);  // triggers program subscribers
+  });
+});
+
+// visualizer.js
+on('layout',  layout  => drawVisualizer(layout));
+on('program', program => renderTable(program));
+
+// Input binding
+sheetWidthInput.addEventListener('input', e => {
+  state.sheetW = parseInches(e.target.value);  // triggers chain automatically
+});
 ```
 
-```html
-<!-- Example -->
-<div class="input-group">
-  <label class="input-group__label">Sheet Width</label>
-  <input class="input-group__field" />
-  <span class="input-group__unit">in</span>
-</div>
+```
+state.sheetW = x
+      │  (Proxy setter fires)
+      ▼
+  calculator subscriber
+      ├── state.layout  = calcLayout(state)   → visualizer subscriber
+      └── state.program = calcProgram(state)  → program subscriber
 ```
 
 **Pros:**
-- Tokens make theming (dark/light mode, brand changes) trivial — one variable
-  change propagates everywhere
-- Components are readable and compact without being BEM-verbose
-- Easy to expose theme controls to users (e.g., a dark-mode toggle just swaps
-  a `data-theme` attribute on `<html>`)
-- Custom properties are inspectable in DevTools, which helps debugging layout
+- Input → derived result flow is automatic and explicit in one place
+- Adding a new derived value is one function + one `on()` call
+- Fine-grained: only subscribers to changed keys re-run (efficient)
+- Clean separation: raw inputs vs. derived results are clearly distinct
+- Serializing the store for presets is straightforward (filter out derived keys)
 
 **Cons:**
-- Slightly more upfront setup (defining the token system)
-- Without discipline, component files can still accumulate one-off rules
-- IE11 does not support custom properties (not a concern for a modern tool)
+- Proxy-based reactivity can surprise developers unfamiliar with it
+- Circular dependencies (derived A depending on derived B and vice versa)
+  must be avoided manually
+- Slightly harder to step through in a debugger than a direct function call
 
-**Best for:** Solo or small-team projects that value clean, maintainable CSS
-and want an easy path to dark/light theming or future visual refresh.
+**Best for:** Tools where multiple derived values depend on overlapping input
+subsets and you want dependency tracking without pulling in a framework.
 
 ---
 
 ### Recommendation
 
-For this project — a single-page tool, desktop+mobile, built by one or a few
-developers — **Approach C (Hybrid tokens + scoped components)** is the most
-practical. It gives you:
+**Approach A** is the right starting point. The calculation chain is linear
+(`inputs → layout → program → render`), the state is small, and simplicity
+wins. Serialize `state` directly to JSON for preset save/load.
 
-1. A coherent design system through tokens (spacing, color, type) without
-   needing an external framework
-2. Short, readable component classes for the many repeated patterns
-   (input groups, preset dropdowns, result tables, visualizer layers)
-3. Straightforward dark/light mode via a single `data-theme` swap
-4. Easy to add a small set of layout utilities (`flex`, `gap-*`, `col-span-*`)
-   without committing to a full utility framework
-
-If you anticipate handing this off or want the most industry-standard approach,
-choose **Approach B (BEM)** instead.
+Upgrade to **Approach C** if the tool gains several independent derived outputs
+that depend on different input subsets — the automatic propagation pays off.
+**Approach B** is best reserved for cases where multiple developers own
+separate panels and need hard module boundaries.
 
 ---
 
